@@ -23,7 +23,7 @@ DATABASES = {
         'PASSWORD': 'masterkey',                  # Not used with sqlite3.
         'HOST': 'localhost',                      # Set to empty string for localhost. Not used with sqlite3.
         'PORT': '3050',                      # Set to empty string for default. Not used with sqlite3.
-        'charset':'utf-8',  #If is not defined, use default UNICODE_FSS
+        'OPTIONS' : {'charset':'ISO8859_1'},
     }
 }
 
