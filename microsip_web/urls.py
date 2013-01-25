@@ -12,7 +12,9 @@ urlpatterns = patterns('',
     # Examples:
     # url(r'^$', 'microsip_web.views.home', name='home'),
     # url(r'^microsip_web/', include('microsip_web.foo.urls')),
-
+    #INVENTARIOS FISICOS
+    (r'^InventarioFisico/$', views.DoctosInDet_manage_inlineView),
+    (r'^InventarioFisico/(?P<id>\d+)/', views.DoctosInDet_manage_inlineView),
     # Uncomment the admin/doc line below to enable admin documentation:
     # url(r'^admin/doc/', include('django.contrib.admindocs.urls')),
 

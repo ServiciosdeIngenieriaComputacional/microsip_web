@@ -53,6 +53,7 @@ class DoctosInvfisDetManageForm(forms.ModelForm):
 	class Meta:
 		model = DoctosInDet
 		exclude = (
+			'claveArticulo',
 			)
 
 class XLSXInventarioForm(forms.Form):
@@ -60,3 +61,6 @@ class XLSXInventarioForm(forms.Form):
 
 def get_DoctosIn_items_formset(form, formset = BaseInlineFormSet, **kwargs):
 	return inlineformset_factory(DoctosIn, DoctosInDet, form, formset, **kwargs)
+
+def inventarioFisico_items_formset(form, formset = BaseInlineFormSet, **kwargs):
+	return inlineformset_factory(DoctosInvfis, DoctosInvfisDet, form, formset, **kwargs)
