@@ -36,8 +36,10 @@ class DoctosInDetManageForm(forms.ModelForm):
 			'fecha',)
 
 class DoctosInvfisManageForm(forms.ModelForm):
+	file_inventario = forms.CharField(widget=forms.FileInput)
+	
 	class Meta:
-		model = DoctosIn
+		model = DoctosInvfis
 		exclude = (
 			'cancelado',
 			'aplicado',
@@ -51,7 +53,7 @@ class DoctosInvfisManageForm(forms.ModelForm):
 
 class DoctosInvfisDetManageForm(forms.ModelForm):
 	class Meta:
-		model = DoctosInDet
+		model = DoctosInvfisDet
 		exclude = (
 			'claveArticulo',
 			)
