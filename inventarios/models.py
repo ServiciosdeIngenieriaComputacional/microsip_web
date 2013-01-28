@@ -132,7 +132,20 @@ class Ciudades(models.Model):
     class Meta:
         db_table = u'ciudades'
 
+class RolesClavesArticulos(models.Model):
+    id = models.AutoField(primary_key=True, db_column='ROL_CLAVE_ART_ID')
+    nombre = models.CharField(max_length=50, db_column='NOMBRE')
+    es_ppal = models.CharField(default='N', max_length=1, db_column='ES_PPAL')
+    
+    class Meta:
+        db_table = u'roles_claves_articulos'
+
 class ClavesArticulos(models.Model):
+    id = models.AutoField(primary_key=True, db_column='CLAVE_ARTICULO_ID')
+    clave = models.CharField(max_length=20, db_column='CLAVE_ARTICULO')
+    articulo = models.ForeignKey(Articulos, db_column='ARTICULO_ID')
+    rol = models.ForeignKey(RolesClavesArticulos, db_column='ROL_CLAVE_ART_ID')
+
     class Meta:
         db_table = u'claves_articulos'
 

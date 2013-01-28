@@ -16,6 +16,9 @@ urlpatterns = patterns('',
     (r'^InventariosFisicos/$', views.invetariosFisicos_View),
     (r'^InventarioFisico/$', views.invetarioFisico_manageView),
     (r'^InventarioFisico/(?P<id>\d+)/', views.invetarioFisico_manageView),
+    (r'^InventarioFisico/Delete/(?P<id>\d+)/', views.invetarioFisico_delete),
+    (r'^ArticuloInventarioFisico/Delete/(?P<id>\d+)/', views.articulos_invetarioFisico_delete),
+    
     # Uncomment the admin/doc line below to enable admin documentation:
     # url(r'^admin/doc/', include('django.contrib.admindocs.urls')),
 

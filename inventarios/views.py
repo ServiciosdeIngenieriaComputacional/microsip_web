@@ -28,6 +28,13 @@ def index(request):
 	c = {'articulos':articulos}
   	return render_to_response('index.html', c, context_instance=RequestContext(request))
 
+def c_get_next_key(seq_name):
+    """ return next value of sequence """
+    c = connection.cursor()
+    c.execute("SELECT GEN_ID( ID_DOCTOS , 1 ) FROM RDB$DATABASE;")
+    row = c.fetchone()
+    return int(row[0])
+
 ##########################################
 ## 										##
 ##        INVENTARIOS FISICOS     	    ##
@@ -40,7 +47,6 @@ def invetariosFisicos_View(request):
 	return render_to_response('inventarios_fisicos.html', c, context_instance=RequestContext(request))
 
 def invetarioFisico_manageView(request, id = None, template_name='inventario_fisico.html'):
-	msg ="nada "
 	if id:
 		InventarioFisico = get_object_or_404(DoctosInvfis, pk=id)
 	else:
@@ -50,27 +56,33 @@ def invetarioFisico_manageView(request, id = None, template_name='inventario_fis
 		InventarioFisico_form = DoctosInvfisManageForm(request.POST, request.FILES, instance=InventarioFisico)
 
 		if 'excel' in request.POST:
-			msg ="excel" 
-			inventarioFisico_items = inventarioFisico_items_formset(DoctosInvfisDetManageForm, extra=2, can_delete=True)
-			articulo = get_object_or_404(Articulos, pk=272)
-			articulo2 = get_object_or_404(Articulos, pk=229)
+			input_excel = request.FILES['file_inventario']
+			book = xlrd.open_workbook(file_contents=input_excel.read())
+			sheet = book.sheet_by_index(0)
+
+			inventarioFisico_items = inventarioFisico_items_formset(DoctosInvfisDetManageForm, extra=sheet.nrows, can_delete=True)
+			
+			lista = []
+
+			for i in range(sheet.nrows):
+				clave_articulo = get_object_or_404(ClavesArticulos, clave=sheet.cell_value(i,0))
+				if clave_articulo:
+					lista.append({'articulo': clave_articulo.articulo, 'claveArticulo':clave_articulo.clave, 'unidades':int(sheet.cell_value(i,1)),})
+			
 			InventarioFisicoItems_formset = inventarioFisico_items(
-				initial=[
-				{'articulo': articulo,'claveArticulo':'','unidades':2,},
-				{'articulo': articulo2,'claveArticulo':'','unidades':2,},
-				]
+				initial=lista
 				)
 		else:
 			inventarioFisico_items = inventarioFisico_items_formset(DoctosInvfisDetManageForm, extra=1, can_delete=True)
 			InventarioFisicoItems_formset = inventarioFisico_items(request.POST, request.FILES, instance=InventarioFisico)
 			if InventarioFisico_form.is_valid() and InventarioFisicoItems_formset.is_valid():
-				inventarioFisico = InventarioFisico_form.save(commit = False)		
+				inventarioFisico = InventarioFisico_form.save(commit = False)
 				
 				#GUARDA INVENTARIO FISICO
 				if inventarioFisico.id > 0:
 					inventarioFisico.save()
 				else:
-					inventarioFisico.id = -1
+					inventarioFisico.id = c_get_next_key('ID_DOCTOS')
 					inventarioFisico.save()
 
 				#GUARDA ARTICULOS DE INVENTARIO FISICO
@@ -92,6 +104,18 @@ def invetarioFisico_manageView(request, id = None, template_name='inventario_fis
 		InventarioFisico_form= DoctosInvfisManageForm(instance=InventarioFisico)
 	 	InventarioFisicoItems_formset = inventarioFisico_items(instance=InventarioFisico)
 	
-	c = {'InventarioFisico_form': InventarioFisico_form, 'formset': InventarioFisicoItems_formset, 'msg': msg,}
+	c = {'InventarioFisico_form': InventarioFisico_form, 'formset': InventarioFisicoItems_formset,}
 
 	return render_to_response(template_name, c, context_instance=RequestContext(request))
+
+def invetarioFisico_delete(request, id = None):
+	inventario_fisico = get_object_or_404(DoctosInvfis, pk=id)
+	inventario_fisico.delete()
+
+	return HttpResponseRedirect('/InventariosFisicos/')
+
+def articulos_invetarioFisico_delete(request, id = None):
+	articulo_inventarioFisico = get_object_or_404(DoctosInvfisDet, pk=id)
+	articulo_inventarioFisico.delete()
+
+	return HttpResponseRedirect('/InventariosFisicos/')

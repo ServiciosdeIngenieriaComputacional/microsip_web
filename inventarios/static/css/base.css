@@ -1,0 +1,14 @@
+body{
+	font-family: 'Marcellus SC', serif;
+	background: #fff url(../img/wood-bg.jpg);
+	color: #584941;
+	text-shadow: 0 1px 1px rgba(255, 255, 255, .5);
+}
+
+.pagecontent{
+	background-color: rgba(255, 255, 255, 0.49);
+	text-align: center;
+	padding: 4em;
+	margin-left: 1em;
+	margin-right: 1em;
+}
