@@ -42,8 +42,8 @@ $(function() {
   Descripcion: 	{{ InventarioFisico_form.descripcion }} <br>
   Almacen:  {{ InventarioFisico_form.almacen }} <br>
   <hr>
+  Agregar campos desde archivo de excel: {{ InventarioFisico_form.file_inventario }} {{ msg }}<input type="submit" name='excel' class="btn btn-primary" value="Cargar" />
   <div id="doctosIn_data">
-    Agregar campos desde archivo de excel: {{ InventarioFisico_form.file_inventario }} <input type="submit" class="btn btn-primary" value="Cargar" />
     <fieldset>
       <table class="table tableCell table-hover" id="id_doctosIn_table" border="0" cellpadding="0" cellspacing="5">
         <thead>

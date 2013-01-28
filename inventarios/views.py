@@ -34,9 +34,12 @@ def index(request):
 ##										##
 ##########################################
 	
+class BaseFormSet(BaseInlineFormSet):
+    def add_fields(self, form, index):
+        super(BasePlanItemFormSet, self).add_fields(form, index)
+        
 def invetarioFisico_manageView(request, id = None, template_name='inventario_fisico.html'):
-	inventarioFisico_items = inventarioFisico_items_formset(DoctosInvfisManageForm, extra=1, can_delete=True)
-
+	msg ="nada "
 	if id:
 		InventarioFisico = get_object_or_404(DoctosInvfis, pk=id)
 	else:
@@ -44,35 +47,50 @@ def invetarioFisico_manageView(request, id = None, template_name='inventario_fis
 
 	if request.method == 'POST':
 		InventarioFisico_form = DoctosInvfisManageForm(request.POST, request.FILES, instance=InventarioFisico)
-		InventarioFisicoItems_formset = inventarioFisico_items(request.POST, request.FILES, instance=InventarioFisico)
-		if InventarioFisico_form.is_valid() and InventarioFisicoItems_formset.is_valid():
-			inventarioFisico = InventarioFisico_form.save(commit = False)		
-			
-			#GUARDA INVENTARIO FISICO
-			if inventarioFisico.id > 0:
-				inventarioFisico.save()
-			else:
-				inventarioFisico.id = -1
-				inventarioFisico.save()
 
-			#GUARDA ARTICULOS DE INVENTARIO FISICO
-			for articulo_form in InventarioFisicoItems_formset:
+		if 'excel' in request.POST:
+			msg ="excel" 
+			inventarioFisico_items = inventarioFisico_items_formset(DoctosInvfisDetManageForm, extra=2, can_delete=True)
+			articulo = get_object_or_404(Articulos, pk=272)
+			articulo2 = get_object_or_404(Articulos, pk=229)
+			InventarioFisicoItems_formset = inventarioFisico_items(
+				initial=[
+				{'articulo': articulo,'claveArticulo':'','unidades':2,},
+				{'articulo': articulo2,'claveArticulo':'','unidades':2,},
+				]
+				)
+		else:
+			inventarioFisico_items = inventarioFisico_items_formset(DoctosInvfisDetManageForm, extra=1, can_delete=True)
+			InventarioFisicoItems_formset = inventarioFisico_items(request.POST, request.FILES, instance=InventarioFisico)
+			if InventarioFisico_form.is_valid() and InventarioFisicoItems_formset.is_valid():
+				inventarioFisico = InventarioFisico_form.save(commit = False)		
 				
-				DetalleInventarioFisico = articulo_form.save(commit = False)
-				#PARA ACTUALIZAR
-				if DetalleInventarioFisico.id > 0:
-					DetalleInventarioFisico.save()
-				#PARA CREAR UNO NUEVO
+				#GUARDA INVENTARIO FISICO
+				if inventarioFisico.id > 0:
+					inventarioFisico.save()
 				else:
-					DetalleInventarioFisico.id = -1
-					DetalleInventarioFisico.docto_invfis = inventarioFisico
-					DetalleInventarioFisico.save()
+					inventarioFisico.id = -1
+					inventarioFisico.save()
 
-			return HttpResponseRedirect('/')
+				#GUARDA ARTICULOS DE INVENTARIO FISICO
+				for articulo_form in InventarioFisicoItems_formset:
+					
+					DetalleInventarioFisico = articulo_form.save(commit = False)
+					#PARA ACTUALIZAR
+					if DetalleInventarioFisico.id > 0:
+						DetalleInventarioFisico.save()
+					#PARA CREAR UNO NUEVO
+					else:
+						DetalleInventarioFisico.id = -1
+						DetalleInventarioFisico.docto_invfis = inventarioFisico
+						DetalleInventarioFisico.save()
+
+				return HttpResponseRedirect('/')
 	else:
+		inventarioFisico_items = inventarioFisico_items_formset(DoctosInvfisDetManageForm, extra=1, can_delete=True)
 		InventarioFisico_form= DoctosInvfisManageForm(instance=InventarioFisico)
 	 	InventarioFisicoItems_formset = inventarioFisico_items(instance=InventarioFisico)
 	
-	c = {'InventarioFisico_form': InventarioFisico_form, 'formset': InventarioFisicoItems_formset,}
+	c = {'InventarioFisico_form': InventarioFisico_form, 'formset': InventarioFisicoItems_formset, 'msg': msg,}
 
 	return render_to_response(template_name, c, context_instance=RequestContext(request))

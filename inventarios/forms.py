@@ -58,9 +58,6 @@ class DoctosInvfisDetManageForm(forms.ModelForm):
 			'claveArticulo',
 			)
 
-class XLSXInventarioForm(forms.Form):
-    file_inventario = forms.CharField(widget=forms.FileInput)
-
 def get_DoctosIn_items_formset(form, formset = BaseInlineFormSet, **kwargs):
 	return inlineformset_factory(DoctosIn, DoctosInDet, form, formset, **kwargs)
 
