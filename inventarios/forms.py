@@ -36,7 +36,7 @@ class DoctosInDetManageForm(forms.ModelForm):
 			'fecha',)
 
 class DoctosInvfisManageForm(forms.ModelForm):
-	file_inventario = forms.CharField(widget=forms.FileInput)
+	file_inventario = forms.CharField(widget=forms.FileInput, required = False)
 	
 	class Meta:
 		model = DoctosInvfis

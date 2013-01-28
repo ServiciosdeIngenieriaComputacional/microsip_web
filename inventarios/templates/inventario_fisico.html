@@ -36,11 +36,27 @@ $(function() {
 {% block content %}
 <form method="post" class="form-horizontal" action="" width="300px"  enctype='multipart/form-data'>
   {% csrf_token %}
-  {{ InventarioFisico_form.errors }}
-  <br>
-  Folio: 		{{ InventarioFisico_form.folio }} <br>
-  Descripcion: 	{{ InventarioFisico_form.descripcion }} <br>
-  Almacen:  {{ InventarioFisico_form.almacen }} <br>
+  
+    {{ InventarioFisico_form.errors }}
+  
+   <div class="control-group">
+    <label class="control-label" for="id_folio">Folio</label>
+    <div class="controls">
+      {{ InventarioFisico_form.folio }} 
+    </div>
+  </div>
+  <div class="control-group">
+    <label class="control-label" for="id_descripcion">Descripcion</label>
+    <div class="controls">
+      {{ InventarioFisico_form.descripcion }} 
+    </div>
+  </div>
+  <div class="control-group">
+    <label class="control-label" for="id_almacen">Almacen</label>
+    <div class="controls">
+      {{ InventarioFisico_form.almacen }}
+    </div>
+  </div>
   <hr>
   Agregar campos desde archivo de excel: {{ InventarioFisico_form.file_inventario }} {{ msg }}<input type="submit" name='excel' class="btn btn-primary" value="Cargar" />
   <div id="doctosIn_data">
@@ -49,7 +65,6 @@ $(function() {
         <thead>
           <tr>
             <th>Articulo</th>
-            <th>Folio</th>
             <th>Unidades</th>
           </tr>
         </thead>
@@ -60,7 +75,6 @@ $(function() {
             {% for fld in form.hidden_fields %}{{ fld }}{% endfor %}
             <td>{% if form.instance.pk %}{{ form.DELETE }}{% endif %}
             	{{ form.articulo }}</td>
-            <td>{{ form.folio }}</td>
             <td>{{ form.unidades }}</td>
           </tr>
           {% endfor %}

@@ -33,11 +33,12 @@ def index(request):
 ##        INVENTARIOS FISICOS     	    ##
 ##										##
 ##########################################
-	
-class BaseFormSet(BaseInlineFormSet):
-    def add_fields(self, form, index):
-        super(BasePlanItemFormSet, self).add_fields(form, index)
-        
+
+def invetariosFisicos_View(request):
+	inventarios_fisicos = DoctosInvfis.objects.all()
+	c = {'inventarios_fisicos':inventarios_fisicos}
+	return render_to_response('inventarios_fisicos.html', c, context_instance=RequestContext(request))
+
 def invetarioFisico_manageView(request, id = None, template_name='inventario_fisico.html'):
 	msg ="nada "
 	if id:
@@ -85,7 +86,7 @@ def invetarioFisico_manageView(request, id = None, template_name='inventario_fis
 						DetalleInventarioFisico.docto_invfis = inventarioFisico
 						DetalleInventarioFisico.save()
 
-				return HttpResponseRedirect('/')
+				return HttpResponseRedirect('/InventariosFisicos/')
 	else:
 		inventarioFisico_items = inventarioFisico_items_formset(DoctosInvfisDetManageForm, extra=1, can_delete=True)
 		InventarioFisico_form= DoctosInvfisManageForm(instance=InventarioFisico)

@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% block title %}Inicio{% endblock %}
+
+<!-- CSS Code -->
+{% block style_css %}{% endblock %}
+
+<!-- JavaScript Code -->
+{% block js_code %}{% endblock %}
+
+
+{% block content %}
+<a class="btn btn-success" href="/InventarioFisico/">Nuevo</a>
+<table class="table">
+    <tr>
+      <th>ID</th>
+      <th>FOLIO</th>
+      <th>DESCRIPCION</th>
+      <th>Opciones</th>
+    </tr>
+    {% for inventario_fisico in inventarios_fisicos %}
+    <tr>
+      <td>
+        <a href="/InventarioFisico/{{ inventario_fisico.id }}/">{{ inventario_fisico.id }}</a>
+      </td>
+      <td>
+        {{ inventario_fisico.folio }}
+      </td>
+      <td>{{ inventario_fisico.descripcion }}</td>
+      <td style="text-align:center;">
+        <a href='#' data-toggle="modal" class="btn btn-mini btn-danger"><i class="icon-trash"></i></a>
+      </td>
+    </tr>
+    {% endfor %}
+</table>
+{% endblock %}

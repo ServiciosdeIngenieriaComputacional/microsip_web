@@ -13,6 +13,7 @@ urlpatterns = patterns('',
     # url(r'^$', 'microsip_web.views.home', name='home'),
     # url(r'^microsip_web/', include('microsip_web.foo.urls')),
     #INVENTARIOS FISICOS
+    (r'^InventariosFisicos/$', views.invetariosFisicos_View),
     (r'^InventarioFisico/$', views.invetarioFisico_manageView),
     (r'^InventarioFisico/(?P<id>\d+)/', views.invetarioFisico_manageView),
     # Uncomment the admin/doc line below to enable admin documentation:
