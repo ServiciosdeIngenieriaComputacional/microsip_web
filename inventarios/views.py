@@ -24,7 +24,7 @@ import xlrd
 from django.utils.encoding import smart_str, smart_unicode
 
 def index(request):
-	articulos = Articulos.objects.all()
+	articulos = ClavesArticulos.objects.all()
 	c = {'articulos':articulos}
   	return render_to_response('index.html', c, context_instance=RequestContext(request))
 
@@ -47,6 +47,7 @@ def invetariosFisicos_View(request):
 	return render_to_response('inventarios_fisicos.html', c, context_instance=RequestContext(request))
 
 def invetarioFisico_manageView(request, id = None, template_name='inventario_fisico.html'):
+	msg = "nunca"
 	if id:
 		InventarioFisico = get_object_or_404(DoctosInvfis, pk=id)
 	else:
@@ -59,19 +60,34 @@ def invetarioFisico_manageView(request, id = None, template_name='inventario_fis
 			input_excel = request.FILES['file_inventario']
 			book = xlrd.open_workbook(file_contents=input_excel.read())
 			sheet = book.sheet_by_index(0)
+			articulos = Articulos.objects.filter(es_almacenable='S')
 
-			inventarioFisico_items = inventarioFisico_items_formset(DoctosInvfisDetManageForm, extra=sheet.nrows, can_delete=True)
+			inventarioFisico_items = inventarioFisico_items_formset(DoctosInvfisDetManageForm, extra=articulos.count(), can_delete=True)
 			
 			lista = []
+			lista_articulos = []		
 
 			for i in range(sheet.nrows):
 				clave_articulo = get_object_or_404(ClavesArticulos, clave=sheet.cell_value(i,0))
-				if clave_articulo:
-					lista.append({'articulo': clave_articulo.articulo, 'claveArticulo':clave_articulo.clave, 'unidades':int(sheet.cell_value(i,1)),})
+				if clave_articulo and clave_articulo.articulo.es_almacenable=='S':
+					lista.append({'articulo': clave_articulo.articulo, 'clave':clave_articulo.clave, 'unidades':int(sheet.cell_value(i,1)),})
+					lista_articulos.append(clave_articulo.articulo.id)
 			
+			articulos_enceros = Articulos.objects.exclude(pk__in=lista_articulos)
+			
+			for i in articulos_enceros:
+				clave_articulo = ClavesArticulos.objects.filter(articulo__id=i.id)
+				if clave_articulo and i.es_almacenable=='S':
+					lista.append({'articulo': i, 'claveArticulo':'clave' , 'unidades':0,})	
+					#msg ="si enconro algo [%s]"% clave_articulo.clave 
+				else: 
+					if i.es_almacenable == 'S' :
+						lista.append({'articulo': i, 'clave':'clave', 'unidades':0,})	
+
 			InventarioFisicoItems_formset = inventarioFisico_items(
 				initial=lista
 				)
+
 		else:
 			inventarioFisico_items = inventarioFisico_items_formset(DoctosInvfisDetManageForm, extra=1, can_delete=True)
 			InventarioFisicoItems_formset = inventarioFisico_items(request.POST, request.FILES, instance=InventarioFisico)
@@ -104,7 +120,7 @@ def invetarioFisico_manageView(request, id = None, template_name='inventario_fis
 		InventarioFisico_form= DoctosInvfisManageForm(instance=InventarioFisico)
 	 	InventarioFisicoItems_formset = inventarioFisico_items(instance=InventarioFisico)
 	
-	c = {'InventarioFisico_form': InventarioFisico_form, 'formset': InventarioFisicoItems_formset,}
+	c = {'InventarioFisico_form': InventarioFisico_form, 'formset': InventarioFisicoItems_formset, 'msg':msg,}
 
 	return render_to_response(template_name, c, context_instance=RequestContext(request))
 

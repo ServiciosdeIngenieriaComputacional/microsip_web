@@ -12,3 +12,7 @@ body{
 	margin-left: 1em;
 	margin-right: 1em;
 }
+
+.table th, .table td{
+	padding: 0px;
+}

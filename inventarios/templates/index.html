@@ -4,7 +4,9 @@
 {% block content %}
 
 {% for articulo in articulos %}
-	{{ articulo }}
+	{{ articulo.id }}
+	{{ articulo.clave }}
+	<br>
 {% endfor %}
 
 

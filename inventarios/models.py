@@ -39,9 +39,9 @@ class Almacenes(models.Model):
         db_table = u'almacenes'
 
 class Articulos(models.Model):
-    ARTICULO_ID = models.AutoField(primary_key=True)
+    id = models.AutoField(primary_key=True, db_column='ARTICULO_ID')
     nombre = models.CharField(max_length=100, db_column='NOMBRE')
-    es_almacenable = models.CharField(max_length=1, db_column='ES_ALMACENABLE')
+    es_almacenable = models.CharField(default='S', max_length=1, db_column='ES_ALMACENABLE')
 
     def __unicode__(self):
         return u'%s' % self.nombre
@@ -145,6 +145,9 @@ class ClavesArticulos(models.Model):
     clave = models.CharField(max_length=20, db_column='CLAVE_ARTICULO')
     articulo = models.ForeignKey(Articulos, db_column='ARTICULO_ID')
     rol = models.ForeignKey(RolesClavesArticulos, db_column='ROL_CLAVE_ART_ID')
+
+    def __unicode__(self):
+        return u'%s' % self.clave
 
     class Meta:
         db_table = u'claves_articulos'
@@ -399,10 +402,10 @@ class DoctosIn(models.Model):
 class DoctosInvfis(models.Model):
     id = models.AutoField(primary_key=True, db_column='DOCTO_INVFIS_ID')
     almacen = models.ForeignKey(Almacenes, db_column='ALMACEN_ID')
-    folio = models.CharField(max_length=50, db_column='FOLIO')
+    folio = models.CharField(max_length=9, db_column='FOLIO')
     fecha = models.DateField(auto_now=True, db_column='FECHA') 
     cancelado = models.CharField(default='N', blank=True, null=True, max_length=1, db_column='CANCELADO')
-    aplicado = models.CharField(default='S',blank=True, null=True, max_length=1, db_column='APLICADO')
+    aplicado = models.CharField(default='N',blank=True, null=True, max_length=1, db_column='APLICADO')
     descripcion = models.CharField(blank=True, null=True, max_length=200, db_column='DESCRIPCION')
     usuario_creador = models.CharField(blank=True, null=True, max_length=31, db_column='USUARIO_CREADOR')
     fechahora_creacion = models.DateTimeField(auto_now_add=True, db_column='FECHA_HORA_CREACION')
@@ -417,7 +420,7 @@ class DoctosInvfis(models.Model):
 class DoctosInvfisDet(models.Model):
     id = models.AutoField(primary_key=True, db_column='DOCTO_INVFIS_DET_ID')
     docto_invfis = models.ForeignKey(DoctosInvfis, db_column='DOCTO_INVFIS_ID')
-    claveArticulo = models.CharField(blank=True, null=True, max_length=20, db_column='CLAVE_ARTICULO')
+    clave = models.CharField(blank=True, null=True, max_length=20, db_column='CLAVE_ARTICULO')
     articulo = models.ForeignKey(Articulos, db_column='ARTICULO_ID')
     unidades = models.IntegerField(default=0, blank=True, null=True, db_column='UNIDADES')
     

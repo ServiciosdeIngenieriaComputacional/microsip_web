@@ -57,12 +57,15 @@ $(function() {
     </div>
   </div>
   <hr>
-  Agregar campos desde archivo de excel: {{ InventarioFisico_form.file_inventario }}<input type="submit" name='excel' class="btn btn-primary" value="Cargar" />
+  <a href="{{STATIC_URL}}plantilla_inventarioFisico.xlsx">Descargar plantilla</a>
+  <br>
+  Agregar campos desde archivo de excel: {{ InventarioFisico_form.file_inventario }} mensaje[{{ msg }}]<input type="submit" name='excel' class="btn btn-primary" value="Cargar" />
   <div id="doctosIn_data">
     <fieldset>
       <table class="table tableCell table-hover" id="id_doctosIn_table" border="0" cellpadding="0" cellspacing="5">
         <thead>
           <tr>
+            <th>Clave</th>
             <th>Articulo</th>
             <th>Unidades</th>
           </tr>
@@ -72,6 +75,7 @@ $(function() {
           {{ form.errors }}
           <tr id="{{ form.prefix }}-row" class="form-container">
             {% for fld in form.hidden_fields %}{{ fld }}{% endfor %}
+            <td>{{ form.clave }}</td>
             <td>{% if form.instance.pk %}{{ form.DELETE }}{% endif %}
             	{{ form.articulo }}</td>
             <td>{{ form.unidades }}</td>
