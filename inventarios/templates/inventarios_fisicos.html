@@ -7,7 +7,7 @@
 <!-- JavaScript Code -->
 {% block js_code %}{% endblock %}
 
-
+{% block breadcrumb %}{{ block.super }} Inventarios Fisicos {% endblock %}
 {% block content %}
 <a class="btn btn-success" href="/InventarioFisico/">Nuevo</a>
 <table class="table tableCell table-hover">
@@ -45,5 +45,21 @@
       </td>
     </tr>
     {% endfor %}
+
+    <div class="pagination pagination-mini">
+      <ul>
+        {% if inventarios_fisicos.has_previous %}
+        <li><a href="?page={{ inventarios_fisicos.previous_page_number }}">Anterior</a></li>
+        {% else %}
+        <li class="disabled"><a href="#">Anterior</a></li>
+        {% endif %}
+        <li class="disabled"><a href="#">Pagina {{ inventarios_fisicos.number }} de {{ inventarios_fisicos.paginator.num_pages }}.</a></li>
+        {% if inventarios_fisicos.has_next %}
+        <li><a href="?page={{ inventarios_fisicos.next_page_number }}">Siguiente</a></li>
+        {% else %}
+        <li class="disabled"><a href="#">Siguiente</a></li>
+        {% endif %} 
+      </ul>
+    </div>
 </table>
 {% endblock %}
