@@ -24,7 +24,8 @@ import xlrd
 from django.utils.encoding import smart_str, smart_unicode
 
 def index(request):
-	articulos = ClavesArticulos.objects.all()
+	#= ClavesArticulos.objects.all()
+	articulos = ClavesArticulos.objects.filter(articulo__id=219)
 	c = {'articulos':articulos}
   	return render_to_response('index.html', c, context_instance=RequestContext(request))
 
@@ -52,7 +53,7 @@ def invetarioFisico_manageView(request, id = None, template_name='inventario_fis
 		InventarioFisico = get_object_or_404(DoctosInvfis, pk=id)
 	else:
 		InventarioFisico = DoctosInvfis()
-
+	ids=0
 	if request.method == 'POST':
 		InventarioFisico_form = DoctosInvfisManageForm(request.POST, request.FILES, instance=InventarioFisico)
 
@@ -73,16 +74,16 @@ def invetarioFisico_manageView(request, id = None, template_name='inventario_fis
 					lista.append({'articulo': clave_articulo.articulo, 'clave':clave_articulo.clave, 'unidades':int(sheet.cell_value(i,1)),})
 					lista_articulos.append(clave_articulo.articulo.id)
 			
-			articulos_enceros = Articulos.objects.exclude(pk__in=lista_articulos)
+			articulos_enceros = Articulos.objects.exclude(pk__in=lista_articulos).filter(es_almacenable='S')
 			
 			for i in articulos_enceros:
-				clave_articulo = ClavesArticulos.objects.filter(articulo__id=i.id)
-				if clave_articulo and i.es_almacenable=='S':
-					lista.append({'articulo': i, 'claveArticulo':'clave' , 'unidades':0,})	
-					#msg ="si enconro algo [%s]"% clave_articulo.clave 
-				else: 
-					if i.es_almacenable == 'S' :
-						lista.append({'articulo': i, 'clave':'clave', 'unidades':0,})	
+				
+				#clave_articulo = ClavesArticulos.objects.filter(articulo__id=i.id)
+				articulosclav = ClavesArticulos.objects.filter(articulo__id=i.id)
+				if articulosclav:
+					lista.append({'articulo': i, 'clave':articulosclav[0].clave , 'unidades':0,})	
+				else:
+					lista.append({'articulo': i, 'clave':'', 'unidades':0,})	
 
 			InventarioFisicoItems_formset = inventarioFisico_items(
 				initial=lista

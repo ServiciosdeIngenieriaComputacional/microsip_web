@@ -57,9 +57,12 @@ $(function() {
     </div>
   </div>
   <hr>
-  <a href="{{STATIC_URL}}plantilla_inventarioFisico.xlsx">Descargar plantilla</a>
-  <br>
-  Agregar campos desde archivo de excel: {{ InventarioFisico_form.file_inventario }} mensaje[{{ msg }}]<input type="submit" name='excel' class="btn btn-primary" value="Cargar" />
+  {% ifequal InventarioFisico_form.folio.value  '' %}
+    <a href="{{STATIC_URL}}plantilla_inventarioFisico.xlsx">Descargar plantilla</a>
+    <br>
+    Agregar campos desde archivo de excel: {{ InventarioFisico_form.file_inventario }} mensaje[{{ msg }}]<input type="submit" name='excel' class="btn btn-primary" value="Cargar" />
+  {% endifequal %}
+  
   <div id="doctosIn_data">
     <fieldset>
       <table class="table tableCell table-hover" id="id_doctosIn_table" border="0" cellpadding="0" cellspacing="5">
