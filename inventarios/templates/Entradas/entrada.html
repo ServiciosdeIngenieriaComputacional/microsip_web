@@ -35,7 +35,9 @@ $(function() {
 {% block content %}
 <form method="post" class="form-horizontal" action="" width="300px"  enctype='multipart/form-data'>
   {% csrf_token %}
-  
+  <div class="form-actions">
+    <input type="submit" class="btn btn-primary" value="Guardar y Salir" />
+  </div>
     {{ Entrada_form.errors }}
   
    <div class="control-group">
@@ -70,11 +72,6 @@ $(function() {
     <p>{{ message }}</p>
   </div>
   {% endif %}
-   <div class="control-group">
-    <div class="controls">
-      <input type="submit" class="btn btn-primary" value="Guardar y Salir" />
-    </div>
-  </div>
   <hr>
   {% ifequal Entrada_form.folio.value  '' %}
     <a href="{{STATIC_URL}}plantilla_inventarioFisico.xlsx">Descargar plantilla</a>
@@ -118,10 +115,8 @@ $(function() {
     <p>{{ message }}</p>
   </div>
   {% endif %}
-  <div class="control-group">
-    <div class="controls">
-      <input type="submit" class="btn btn-primary" value="Guardar y Salir" />
-    </div>
+  <div class="form-actions">
+    <input type="submit" class="btn btn-primary" value="Guardar y Salir" />
   </div>
 </form>
 

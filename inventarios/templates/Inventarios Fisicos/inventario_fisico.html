@@ -34,6 +34,9 @@ $(function() {
 {% block breadcrumb %}{{ block.super }} <a href="/InventariosFisicos/">Inventarios Fisicos</a> > Inventario Fisico{% endblock %}
 {% block content %}
 <form method="post" class="form-horizontal" action="" width="300px"  enctype='multipart/form-data'>
+  <div class="form-actions">
+    <input type="submit" class="btn btn-primary" value="Guardar y Salir" />
+  </div>
   {% csrf_token %}
   
     {{ InventarioFisico_form.errors }}
@@ -64,11 +67,6 @@ $(function() {
     <p>{{ message }}</p>
   </div>
   {% endif %}
-   <div class="control-group">
-    <div class="controls">
-      <input type="submit" class="btn btn-primary" value="Guardar y Salir" />
-    </div>
-  </div>
   <hr>
   {% ifequal InventarioFisico_form.folio.value  '' %}
     <a href="{{STATIC_URL}}plantilla_inventarioFisico.xlsx">Descargar plantilla</a>
@@ -110,10 +108,8 @@ $(function() {
     <p>{{ message }}</p>
   </div>
   {% endif %}
-  <div class="control-group">
-    <div class="controls">
-      <input type="submit" class="btn btn-primary" value="Guardar y Salir" />
-    </div>
+  <div class="form-actions">
+    <input type="submit" class="btn btn-primary" value="Guardar y Salir" />
   </div>
 </form>
 

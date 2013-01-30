@@ -8,7 +8,9 @@ body{
 .pagecontent{
 	background-color: rgba(255, 255, 255, 0.49);
 	text-align: center;
-	padding: 4em;
+	padding: 1em;
+	padding-top: 0em;
+	padding-bottom: 0em;
 	margin-left: 1em;
 	margin-right: 1em;
 }
