@@ -14,8 +14,10 @@
     <tr>
       <th>ID</th>
       <th>FOLIO</th>
+      <th>FECHA</th>
       <th>DESCRIPCION</th>
-      <th>Opciones</th>
+      <th>APLICADO</th>
+      <th>OPCIONES</th>
     </tr>
     {% for inventario_fisico in inventarios_fisicos %}
     <div id="myModal{{ inventario_fisico.id}}" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
@@ -36,10 +38,10 @@
       <td>
         <a href="/InventarioFisico/{{ inventario_fisico.id }}/">{{ inventario_fisico.id }}</a>
       </td>
-      <td>
-        {{ inventario_fisico.folio }}
-      </td>
+      <td>{{ inventario_fisico.folio }}</td>
+      <td>{{ inventario_fisico.fecha }}</td>
       <td>{{ inventario_fisico.descripcion }}</td>
+      <td>{{ inventario_fisico.aplicado }}</td>
       <td style="text-align:center;">
         <a href='#myModal{{ inventario_fisico.id}}' data-toggle="modal" class="btn btn-mini btn-danger"><i class="icon-trash"></i></a>
       </td>

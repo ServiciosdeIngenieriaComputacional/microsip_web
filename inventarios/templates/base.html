@@ -28,7 +28,8 @@
           <li class="dropdown">
             <a id="drop1" href="#" role="button" class="dropdown-toggle" data-toggle="dropdown"> <i class="icon-shopping-cart"></i>Inventarios<b class="caret"></b></a>
             <ul class="dropdown-menu" role="menu" aria-labelledby="drop1">
-              <li><a tabindex="-1" href="#">Inventarios</a></li>
+              <li><a tabindex="-1" href="/Entradas/">Entradas</a></li>
+              <li><a tabindex="-1" href="/Salidas/">Salidas</a></li>
               <li><a tabindex="-1" href="/InventariosFisicos/">Inventarios Fisicos</a></li>
             </ul>
           </li>
@@ -48,13 +49,13 @@
     </div>
   </div>
   <div id="breadcrumbs" style="margin-left: 35px;">
-    <!-- <div style="text-align:right; height:2em; clear:both;">
+    <div style="text-align:right; height:2em; clear:both;">
       {% if user.username %}
        Administrador <a class="btn btn-small btn-danger" href="/logout/">  Cerrar Sesión</a>
       {% else %}
         <a class="btn btn-small btn-success" href="/login/">Iniciar Sesión</a>
       {% endif %}
-    </div> -->
+    </div>
     {% block breadcrumb %}<a href="/"><i class="icon-home"></i></a>{% endblock %}
   </div>
   <section class='content'>

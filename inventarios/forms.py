@@ -5,6 +5,8 @@ from django.contrib.auth.models import User
 from django.forms.models import BaseInlineFormSet, inlineformset_factory
 
 class DoctosInManageForm(forms.ModelForm):
+	file_inventario = forms.CharField(widget=forms.FileInput, required = False)
+	
 	class Meta:
 		model = DoctosIn
 		exclude = (
@@ -26,7 +28,7 @@ class DoctosInDetManageForm(forms.ModelForm):
 		exclude = (
 			'tipo_movto',
 			'almacen',
-			'conceptoIn',
+			'concepto',
 			'metodo_costeo',
 			'rol',
 			'cancelado',
@@ -57,8 +59,8 @@ class DoctosInvfisDetManageForm(forms.ModelForm):
 		exclude = (
 			'claveArticulo',
 			)
-
-def get_DoctosIn_items_formset(form, formset = BaseInlineFormSet, **kwargs):
+		
+def doctoIn_items_formset(form, formset = BaseInlineFormSet, **kwargs):
 	return inlineformset_factory(DoctosIn, DoctosInDet, form, formset, **kwargs)
 
 def inventarioFisico_items_formset(form, formset = BaseInlineFormSet, **kwargs):
