@@ -2,6 +2,8 @@
 from django.db import models
 from datetime import datetime 
 from django.db.models.signals import pre_save
+from django.core import urlresolvers
+
 
 class Paises(models.Model):
     PAIS_ID = models.AutoField(primary_key=True)
@@ -465,3 +467,10 @@ class Impuestos(models.Model):
     
     class Meta:
         db_table = u'impuestos'
+
+class Widget(models.Model):
+    articulo = models.ForeignKey('Articulos', null=True, blank=True)
+    nombre = models.CharField(max_length=30)
+
+    def get_absolute_url(self):
+        return urlresolvers.reverse('non_admin:widget_update', args=(self.pk,))
