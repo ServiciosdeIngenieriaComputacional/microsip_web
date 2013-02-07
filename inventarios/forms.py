@@ -7,12 +7,6 @@ from inventarios.models import *
 from django.contrib.auth.models import User
 from django.forms.models import BaseInlineFormSet, inlineformset_factory
      
-
-class widgetForm(forms.ModelForm):
-    class Meta:
-        widgets = autocomplete_light.get_widgets_dict(DoctosInvfisDet)
-        model = DoctosInvfisDet
-
 class DoctosInManageForm(forms.ModelForm):
 	file_inventario = forms.CharField(widget=forms.FileInput, required = False)
 	

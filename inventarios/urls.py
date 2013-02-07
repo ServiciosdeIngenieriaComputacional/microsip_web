@@ -7,8 +7,6 @@ from models import DoctosInvfisDet
 urlpatterns = patterns('',
 	(r'^$', views.index),
     #INVENTARIOS FISICOS
-    url(r'widgets/add/$', generic.CreateView.as_view(
-        model=DoctosInvfisDet, form_class=widgetForm)),
     (r'^InventariosFisicos/$', views.invetariosFisicos_View),
     (r'^InventarioFisico/$', views.invetarioFisico_manageView),
     (r'^InventarioFisico/(?P<id>\d+)/', views.invetarioFisico_manageView),
