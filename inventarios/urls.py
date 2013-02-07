@@ -1,8 +1,6 @@
 from django.conf.urls import patterns, url
 from django.views import generic
 from inventarios import views
-from forms import widgetForm
-from models import DoctosInvfisDet
 
 urlpatterns = patterns('',
 	(r'^$', views.index),
