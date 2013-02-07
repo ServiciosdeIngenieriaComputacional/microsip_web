@@ -2,6 +2,8 @@
 from django.db import models
 from datetime import datetime 
 from django.db.models.signals import pre_save
+from django.core import urlresolvers
+
 
 class Paises(models.Model):
     PAIS_ID = models.AutoField(primary_key=True)
@@ -395,7 +397,7 @@ class DoctosIn(models.Model):
     fechahora_creacion = models.DateTimeField(auto_now_add=True, db_column='FECHA_HORA_CREACION')
     usuario_ult_modif = models.CharField(blank=True, null=True, max_length=31, db_column='USUARIO_ULT_MODIF')
     fechahora_ult_modif = models.DateTimeField(auto_now=True, blank=True, null=True, db_column='FECHA_HORA_ULT_MODIF')
-
+    
     class Meta:
         db_table = u'doctos_in'
 
