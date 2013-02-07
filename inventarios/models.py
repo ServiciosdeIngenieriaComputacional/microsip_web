@@ -397,7 +397,7 @@ class DoctosIn(models.Model):
     fechahora_creacion = models.DateTimeField(auto_now_add=True, db_column='FECHA_HORA_CREACION')
     usuario_ult_modif = models.CharField(blank=True, null=True, max_length=31, db_column='USUARIO_ULT_MODIF')
     fechahora_ult_modif = models.DateTimeField(auto_now=True, blank=True, null=True, db_column='FECHA_HORA_ULT_MODIF')
-
+    
     class Meta:
         db_table = u'doctos_in'
 
@@ -467,10 +467,3 @@ class Impuestos(models.Model):
     
     class Meta:
         db_table = u'impuestos'
-
-class Widget(models.Model):
-    articulo = models.ForeignKey('Articulos', null=True, blank=True)
-    nombre = models.CharField(max_length=30)
-
-    def get_absolute_url(self):
-        return urlresolvers.reverse('non_admin:widget_update', args=(self.pk,))
