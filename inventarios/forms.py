@@ -27,6 +27,7 @@ class DoctosInManageForm(forms.ModelForm):
 
 class DoctosInDetManageForm(forms.ModelForm):
 	class Meta:
+		widgets = autocomplete_light.get_widgets_dict(DoctosInDet)
 		model = DoctosInDet
 		exclude = (
 			'tipo_movto',

@@ -30,6 +30,7 @@ $(function() {
   });
 });
 </script>
+
 {% endblock %}
 {% block breadcrumb %}{{ block.super }} <a href="/Entradas/">Entradas</a> > Entrada{% endblock %}
 {% block content %}
@@ -120,5 +121,5 @@ $(function() {
   </div>
 </form>
 
-
+{% include 'autocomplete_light/static.html' %}
 {% endblock %}
