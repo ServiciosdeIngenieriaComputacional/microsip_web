@@ -7,7 +7,7 @@ body{
 
 .pagecontent{
 	background-color: rgba(255, 255, 255, 0.49);
-	text-align: center;
+	text-align: left;
 	padding: 1em;
 	padding-top: 0em;
 	padding-bottom: 2em;
@@ -19,12 +19,21 @@ body{
 	padding: 0px;
 }
 
+.mainmenu
+{
+	text-align: center;
+}
 /* Botón Ir Arriba
 ----------------------------------------------- */
 #IrArriba {
 position: fixed;
 bottom: 30px; /* Distancia desde abajo */
 right: 30px; /* Distancia desde la derecha */
+}
+
+.navbar
+{
+	margin-bottom: 4px;
 }
 
 #IrArriba span {

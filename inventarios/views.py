@@ -263,6 +263,7 @@ def entrada_manageView(request, id = None, template_name='Entradas/entrada.html'
 				#CARGA NUEVO ID
 				if not Entrada.id:
 					Entrada.id = c_get_next_key('ID_DOCTOS')
+					Entrada.naturaleza_concepto = 'E'
 				
 				Entrada.save()
 

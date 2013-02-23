@@ -36,7 +36,7 @@ $(function() {
 {% block content %}
 <form method="post" class="form-horizontal" action="" width="300px"  enctype='multipart/form-data'>
   {% csrf_token %}
-  <div class="form-actions">
+  <div class="form-actions mainmenu">
     <input type="submit" class="btn btn-primary" value="Guardar y Salir" />
   </div>
     {{ Entrada_form.errors }}
@@ -116,7 +116,7 @@ $(function() {
     <p>{{ message }}</p>
   </div>
   {% endif %}
-  <div class="form-actions">
+  <div class="form-actions mainmenu">
     <input type="submit" class="btn btn-primary" value="Guardar y Salir" />
   </div>
 </form>

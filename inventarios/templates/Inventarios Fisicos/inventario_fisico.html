@@ -49,32 +49,29 @@ $(function() {
 {% block breadcrumb %}{{ block.super }} <a href="/InventariosFisicos/">Inventarios Fisicos</a> > Inventario Fisico{% endblock %}
 {% block content %}
 <form method="post" class="form-horizontal" action="" width="300px"  enctype='multipart/form-data'>
-  <div class="form-actions">
+  <div class="form-actions mainmenu">
     <input type="submit" class="btn btn-primary" value="Guardar y Salir" />
   </div>
   {% csrf_token %}
   
     {{ InventarioFisico_form.errors }}
+  <div class="span3">
+    <label for="id_folio">Folio</label>
+    {{ InventarioFisico_form.folio }} 
+  </div>
+  <div class="span3">
+    <label for="id_descripcion">Descripcion</label>
+    {{ InventarioFisico_form.descripcion }} 
+  </div>
+  <div class="span3">
+    <label for="id_almacen">Almacen</label>
+    {{ InventarioFisico_form.almacen }}
+  </div>
+  <div style='clear:both;'>
+    <br>
+    {{ formset.total_form_count }} Articulos
+  </div>
   
-   <div class="control-group">
-    <label class="control-label" for="id_folio">Folio</label>
-    <div class="controls">
-      {{ InventarioFisico_form.folio }} 
-    </div>
-  </div>
-  <div class="control-group">
-    <label class="control-label" for="id_descripcion">Descripcion</label>
-    <div class="controls">
-      {{ InventarioFisico_form.descripcion }} 
-    </div>
-  </div>
-  <div class="control-group">
-    <label class="control-label" for="id_almacen">Almacen</label>
-    <div class="controls">
-      {{ InventarioFisico_form.almacen }}
-    </div>
-  </div>
-  {{ formset.total_form_count }} Articulos
   {% if message %}
   <div class="alert alert-block alert-error fade in">
     <button type="button" class="close" data-dismiss="alert">×</button>
@@ -123,7 +120,7 @@ $(function() {
     <p>{{ message }}</p>
   </div>
   {% endif %}
-  <div class="form-actions">
+  <div class="form-actions mainmenu">
     <input type="submit" class="btn btn-primary" value="Guardar y Salir" />
   </div>
 </form>

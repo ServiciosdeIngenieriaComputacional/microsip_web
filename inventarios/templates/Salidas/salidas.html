@@ -9,7 +9,7 @@
 
 {% block breadcrumb %}{{ block.super }} salidas {% endblock %}
 {% block content %}
-<div class="form-actions">
+<div class="form-actions mainmenu">
   <a class="btn btn-success" href="/Salida/">Nueva</a>
 </div>
 <table class="table tableCell table-hover">
@@ -50,7 +50,7 @@
     </tr>
     {% endfor %}
 
-    <div class="pagination pagination-mini">
+    <div class="pagination pagination-mini mainmenu">
       <ul>
         {% if salidas.has_previous %}
         <li><a href="?page={{ salidas.previous_page_number }}">Anterior</a></li>
