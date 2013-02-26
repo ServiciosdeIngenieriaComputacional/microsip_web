@@ -12,6 +12,7 @@ admin.autodiscover()
 
 urlpatterns = patterns('',
     url(r'', include('inventarios.urls', namespace='Inventarios')),
+    url(r'', include('ventas.urls', namespace='Ventas')),
     url(r'autocomplete/', include('autocomplete_light.urls')),
     url(r'^admin/', include(admin.site.urls)),
 )

@@ -3,7 +3,8 @@
 
 # Identificando la ruta del proyecto
 import os
-RUTA_PROYECTO = os.path.dirname(os.path.realpath(__file__))
+RUTA_PROYECTO =os.path.dirname(os.path.realpath(__file__)).strip('settings')
+# os.path.dirname(os.path.realpath(__file__))
 
 DEBUG = True
 TEMPLATE_DEBUG = DEBUG
@@ -73,7 +74,7 @@ STATICFILES_DIRS = (
     # Put strings here, like "/home/html/static" or "C:/www/django/static".
     # Always use forward slashes, even on Windows.
     # Don't forget to use absolute paths, not relative paths.
-    os.path.join(RUTA_PROYECTO,'static'),
+    (RUTA_PROYECTO +'/static/'),
 )
 
 # List of finder classes that know how to find static files in
@@ -113,10 +114,10 @@ TEMPLATE_DIRS = (
     # Put strings here, like "/home/html/django_templates" or "C:/www/django/templates".
     # Always use forward slashes, even on Windows.
     # Don't forget to use absolute paths, not relative paths.
-    os.path.join(RUTA_PROYECTO,'templates'),
+    (RUTA_PROYECTO + '/templates'),
 )
 
-INSTALLED_APPS = (
+DJANGO_APPS = (
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
@@ -125,12 +126,19 @@ INSTALLED_APPS = (
     'django.contrib.staticfiles',
     'django.contrib.admin',
     'autocomplete_light',
-    'inventarios',
+    #'apps.microsip.ventas',
     # Uncomment the next line to enable the admin:
     
 
     # Uncomment the next line to enable admin documentation:
     # 'django.contrib.admindocs',
+)
+
+MICROSIP_MODULES = (
+    # Modules created for microsip and installed by default. You can add
+    # here your own modules
+    'inventarios',
+    'ventas',
 )
 
 # A sample logging configuration. The only tangible logging
@@ -161,6 +169,9 @@ LOGGING = {
         },
     }
 }
+
+# Combine all the apps in the django variable INSTALLED_APPS
+INSTALLED_APPS = DJANGO_APPS + MICROSIP_MODULES
 
 #Configuraciones para enviar mensajes usando gmail
 EMAIL_USE_TLS = True
