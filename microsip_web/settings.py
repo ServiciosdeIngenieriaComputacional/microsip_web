@@ -18,7 +18,7 @@ MANAGERS = ADMINS
 DATABASES = {
     'default': {
        'ENGINE': 'django.db.backends.firebird', # Add 'postgresql_psycopg2', 'mysql', 'sqlite3' or 'oracle'.
-        'NAME': 'C:\Microsip datos\PRUEBA.fdb', # Or path to database file if using sqlite3.
+        'NAME': 'C:\Microsip datos\AD2007(POLISAS).fdb', # Or path to database file if using sqlite3.
         'USER': 'SYSDBA',                      # Not used with sqlite3.
         'PASSWORD': 'masterkey',                  # Not used with sqlite3.
         'HOST': 'localhost',                      # Set to empty string for localhost. Not used with sqlite3.
@@ -138,7 +138,6 @@ MICROSIP_MODULES = (
     # Modules created for microsip and installed by default. You can add
     # here your own modules
     'inventarios',
-    'ventas',
 )
 
 # A sample logging configuration. The only tangible logging

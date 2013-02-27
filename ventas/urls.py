@@ -4,5 +4,5 @@ from ventas import views
 
 urlpatterns = patterns('',
     #FACTURAS
-    (r'^Facturas/$', views.facturas_View),
+    
 )

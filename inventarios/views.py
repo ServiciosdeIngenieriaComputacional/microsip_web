@@ -1,4 +1,4 @@
-#encoding:utf-8
+ #encoding:utf-8
 from django.shortcuts import render_to_response, get_object_or_404
 from django.http import HttpResponse, HttpResponseRedirect
 from django.template import RequestContext
@@ -408,3 +408,70 @@ def salida_delete(request, id = None):
 	salida.delete()
 
 	return HttpResponseRedirect('/Salidas/')
+
+
+													##########################################
+													## 										##
+													##              FACTURAS           	    ##
+													##										##
+													##########################################
+
+@login_required(login_url='/login/')
+def facturas_View(request, template_name='facturas/facturas.html'):
+	cuentaPublicoGeneral = get_object_or_404(CuentaCo, pk=3417) 
+	facturas = DoctoVe.objects.filter(contabilizado ='N').filter(tipo='F')
+
+	CuentasCobrables = CuentaCo.objects.all()
+
+	clientes = Cliente.objects.all
+	x=''
+	porcentaje =0 
+	for factura in facturas:
+		articulosFactura = DoctoVeDet.objects.filter(docto_ve=factura)
+		for articuloFactura in articulosFactura:
+			
+			impuesto_articulo = get_object_or_404(ImpuestosArticulo, articulo=articuloFactura.articulo)
+			porcentaje = impuesto_articulo.impuesto.porcentaje
+			x+= str(porcentaje)
+
+	#for factura in facturas:
+	# 	if factura.cliente.cuenta_xcobrar ==	'3417':
+	 #		x=x+1
+	 		#factura.cliente.cuenta_xcobrar = cuentaPublicoGeneral.cuenta
+	 		#factura.cliente.save()
+
+			#factura.cliente.cuenta_xcobrar = cuentaPublicoGeneral.cuenta
+			#factura.save()
+		
+			
+	# inventarios_fisicos_list = DoctosInvfis.objects.all().order_by('-fecha') 
+
+	# paginator = Paginator(inventarios_fisicos_list, 15) # Muestra 5 inventarios por pagina
+	# page = request.GET.get('page')
+
+	# #####PARA PAGINACION##############
+	# try:
+	# 	inventarios_fisicos = paginator.page(page)
+	# except PageNotAnInteger:
+	#     # If page is not an integer, deliver first page.
+	#     inventarios_fisicos = paginator.page(1)
+	# except EmptyPage:
+	#     # If page is out of range (e.g. 9999), deliver last page of results.
+	#     inventarios_fisicos = paginator.page(paginator.num_pages)
+
+	c = {'facturas':facturas, 'CuentasCobrables':CuentasCobrables,'x':x,}
+	return render_to_response(template_name, c, context_instance=RequestContext(request))
+
+@login_required(login_url='/login/')
+def configuracionVentas_View(request, template_name='configuracion/ventas.html'):
+	config_CuentasCobrables = ConfiguracionPolizas()
+
+	
+	
+	if request.method == 'POST':
+		CuentasCobrablesForm = ConfiguracionPolizasManageForm(results.POST, instance= config_CuentasCobrables)
+	else:
+		CuentasCobrablesForm = ConfiguracionPolizasManageForm(instance= config_CuentasCobrables)
+
+	c = {'CuentasCobrablesForm':CuentasCobrablesForm, }
+	return render_to_response(template_name, c, context_instance=RequestContext(request))

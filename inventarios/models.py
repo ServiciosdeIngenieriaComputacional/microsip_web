@@ -170,10 +170,6 @@ class ClavesProveedores(models.Model):
     class Meta:
         db_table = u'claves_proveedores'
 
-class Clientes(models.Model):
-    class Meta:
-        db_table = u'clientes'
-
 class Cobradores(models.Model):
     class Meta:
         db_table = u'cobradores'
@@ -257,6 +253,9 @@ class ConceptosNo(models.Model):
         db_table = u'conceptos_no'
 
 class CondicionesPago(models.Model):
+    id = models.AutoField(primary_key=True, db_column='COND_PAGO_ID')
+    nombre = models.CharField(max_length=50, db_column='NOMBRE')
+
     class Meta:
         db_table = u'condiciones_pago'
 
@@ -280,7 +279,13 @@ class CuentasBancarias(models.Model):
     class Meta:
         db_table = u'cuentas_bancarias'
 
-class CuentasCo(models.Model):
+class CuentaCo(models.Model):
+    id = models.AutoField(primary_key=True, db_column='CUENTA_ID')
+    nombre = models.CharField(max_length=50, db_column='NOMBRE')
+    cuenta = models.CharField(max_length=50, db_column='CUENTA_PT')
+    
+    def __unicode__(self):
+        return u'%s' % self.clave
     class Meta:
         db_table = u'cuentas_co'
 
@@ -451,19 +456,75 @@ class DoctosInDet(models.Model):
 
     class Meta:
         db_table = u'doctos_in_det'
+#######################################################VENTAS###############################################################################################
+############################################################################################################################################################
+############################################################################################################################################################
+############################################################################################################################################################
+############################################################################################################################################################
+class Cliente(models.Model):
+    id = models.AutoField(primary_key=True, db_column='CLIENTE_ID')
+    nombre = models.CharField(max_length=9, db_column='NOMBRE')
+    cuenta_xcobrar = models.CharField(max_length=9, db_column='CUENTA_CXC')
+
+    class Meta:
+        db_table = u'clientes'
 
 class TiposImpuestos(models.Model):
-    TIPO_IMPTO_ID = models.AutoField(primary_key=True)
-    name = models.CharField(max_length=30, db_column='NOMBRE')
+    id = models.AutoField(primary_key=True, db_column='TIPO_IMPTO_ID')
+    nombre = models.CharField(max_length=30, db_column='NOMBRE')
     tipo = models.CharField(max_length=30, db_column='TIPO')
 
     class Meta:
         db_table = u'tipos_impuestos'
 
 class Impuestos(models.Model):
-    IMPUESTO_ID = models.AutoField(primary_key=True)
+    id = models.AutoField(primary_key=True, db_column='IMPUESTO_ID')
     tipoImpuesto = models.ForeignKey(TiposImpuestos, on_delete= models.SET_NULL, blank=True, null=True, db_column='TIPO_IMPTO_ID')
-    name = models.CharField(max_length=30, db_column='NOMBRE')
-    
+    nombre = models.CharField(max_length=30, db_column='NOMBRE')
+    porcentaje = models.DecimalField(default=0, blank=True, null=True, max_digits=9, decimal_places=6, db_column='PCTJE_IMPUESTO')
+
     class Meta:
         db_table = u'impuestos'
+
+class DoctoVe(models.Model):
+    id = models.AutoField(primary_key=True, db_column='DOCTO_VE_ID')
+    folio = models.CharField(max_length=9, db_column='FOLIO')
+    contabilizado = models.CharField(default='N', max_length=1, db_column='CONTABILIZADO')
+    cliente = models.ForeignKey(Cliente, db_column='CLIENTE_ID')
+    tipo = models.CharField(max_length=1, db_column='TIPO_DOCTO')
+
+
+    #almacen = models.ForeignKey(Almacenes, db_column='ALMACEN_ID')
+    #condicion_pago = models.ForeignKey(CondicionesPago, on_delete= models.SET_NULL, blank=True, null=True, db_column='COND_PAGO_ID')
+    def __unicode__(self):
+        return u'%s' % self.id
+    class Meta:
+        db_table = u'doctos_ve'
+
+class DoctoVeDet(models.Model):
+    id = models.AutoField(primary_key=True, db_column='DOCTO_VE_DET_ID')
+    docto_ve = models.ForeignKey(DoctoVe, on_delete= models.SET_NULL, blank=True, null=True, db_column='DOCTO_VE_ID')
+    articulo = models.ForeignKey(Articulos, on_delete= models.SET_NULL, blank=True, null=True, db_column='ARTICULO_ID')
+
+    class Meta:
+        db_table = u'doctos_ve_det'
+
+class ImpuestosArticulo(models.Model):
+    id = models.AutoField(primary_key=True, db_column='IMPUESTO_ART_ID')
+    articulo = models.ForeignKey(Articulos, on_delete= models.SET_NULL, blank=True, null=True, db_column='ARTICULO_ID')
+    impuesto = models.ForeignKey(Impuestos, on_delete= models.SET_NULL, blank=True, null=True, db_column='IMPUESTO_ID')
+
+    class Meta:
+        db_table = u'impuestos_articulos'
+#############################################################################################################################################################
+##################################################MODELOS DE APLICACION DJANGO###############################################################################
+#############################################################################################################################################################
+
+class ConfiguracionPolizas(models.Model):
+    CuentaPublicoGral = models.ForeignKey(CuentaCo, on_delete= models.SET_NULL, blank=True, null=True)
+
+    def __unicode__(self):
+        return u'%s' % self.id
+#############################################################################################################################################################
+#############################################################################################################################################################
+#############################################################################################################################################################

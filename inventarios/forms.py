@@ -64,7 +64,10 @@ class DoctosInvfisDetManageForm(forms.ModelForm):
 		exclude = (
 			'claveArticulo',
 			)
-		
+class ConfiguracionPolizasManageForm(forms.ModelForm):
+	class Meta:
+		model = ConfiguracionPolizas
+
 def doctoIn_items_formset(form, formset = BaseInlineFormSet, **kwargs):
 	return inlineformset_factory(DoctosIn, DoctosInDet, form, formset, **kwargs)
 

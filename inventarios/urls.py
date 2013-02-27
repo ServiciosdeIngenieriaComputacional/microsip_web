@@ -22,4 +22,9 @@ urlpatterns = patterns('',
     #LOGIN
     url(r'^login/$',views.ingresar),
     url(r'^logout/$', views.logoutUser),
+    #FACTURAS
+    (r'^Facturas/$', views.facturas_View),
+    (r'^ConfiguracionVentas/$', views.configuracionVentas_View),
+    (r'^ConfiguracionVentas/(?P<id>\d+)/$', views.configuracionVentas_View),
+
 )

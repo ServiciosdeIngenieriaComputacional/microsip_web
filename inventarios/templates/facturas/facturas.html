@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+{% block title %}Inicio{% endblock %}
+
+<!-- CSS Code -->
+{% block style_css %}{% endblock %}
+
+<!-- JavaScript Code -->
+{% block js_code %}{% endblock %}
+
+{% block breadcrumb %}{{ block.super }} Facturas {% endblock %}
+{% block content %}
+FACTURAS[{{ facturas.count }}]
+x= {{ x }}
+<hr>
+<table class="table tableCell table-hover">
+    <tr>
+    	<th>ID</th>
+      	<th>FOLIO</th>
+      	<th>CLIENTE</th>
+      	<th>CUENTA</th>
+    </tr>
+	{% for factura in facturas %}
+	<tr>
+	  	<td>{{ factura.id }}</td>
+	  	<td>{{ factura.folio }}</td>
+	  	<td>{{ factura.cliente.nombre }}</td>
+	  	<td>{{ factura.cliente.cuenta_xcobrar }}<td>
+	</tr>
+	{% endfor %}
+</table>
+<hr>
+CUENTAS
+<hr>
+{% for cuenta in CuentasCobrables %}
+	{{ cuenta.cuenta }}<br>
+{% endfor %}
+
+
+{% endblock %}
