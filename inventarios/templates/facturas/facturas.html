@@ -14,17 +14,19 @@ x= {{ x }}
 <hr>
 <table class="table tableCell table-hover">
     <tr>
-    	<th>ID</th>
       	<th>FOLIO</th>
-      	<th>CLIENTE</th>
-      	<th>CUENTA</th>
+      	<th>TOTAL</th>
+      	<th>VENTAS_0</th>
+      	<th>VENTAS_16</th>
+      	<th>IVA TRANSALDADO</th>
     </tr>
 	{% for factura in facturas %}
 	<tr>
-	  	<td>{{ factura.id }}</td>
 	  	<td>{{ factura.folio }}</td>
-	  	<td>{{ factura.cliente.nombre }}</td>
-	  	<td>{{ factura.cliente.cuenta_xcobrar }}<td>
+	  	<td>{{ factura.total }}</td>
+	  	<td>{{ factura.ventas_0 }}</td>
+	  	<td>{{ factura.ventas_16 }}</td>
+	  	<td>{{ factura.impuesos }}({{ factura.cuantos }})</td>
 	</tr>
 	{% endfor %}
 </table>

@@ -492,8 +492,8 @@ class DoctoVe(models.Model):
     contabilizado = models.CharField(default='N', max_length=1, db_column='CONTABILIZADO')
     cliente = models.ForeignKey(Cliente, db_column='CLIENTE_ID')
     tipo = models.CharField(max_length=1, db_column='TIPO_DOCTO')
-
-
+    importe_neto = models.DecimalField(max_digits=15, decimal_places=2, db_column='IMPORTE_NETO')
+    total_impuestos = models.DecimalField(max_digits=15, decimal_places=2, db_column='TOTAL_IMPUESTOS')
     #almacen = models.ForeignKey(Almacenes, db_column='ALMACEN_ID')
     #condicion_pago = models.ForeignKey(CondicionesPago, on_delete= models.SET_NULL, blank=True, null=True, db_column='COND_PAGO_ID')
     def __unicode__(self):
@@ -505,6 +505,10 @@ class DoctoVeDet(models.Model):
     id = models.AutoField(primary_key=True, db_column='DOCTO_VE_DET_ID')
     docto_ve = models.ForeignKey(DoctoVe, on_delete= models.SET_NULL, blank=True, null=True, db_column='DOCTO_VE_ID')
     articulo = models.ForeignKey(Articulos, on_delete= models.SET_NULL, blank=True, null=True, db_column='ARTICULO_ID')
+    unidades = models.DecimalField(max_digits=18, decimal_places=5, db_column='UNIDADES')
+    precio_unitario = models.DecimalField(max_digits=18, decimal_places=6, db_column='PRECIO_UNITARIO')
+    porcentaje_decuento = models.DecimalField(max_digits=9, decimal_places=6, db_column='PCTJE_DSCTO')
+    precio_total_neto = models.DecimalField(max_digits=15, decimal_places=2, db_column='PRECIO_TOTAL_NETO')
 
     class Meta:
         db_table = u'doctos_ve_det'

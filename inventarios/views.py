@@ -419,21 +419,58 @@ def salida_delete(request, id = None):
 @login_required(login_url='/login/')
 def facturas_View(request, template_name='facturas/facturas.html'):
 	cuentaPublicoGeneral = get_object_or_404(CuentaCo, pk=3417) 
-	facturas = DoctoVe.objects.filter(contabilizado ='N').filter(tipo='F')
+	#facturas = DoctoVe.objects.filter(contabilizado ='N').filter(tipo='F')
+	facturas = DoctoVe.objects.filter(tipo='F')
 
 	CuentasCobrables = CuentaCo.objects.all()
 
 	clientes = Cliente.objects.all
 	x=''
-	porcentaje =0 
-	for factura in facturas:
-		articulosFactura = DoctoVeDet.objects.filter(docto_ve=factura)
-		for articuloFactura in articulosFactura:
-			
-			impuesto_articulo = get_object_or_404(ImpuestosArticulo, articulo=articuloFactura.articulo)
-			porcentaje = impuesto_articulo.impuesto.porcentaje
-			x+= str(porcentaje)
+	porcentaje 	= 0 
+	impuestos 	= 0 
+	total 		= 0
+	total_decuento = 0 
+	ventas_16 	= 0
+	ventas_0 	= 0
+	impuestos_articulos_excentos = ImpuestosArticulo.objects.filter(impuesto__id=205)
+	
+	arti_exentos = []
+	
+	for impuesto_articulo in impuestos_articulos_excentos:
+		arti_exentos.append(impuesto_articulo.articulo.id)
 
+	facturasData = []
+
+	for factura in facturas:
+		impuesos = factura.total_impuestos
+		total = factura.total_impuestos + factura.importe_neto
+		
+		articulos_exentos = DoctoVeDet.objects.filter(docto_ve= factura).exclude(articulo__id__in=arti_exentos)
+
+
+		#articulos_exentos = DoctoVeDet.objects.filter(docto_ve= factura).exclude(articulo__id=370)
+		cuantos = articulos_exentos.count
+		#total_decuento = 0 
+		
+		ventas_0 = 0 
+		for articulo in articulos_exentos:
+			ventas_0 += articulo.precio_total_neto
+
+		ventas_16 = total - impuesos - ventas_0
+
+		facturasData.append ({
+			'folio':factura.folio,
+			'total':total,
+			'ventas_0':ventas_0,
+			'ventas_16':ventas_16,
+			'impuesos':impuesos,
+			'cuantos':impuestos_articulos_excentos[0].articulo.nombre,
+			})
+
+		#	if articulo.porcentaje_decuento > 0:
+		#		total_decuento +=(articulo.unidades * articulo.precio_unitario)*(articulo.porcentaje_decuento/100)
+		
+		#x = "%s, %s [%s]"% (x, factura.folio, total_decuento)
 	#for factura in facturas:
 	# 	if factura.cliente.cuenta_xcobrar ==	'3417':
 	 #		x=x+1
@@ -459,7 +496,7 @@ def facturas_View(request, template_name='facturas/facturas.html'):
 	#     # If page is out of range (e.g. 9999), deliver last page of results.
 	#     inventarios_fisicos = paginator.page(paginator.num_pages)
 
-	c = {'facturas':facturas, 'CuentasCobrables':CuentasCobrables,'x':x,}
+	c = {'facturas':facturasData, 'CuentasCobrables':CuentasCobrables,'x':x,}
 	return render_to_response(template_name, c, context_instance=RequestContext(request))
 
 @login_required(login_url='/login/')
