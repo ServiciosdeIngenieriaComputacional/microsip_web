@@ -9,9 +9,12 @@
 
 {% block breadcrumb %}{{ block.super }} Facturas {% endblock %}
 {% block content %}
-FACTURAS[{{ facturas.count }}]
-x= {{ x }}
+<div class="alert alert-block alert-error fade in">
+    <button type="button" class="close" data-dismiss="alert">×</button>
+    <strong>Ocurio un Problema!</strong> {{ msg }}.
+</div>
 <hr>
+
 <table class="table tableCell table-hover">
     <tr>
       	<th>FOLIO</th>
@@ -26,16 +29,11 @@ x= {{ x }}
 	  	<td>{{ factura.total }}</td>
 	  	<td>{{ factura.ventas_0 }}</td>
 	  	<td>{{ factura.ventas_16 }}</td>
-	  	<td>{{ factura.impuesos }}({{ factura.cuantos }})</td>
+	  	<td>{{ factura.impuesos }}</td>
 	</tr>
 	{% endfor %}
 </table>
 <hr>
-CUENTAS
-<hr>
-{% for cuenta in CuentasCobrables %}
-	{{ cuenta.cuenta }}<br>
-{% endfor %}
 
 
 {% endblock %}
