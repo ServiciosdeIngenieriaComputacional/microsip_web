@@ -10,11 +10,12 @@
 {% block breadcrumb %}{{ block.super }} Facturas {% endblock %}
 {% block content %}
 
-
+{% if msg %}
 <div class="alert alert-block alert-error fade in">
     <button type="button" class="close" data-dismiss="alert">×</button>
     <strong>Ocurio un Problema!</strong> {{ msg }}.
 </div>
+{% endif %}
 <hr>
 
 <table class="table tableCell table-hover">

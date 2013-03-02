@@ -395,11 +395,23 @@ class Moneda(models.Model):
         db_table = u'monedas'
 
 class TipoPoliza(models.Model):
-    id      = models.AutoField(primary_key=True, db_column='TIPO_POLIZA_ID')
-    nombre  = models.CharField(max_length=30, db_column='NOMBRE')
+    id          = models.AutoField(primary_key=True, db_column='TIPO_POLIZA_ID')
+    nombre      = models.CharField(max_length=30, db_column='NOMBRE')
+    tipo_consec = models.CharField(max_length=1, db_column='TIPO_CONSEC')
+    prefijo = models.CharField(max_length=1, db_column='PREFIJO')
 
     class Meta:
         db_table = u'tipos_polizas'
+
+class TipoPolizaDet(models.Model):
+    id              = models.AutoField(primary_key=True, db_column='TIPO_POLIZA_DET_ID')
+    tipo_poliza     = models.ForeignKey(TipoPoliza, db_column='TIPO_POLIZA_ID')
+    ano         = models.SmallIntegerField(db_column='ANO')
+    mes         = models.SmallIntegerField(db_column='MES')
+    consecutivo = models.IntegerField(db_column='CONSECUTIVO')
+
+    class Meta:
+        db_table = u'tipos_polizas_det'
 
 class DoctoCo(models.Model):
     id                      = models.AutoField(primary_key=True, db_column='DOCTO_CO_ID')

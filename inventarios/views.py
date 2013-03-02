@@ -22,7 +22,7 @@ from django.contrib.auth.decorators import login_required, permission_required
 from django.db import connection
 import xlrd
 from django.utils.encoding import smart_str, smart_unicode
-from django.db.models import Sum
+from django.db.models import Sum, Max
 
 ##########################################
 ## 										##
@@ -418,177 +418,171 @@ def salida_delete(request, id = None):
 
 @login_required(login_url='/login/')
 def facturas_View(request, template_name='facturas/facturas.html'):
-	cuentaPublicoGeneral = get_object_or_404(CuentaCo, pk=3417) 
-	facturas = DoctoVe.objects.filter(tipo='F').filter(contabilizado ='N')[:99]
-	facturasData = []
-	msg= ''
-	depto_co = get_object_or_404(DeptoCo, pk=2090) 
-	no_poliza = 000000003
-	for factura in facturas:
-		impuestos = factura.total_impuestos
+	fecha_actual 			= datetime.date.today()
+	cuentaPublicoGeneral 	= get_object_or_404(CuentaCo, pk=3417) 
+	facturas 				= DoctoVe.objects.filter(tipo='F').filter(contabilizado ='N')[:10]
+	facturasData 			= []
+	error 					= ''
+	msg 					= ''
+	depto_co 				= get_object_or_404(DeptoCo, pk=2090) 
+	tipo_poliza 			= get_object_or_404(TipoPoliza, pk=2088)#<-------------------------------------PENDIENTE VER COMO VOY A TOMAR ESTE DATO
 
-		#SI EL CLIENTE NO TIENE NO TIENE CUENTA SE VA A PUBLICO EN GENERAL
-		if factura.cliente.cuenta_xcobrar != None:
-			cuentaxcobrar =  get_object_or_404(CuentaCo, cuenta = factura.cliente.cuenta_xcobrar)
-		else:
-			cuentaxcobrar = cuentaPublicoGeneral
+	if tipo_poliza.tipo_consec == 'M':
+		tipo_poliza_det = TipoPolizaDet.objects.filter(tipo_poliza = tipo_poliza).filter(mes=fecha_actual.month)
+	elif tipo_poliza.tipo_consec == 'E':
+		tipo_poliza_det = TipoPolizaDet.objects.filter(tipo_poliza = tipo_poliza).filter(ano=fecha_actual.year)
+	elif tipo_poliza.tipo_consec == 'P':
+		tipo_poliza_det = TipoPolizaDet.objects.filter(tipo_poliza = tipo_poliza)
 
-		tipo_cambio = factura.tipo_cambio
-		total = factura.total_impuestos + factura.importe_neto
-		total_ventas_0 = DoctoVeDet.objects.filter(docto_ve= factura).extra(
-			tables =['impuestos_articulos', 'impuestos'],
-			where =
-			[
-				"impuestos_articulos.ARTICULO_ID = doctos_ve_det.ARTICULO_ID",
-				"impuestos.IMPUESTO_ID = impuestos_articulos.IMPUESTO_ID",
-				"impuestos.PCTJE_IMPUESTO = 0 ",
-			],
-		).aggregate(ventas_0 = Sum('precio_total_neto'))
+	if tipo_poliza_det[0] == None:
+		error = 'no_cons_polizas'
+	else:
+		error = ''
+		consecutivo_poliza = tipo_poliza_det[0].consecutivo
+	
+	if not error == 'no_cons_polizas':
+		for factura in facturas:
+			impuestos = factura.total_impuestos
+			#SI EL CLIENTE NO TIENE NO TIENE CUENTA SE VA A PUBLICO EN GENERAL
+			if not factura.cliente.cuenta_xcobrar == None:
+				cuentaxcobrar =  get_object_or_404(CuentaCo, cuenta = factura.cliente.cuenta_xcobrar)
+			else:
+				cuentaxcobrar = cuentaPublicoGeneral
 
-		if total_ventas_0['ventas_0'] == None:
-			ventas_0 = 0 
-		else:
-			ventas_0 = total_ventas_0['ventas_0']
+			tipo_cambio = factura.tipo_cambio
+			total = factura.total_impuestos + factura.importe_neto
+			total_ventas_0 = DoctoVeDet.objects.filter(docto_ve= factura).extra(
+				tables =['impuestos_articulos', 'impuestos'],
+				where =
+				[
+					"impuestos_articulos.ARTICULO_ID = doctos_ve_det.ARTICULO_ID",
+					"impuestos.IMPUESTO_ID = impuestos_articulos.IMPUESTO_ID",
+					"impuestos.PCTJE_IMPUESTO = 0 ",
+				],
+			).aggregate(ventas_0 = Sum('precio_total_neto'))
 
-		ventas_16 = total - ventas_0 - impuestos 
+			if total_ventas_0['ventas_0'] == None:
+				ventas_0 = 0 
+			else:
+				ventas_0 = total_ventas_0['ventas_0']
 
-		if ventas_16 < 0:
-			msg = 'Existe al menos una factura del cluiente %s el cual [no tiene indicado cobrar inpuestos] por favor corrije esto para poder crear las polizas de este ciente '% factura.cliente.nombre
-		else:
-			id_poli = c_get_next_key('ID_DOCTOS')
-			poliza = DoctoCo(
-				id                    	= id_poli,
-				tipo_poliza				= get_object_or_404(TipoPoliza, pk=2088),#<-------------------------------------PENDIENTE VER COMO VOY A TOMAR ESTE DATO
-				poliza					= no_poliza,
-				fecha 					= datetime.date.today(),
-				moneda 					= factura.moneda, 
-				tipo_cambio 			= tipo_cambio,
-				estatus 				= 'P', cancelado= 'N', aplicado = 'N', ajuste = 'N', integ_co = 'S',
-				descripcion 			= factura.folio,
-				forma_emitida 			= 'N', sistema_origen = 'CO',
-				nombre 					= '',
-				grupo_poliza_periodo 	= None,
-				integ_ba 				= 'N',
-				usuario_creador			= 'SYSDBA',
-				fechahora_creacion		= datetime.datetime.now(), usuario_aut_creacion = None, 
-				usuario_ult_modif 		= 'SYSDBA', fechahora_ult_modif = datetime.datetime.now(), usuario_aut_modif 	= None,
-				usuario_cancelacion 	= None, fechahora_cancelacion 	=  None, usuario_aut_cancelacion 				= None,
-			)
+			ventas_16 = total - ventas_0 - impuestos 
 
-			#GUARDA LA PILIZA
-			poliza_o = poliza.save()
-			no_poliza += 1 
+			if ventas_16 < 0:
+				msg = 'Existe al menos una factura del cluiente %s el cual [no tiene indicado cobrar inpuestos] por favor corrije esto para poder crear las polizas de este ciente '% factura.cliente.nombre
+			else:
+				id_poli = c_get_next_key('ID_DOCTOS')
+				poliza = DoctoCo(
+					id                    	= id_poli,
+					tipo_poliza				= tipo_poliza,
+					poliza					= "%09d" % consecutivo_poliza,
+					fecha 					= datetime.date.today(),
+					moneda 					= factura.moneda, 
+					tipo_cambio 			= tipo_cambio,
+					estatus 				= 'P', cancelado= 'N', aplicado = 'N', ajuste = 'N', integ_co = 'S',
+					descripcion 			= factura.folio,
+					forma_emitida 			= 'N', sistema_origen = 'CO',
+					nombre 					= '',
+					grupo_poliza_periodo 	= None,
+					integ_ba 				= 'N',
+					usuario_creador			= 'SYSDBA',
+					fechahora_creacion		= datetime.datetime.now(), usuario_aut_creacion = None, 
+					usuario_ult_modif 		= 'SYSDBA', fechahora_ult_modif = datetime.datetime.now(), usuario_aut_modif 	= None,
+					usuario_cancelacion 	= None, fechahora_cancelacion 	=  None, usuario_aut_cancelacion 				= None,
+				)
 
-			#polizaNueva = get_object_or_404(DoctoCo, pk=poliza_o)
+				#GUARDA LA PILIZA
+				poliza_o = poliza.save()
+				consecutivo_poliza += 1 
+				DoctosCoDet.objects.bulk_create([
+					#DEBE
+					DoctosCoDet(
+						id				= -1,
+						docto_co		= poliza,
+						cuenta			= cuentaxcobrar,
+						depto_co		=  depto_co,
+						tipo_asiento	= 'C',
+						importe			= total,
+						importe_mn		= 0,#PENDIENTE
+						ref				= factura.folio,
+						descripcion		= '',
+						posicion		= 1,
+						recordatorio	= None,
+						fecha			= datetime.date.today(),
+						cancelado		= 'N', aplicado = 'N', ajuste = 'N', 
+						moneda			= factura.moneda,
+					),
+					#HABER 0% en este caso el lade el id: 3414
+					DoctosCoDet(
+						id				= -1,
+						docto_co		= poliza,
+						cuenta			= get_object_or_404(CuentaCo, pk=3414),
+						depto_co		= depto_co,
+						tipo_asiento	= 'A',
+						importe			= ventas_0,
+						importe_mn		= 0,
+						ref				= factura.folio,
+						descripcion		= '',
+						posicion		= 2,
+						recordatorio	= None,
+						fecha			= datetime.date.today(),
+						cancelado		= 'N', aplicado = 'N', ajuste = 'N', 
+						moneda			= factura.moneda,
+					),
+					#HABER 16% en este caso el lade el id: 3415
+					DoctosCoDet(
+						id				= -1,
+						docto_co		= poliza,
+						cuenta			= get_object_or_404(CuentaCo, pk=3415),
+						depto_co		= depto_co,
+						tipo_asiento	= 'A',
+						importe			= ventas_16,
+						importe_mn		= 0,
+						ref				= factura.folio,
+						descripcion		= '',
+						posicion		= 3,
+						recordatorio	= None,
+						fecha			= datetime.date.today(),
+						cancelado		= 'N', aplicado = 'N', ajuste = 'N', 
+						moneda			= factura.moneda,
+					),
+					#HABER IMPUESTOS en este caso el lade el id: 2178
+					DoctosCoDet(
+						id				= -1,
+						docto_co		= poliza,
+						cuenta			= get_object_or_404(CuentaCo, pk=2178),
+						depto_co		= depto_co,
+						tipo_asiento	= 'A',
+						importe			= impuestos,
+						importe_mn		= 0,
+						ref				= factura.folio,
+						descripcion		= '',
+						posicion		= 4,
+						recordatorio	= None,
+						fecha			= datetime.date.today(),
+						cancelado		= 'N', aplicado = 'N', ajuste = 'N', 
+						moneda			= factura.moneda,
+					),
+				])
 
+			facturasData.append ({
+				'folio'		:factura.folio,
+				'total'		:total,
+				'ventas_0'	:ventas_0,
+				'ventas_16'	:ventas_16,
+				'impuesos'	:impuestos,
+				'tipo_cambio':tipo_cambio,
+				})
 
-			# doctosDet =DoctosCoDet(
-			# 		id				= -1,
-			# 		docto_co		= poliza,
-			# 		cuenta			= cuentaxcobrar,
-			# 		depto_co		=  depto_co,
-			# 		tipo_asiento	= 'C',
-			# 		importe			= total,
-			# 		importe_mn		= 0,
-			# 		ref				= factura.folio,
-			# 		descripcion		= '',
-			# 		posicion		= 1,
-			# 		recordatorio	= None,
-			# 		fecha			= datetime.date.today(),
-			# 		cancelado		= 'N', aplicado = 'N', ajuste = 'N', 
-			# 		moneda			= factura.moneda,
-			# )
+		tipo_poliza_det.update(consecutivo=consecutivo_poliza)
+		#Entry.objects.select_related().filter(blog=b).update
+		#consecutivo_db 	= get_object_or_404(TipoPolizaDet, pk=tipo_poliza_det[0].id) 
+		#consecutivo_db 	= consecutivo_poliza.save()
+	else:
+		msg ='las polizas no se crearon por que [NO SE HA INDICADO UN CONSECUTIVO]'
 
-			# doctosDet.save()
+	
 
-			DoctosCoDet.objects.bulk_create([
-				#DEBE
-				DoctosCoDet(
-					id				= -1,
-					docto_co		= poliza,
-					cuenta			= cuentaxcobrar,
-					depto_co		=  depto_co,
-					tipo_asiento	= 'C',
-					importe			= total,
-					importe_mn		= 0,
-					ref				= factura.folio,
-					descripcion		= '',
-					posicion		= 1,
-					recordatorio	= None,
-					fecha			= datetime.date.today(),
-					cancelado		= 'N', aplicado = 'N', ajuste = 'N', 
-					moneda			= factura.moneda,
-				),
-				#HABER 0% en este caso el lade el id: 3414
-				DoctosCoDet(
-					id				= -1,
-					docto_co		= poliza,
-					cuenta			= get_object_or_404(CuentaCo, pk=3414),
-					depto_co		= depto_co,
-					tipo_asiento	= 'A',
-					importe			= ventas_0,
-					importe_mn		= 0,
-					ref				= factura.folio,
-					descripcion		= '',
-					posicion		= 2,
-					recordatorio	= None,
-					fecha			= datetime.date.today(),
-					cancelado		= 'N', aplicado = 'N', ajuste = 'N', 
-					moneda			= factura.moneda,
-				),
-				#HABER 16% en este caso el lade el id: 3415
-				DoctosCoDet(
-					id				= -1,
-					docto_co		= poliza,
-					cuenta			= get_object_or_404(CuentaCo, pk=3415),
-					depto_co		= depto_co,
-					tipo_asiento	= 'A',
-					importe			= ventas_16,
-					importe_mn		= 0,
-					ref				= factura.folio,
-					descripcion		= '',
-					posicion		= 3,
-					recordatorio	= None,
-					fecha			= datetime.date.today(),
-					cancelado		= 'N', aplicado = 'N', ajuste = 'N', 
-					moneda			= factura.moneda,
-				),
-				#HABER IMPUESTOS en este caso el lade el id: 2178
-				DoctosCoDet(
-					id				= -1,
-					docto_co		= poliza,
-					cuenta			= get_object_or_404(CuentaCo, pk=2178),
-					depto_co		= depto_co,
-					tipo_asiento	= 'A',
-					importe			= impuestos,
-					importe_mn		= 0,
-					ref				= factura.folio,
-					descripcion		= '',
-					posicion		= 4,
-					recordatorio	= None,
-					fecha			= datetime.date.today(),
-					cancelado		= 'N', aplicado = 'N', ajuste = 'N', 
-					moneda			= factura.moneda,
-				),
-			])
-
-			#GUARDA LA PILIZA
-			#poliza.save()
-			
-			#GUARDA LOS DETALLES DE LA PILIZA
-			#detalle_polizas_debe.save()
-			#detalle_polizas_ventas_0.save()
-			#detalle_polizas_ventas_16.save()
-			#detalle_polizas_iva_transladado.save()
-
-		facturasData.append ({
-			'folio'		:factura.folio,
-			'total'		:total,
-			'ventas_0'	:ventas_0,
-			'ventas_16'	:ventas_16,
-			'impuesos'	:impuestos,
-			'tipo_cambio':tipo_cambio,
-			})
 
 	c = {'facturas':facturasData,'msg':msg,}
 	return render_to_response(template_name, c, context_instance=RequestContext(request))
