@@ -417,7 +417,7 @@ class DoctoCo(models.Model):
     forma_emitida           = models.CharField(default='N', max_length=1, db_column='FORMA_EMITIDA')
     sistema_origen          = models.CharField(max_length=2, db_column='SISTEMA_ORIGEN')
     nombre                  = models.CharField(blank=True, null=True, max_length=30, db_column='NOMBRE')
-    grupo_poliza_periodo    = models.ForeignKey(GrupoPolizasPeriodoCo, db_column='GRUPO_POL_PERIOD_ID')
+    grupo_poliza_periodo    = models.ForeignKey(GrupoPolizasPeriodoCo, blank=True, null=True, db_column='GRUPO_POL_PERIOD_ID')
     integ_ba                = models.CharField(default='N', max_length=1, db_column='INTEG_BA')
     
     usuario_creador         = models.CharField(max_length=31, db_column='USUARIO_CREADOR')
@@ -444,7 +444,7 @@ class DoctosCoDet(models.Model):
     ref         = models.CharField(max_length=10, db_column='REFER')
     descripcion = models.CharField(blank=True, null=True, max_length=200, db_column='DESCRIPCION')
     posicion    = models.IntegerField(default=0)
-    recordatorio= models.ForeignKey(Recordatorio, db_column='RECORDATORIO_ID')
+    recordatorio= models.ForeignKey(Recordatorio, blank=True, null=True, db_column='RECORDATORIO_ID')
     fecha       = models.DateField(db_column='FECHA')
     cancelado   = models.CharField(default='N', max_length=1, db_column='CANCELADO')
     aplicado    = models.CharField(default='N', max_length=1, db_column='APLICADO')
