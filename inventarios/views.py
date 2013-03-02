@@ -419,9 +419,9 @@ def salida_delete(request, id = None):
 @login_required(login_url='/login/')
 def facturas_View(request, template_name='facturas/facturas.html'):
 	cuentaPublicoGeneral = get_object_or_404(CuentaCo, pk=3417) 
-	facturas = DoctoVe.objects.filter(tipo='F').filter(contabilizado ='N')
+	facturas = DoctoVe.objects.filter(tipo='F').filter(contabilizado ='N')[:99]
 	facturasData = []
-
+	msg= ''
 	depto_co = get_object_or_404(DeptoCo, pk=2090) 
 	no_poliza = 000000003
 	for factura in facturas:
@@ -455,9 +455,9 @@ def facturas_View(request, template_name='facturas/facturas.html'):
 		if ventas_16 < 0:
 			msg = 'Existe al menos una factura del cluiente %s el cual [no tiene indicado cobrar inpuestos] por favor corrije esto para poder crear las polizas de este ciente '% factura.cliente.nombre
 		else:
-			
+			id_poli = c_get_next_key('ID_DOCTOS')
 			poliza = DoctoCo(
-				id                    	= -1,
+				id                    	= id_poli,
 				tipo_poliza				= get_object_or_404(TipoPoliza, pk=2088),#<-------------------------------------PENDIENTE VER COMO VOY A TOMAR ESTE DATO
 				poliza					= no_poliza,
 				fecha 					= datetime.date.today(),
@@ -478,12 +478,34 @@ def facturas_View(request, template_name='facturas/facturas.html'):
 			#GUARDA LA PILIZA
 			poliza_o = poliza.save()
 			no_poliza += 1 
-			
+
+			#polizaNueva = get_object_or_404(DoctoCo, pk=poliza_o)
+
+
+			# doctosDet =DoctosCoDet(
+			# 		id				= -1,
+			# 		docto_co		= poliza,
+			# 		cuenta			= cuentaxcobrar,
+			# 		depto_co		=  depto_co,
+			# 		tipo_asiento	= 'C',
+			# 		importe			= total,
+			# 		importe_mn		= 0,
+			# 		ref				= factura.folio,
+			# 		descripcion		= '',
+			# 		posicion		= 1,
+			# 		recordatorio	= None,
+			# 		fecha			= datetime.date.today(),
+			# 		cancelado		= 'N', aplicado = 'N', ajuste = 'N', 
+			# 		moneda			= factura.moneda,
+			# )
+
+			# doctosDet.save()
+
 			DoctosCoDet.objects.bulk_create([
 				#DEBE
 				DoctosCoDet(
 					id				= -1,
-					docto_co		= poliza_o,
+					docto_co		= poliza,
 					cuenta			= cuentaxcobrar,
 					depto_co		=  depto_co,
 					tipo_asiento	= 'C',
@@ -500,7 +522,7 @@ def facturas_View(request, template_name='facturas/facturas.html'):
 				#HABER 0% en este caso el lade el id: 3414
 				DoctosCoDet(
 					id				= -1,
-					docto_co		= poliza_o,
+					docto_co		= poliza,
 					cuenta			= get_object_or_404(CuentaCo, pk=3414),
 					depto_co		= depto_co,
 					tipo_asiento	= 'A',
@@ -517,7 +539,7 @@ def facturas_View(request, template_name='facturas/facturas.html'):
 				#HABER 16% en este caso el lade el id: 3415
 				DoctosCoDet(
 					id				= -1,
-					docto_co		= poliza_o,
+					docto_co		= poliza,
 					cuenta			= get_object_or_404(CuentaCo, pk=3415),
 					depto_co		= depto_co,
 					tipo_asiento	= 'A',
@@ -534,7 +556,7 @@ def facturas_View(request, template_name='facturas/facturas.html'):
 				#HABER IMPUESTOS en este caso el lade el id: 2178
 				DoctosCoDet(
 					id				= -1,
-					docto_co		= poliza_o,
+					docto_co		= poliza,
 					cuenta			= get_object_or_404(CuentaCo, pk=2178),
 					depto_co		= depto_co,
 					tipo_asiento	= 'A',
@@ -559,14 +581,14 @@ def facturas_View(request, template_name='facturas/facturas.html'):
 			#detalle_polizas_ventas_16.save()
 			#detalle_polizas_iva_transladado.save()
 
-		# facturasData.append ({
-		# 	'folio'		:factura.folio,
-		# 	'total'		:total,
-		# 	'ventas_0'	:ventas_0,
-		# 	'ventas_16'	:ventas_16,
-		# 	'impuesos'	:impuestos,
-		# 	'tipo_cambio':tipo_cambio,
-		# 	})
+		facturasData.append ({
+			'folio'		:factura.folio,
+			'total'		:total,
+			'ventas_0'	:ventas_0,
+			'ventas_16'	:ventas_16,
+			'impuesos'	:impuestos,
+			'tipo_cambio':tipo_cambio,
+			})
 
 	c = {'facturas':facturasData,'msg':msg,}
 	return render_to_response(template_name, c, context_instance=RequestContext(request))

@@ -430,6 +430,8 @@ class DoctoCo(models.Model):
     fechahora_cancelacion   = models.DateTimeField(auto_now=True, blank=True, null=True, db_column='FECHA_HORA_CANCELACION')
     usuario_aut_cancelacion = models.CharField(blank=True, null=True, max_length=31, db_column='USUARIO_AUT_CANCELACION')
 
+    def __unicode__(self):
+        return u'%s' % self.id
     class Meta:
         db_table = u'doctos_co'
 
