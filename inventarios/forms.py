@@ -64,6 +64,12 @@ class DoctosInvfisDetManageForm(forms.ModelForm):
 		exclude = (
 			'claveArticulo',
 			)
+
+class GenerarPolizasManageForm(forms.Form):
+	fecha_ini =  forms.DateInput()
+	fecha_fin =  forms.DateInput()
+
+
 class ConfiguracionPolizasManageForm(forms.ModelForm):
 	class Meta:
 		model = ConfiguracionPolizas

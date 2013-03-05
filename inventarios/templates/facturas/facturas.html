@@ -17,7 +17,10 @@
 </div>
 {% endif %}
 <hr>
-
+<form method="post" class="form-horizontal" action="" width="300px"  enctype='multipart/form-data'>
+  {% csrf_token %}
+  {{ form }}
+</form>
 <table class="table tableCell table-hover">
     <tr>
       	<th>FOLIO</th>
