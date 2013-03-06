@@ -65,9 +65,16 @@ class DoctosInvfisDetManageForm(forms.ModelForm):
 			'claveArticulo',
 			)
 
+
+class InformacionContableManageForm(forms.ModelForm):
+	cuantaxcobrar = forms.ModelChoiceField(queryset= CuentaCo.objects.all().order_by('cuenta'), required=True)
+	tipo_poliza_ve = forms.ModelChoiceField(queryset= TipoPoliza.objects.all(), required=True)
+	class Meta:
+		model = InformacionContable
+
 class GenerarPolizasManageForm(forms.Form):
-	fecha_ini =  forms.DateInput()
-	fecha_fin =  forms.DateInput()
+	fecha_ini =  forms.DateField()
+	fecha_fin =  forms.DateField()
 
 
 class ConfiguracionPolizasManageForm(forms.ModelForm):

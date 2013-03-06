@@ -285,7 +285,7 @@ class CuentaCo(models.Model):
     cuenta = models.CharField(max_length=50, db_column='CUENTA_PT')
     
     def __unicode__(self):
-        return u'%s' % self.clave
+        return u'%s (%s)' % (self.cuenta, self.nombre)
     class Meta:
         db_table = u'cuentas_co'
 
@@ -399,6 +399,9 @@ class TipoPoliza(models.Model):
     nombre      = models.CharField(max_length=30, db_column='NOMBRE')
     tipo_consec = models.CharField(max_length=1, db_column='TIPO_CONSEC')
     prefijo     = models.CharField(max_length=1, db_column='PREFIJO')
+
+    def __unicode__(self):
+        return u'%s' % self.nombre
 
     class Meta:
         db_table = u'tipos_polizas'
@@ -583,6 +586,7 @@ class Impuestos(models.Model):
 class DoctoVe(models.Model):
     id              = models.AutoField(primary_key=True, db_column='DOCTO_VE_ID')
     folio           = models.CharField(max_length=9, db_column='FOLIO')
+    fecha           = models.DateField(db_column='FECHA')
     contabilizado   = models.CharField(default='N', max_length=1, db_column='CONTABILIZADO')
     cliente         = models.ForeignKey(Cliente, db_column='CLIENTE_ID')
     tipo            = models.CharField(max_length=1, db_column='TIPO_DOCTO')
@@ -590,6 +594,7 @@ class DoctoVe(models.Model):
     total_impuestos = models.DecimalField(max_digits=15, decimal_places=2, db_column='TOTAL_IMPUESTOS')
     moneda          = models.ForeignKey(Moneda, db_column='MONEDA_ID')
     tipo_cambio     = models.DecimalField(max_digits=18, decimal_places=6, db_column='TIPO_CAMBIO')
+    estado          = models.CharField(max_length=1, db_column='ESTATUS')
     #almacen = models.ForeignKey(Almacenes, db_column='ALMACEN_ID')
     #condicion_pago = models.ForeignKey(CondicionesPago, on_delete= models.SET_NULL, blank=True, null=True, db_column='COND_PAGO_ID')
     def __unicode__(self):
@@ -619,6 +624,15 @@ class ImpuestosArticulo(models.Model):
 #############################################################################################################################################################
 ##################################################MODELOS DE APLICACION DJANGO###############################################################################
 #############################################################################################################################################################
+
+class InformacionContable(models.Model):
+    cuantaxcobrar           = models.ForeignKey(CuentaCo, blank=True, null=True, on_delete= models.SET_NULL)
+    tipo_poliza_ve          = models.ForeignKey(TipoPoliza, blank=True, null=True, on_delete= models.SET_NULL)
+    descripcion_polizas_ve  = models.CharField(max_length=200, blank=True, null=True)
+
+
+    def __unicode__(self):
+        return u'%s'% self.id
 
 class ConfiguracionPolizas(models.Model):
     CuentaPublicoGral = models.ForeignKey(CuentaCo, on_delete= models.SET_NULL, blank=True, null=True)

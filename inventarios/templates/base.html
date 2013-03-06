@@ -7,6 +7,7 @@
   <!-- Estilos -->
   <link rel='stylesheet' href='{{STATIC_URL}}css/bootstrap.css'/>
   <link rel='stylesheet' href='{{STATIC_URL}}css/base.css'/>
+  <link rel="stylesheet" href="http://code.jquery.com/ui/1.10.1/themes/base/jquery-ui.css">
   <link href='http://fonts.googleapis.com/css?family=Marcellus+SC' rel='stylesheet' type='text/css'>
   {% block style_css %}{% endblock %}
 
@@ -39,8 +40,6 @@
             <a id="drop1" href="#" role="button" class="dropdown-toggle" data-toggle="dropdown"> <i class="icon-shopping-cart"></i>Ventas<b class="caret"></b></a>
             <ul class="dropdown-menu" role="menu" aria-labelledby="drop1">
               <li><a tabindex="-1" href="/Facturas/">Generar Polizas Contables</a></li>
-              <li role="presentation" class="divider"></li>
-              <li><a tabindex="-1" href="/ConfiguracionVentas/">Configuracion</a></li>
             </ul>
           </li>
           <li><a href="#"> <i class="icon-shopping-cart"></i> Compras</a></li>
@@ -62,6 +61,18 @@
               {% else %}
               <a class="btn btn-small btn-success" href="/login/">Iniciar Sesión</a>
               {% endif %}
+            </div>
+          </div>
+        </ul>
+        <ul class="nav pull-right">
+          <div id=" span breadcrumbs" >
+            <div class ='span'style="text-align:right; height:2em;">
+              <li class="dropdown">
+                <a id="drop1" href="#" role="button" class="btn dropdown-toggle" data-toggle="dropdown"> <i class="icon-cog"></i> <b class="caret"></b></a>
+                <ul class="dropdown-menu" role="menu" aria-labelledby="drop1" style='text-align:left;'>
+                  <li><a tabindex="-1" href="/PreferenciasEmpresa/">Preferencias de la empresa</a></li>
+                </ul>
+              </li>
             </div>
           </div>
         </ul>

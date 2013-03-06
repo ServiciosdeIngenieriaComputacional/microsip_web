@@ -24,7 +24,6 @@ urlpatterns = patterns('',
     url(r'^logout/$', views.logoutUser),
     #FACTURAS
     (r'^Facturas/$', views.facturas_View),
-    (r'^ConfiguracionVentas/$', views.configuracionVentas_View),
-    (r'^ConfiguracionVentas/(?P<id>\d+)/$', views.configuracionVentas_View),
+    (r'^PreferenciasEmpresa/$', views.preferenciasEmpresa_View),
 
 )
