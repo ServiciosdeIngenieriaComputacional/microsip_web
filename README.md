@@ -1,6 +1,8 @@
 microsip_web
 ============
+LIBRERIA DE DJANGO-FIREBIRD
 
+pip install django-fiebird
 
 PATH DE PYTHON 
 
