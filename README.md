@@ -1,5 +1,11 @@
 microsip_web
 ============
+
+
+PATH DE PYTHON 
+
+set PYTHONPATH=%PYTHONPATH%;C:\My_python_lib
+
 CONFIGURACION EN APACHE
 
 Primero que nada es necesario instalar apache (xampserver)
