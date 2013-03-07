@@ -35,12 +35,30 @@
       {% csrf_token %}
         {{ form.errors }}
         <div class="span3" style='clear:both;'>
-          <label>Cuenta por Cobrar</label>
+          <label>Cuentas por Cobrar</label>
           <div class="input-prepend input-append">
             {{ form.cuantaxcobrar }}
           </div>
         </div>
         <div class="span3" >
+          <label>Cobros</label>
+          <div class="input-prepend input-append">
+            {{ form.cobros }}
+          </div>
+        </div>
+        <div class="span3" >
+          <label>Descuentos</label>
+          <div class="input-prepend input-append">
+            {{ form.descuentos }}
+          </div>
+        </div>
+        <div class="span4" >
+          <label>Condicion de pago de CONTADO</label>
+          <div class="input-prepend input-append">
+            {{ form.condicion_pago_contado }}
+          </div>
+        </div>
+        <div class="span3" style='clear:both;'>
           <label>Tipo de Pólizas</label>
           <div class="input-prepend input-append">
             {{ form.tipo_poliza_ve }}

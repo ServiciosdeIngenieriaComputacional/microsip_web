@@ -70,6 +70,12 @@ def c_get_next_key(seq_name):
     row = c.fetchone()
     return int(row[0])
 
+def get_descuento_total_ve(facturaID):
+	c = connection.cursor()
+	c.execute("SELECT SUM(A.dscto_arts + A.dscto_extra_importe) AS TOTAL FROM CALC_TOTALES_DOCTO_VE(%s,'S') AS  A;"% facturaID)
+	row = c.fetchone()
+	return int(row[0])
+
 ##########################################
 ## 										##
 ##        INVENTARIOS FISICOS     	    ##
@@ -418,15 +424,13 @@ def salida_delete(request, id = None):
 													##										##
 													##########################################
 
-def get_folio_poliza(tipo_poliza):
+def get_folio_poliza(tipo_poliza, fecha=None):
 	""" folio de una poliza """
-	fecha_actual = datetime.date.today()
-
 	try:
-		if tipo_poliza.tipo_consec == 'M':		
-			tipo_poliza_det = TipoPolizaDet.objects.get(tipo_poliza = tipo_poliza, mes=fecha_actual.month, ano = fecha_actual.year)
+		if tipo_poliza.tipo_consec == 'M':
+			tipo_poliza_det = TipoPolizaDet.objects.get(tipo_poliza = tipo_poliza, mes=fecha.month, ano = fecha.year)
 		elif tipo_poliza.tipo_consec == 'E':
-			tipo_poliza_det = TipoPolizaDet.objects.get(tipo_poliza = tipo_poliza, ano=fecha_actual.year, mes=0)
+			tipo_poliza_det = TipoPolizaDet.objects.get(tipo_poliza = tipo_poliza, ano=fecha.year, mes=0)
 		elif tipo_poliza.tipo_consec == 'P':
 			tipo_poliza_det = TipoPolizaDet.objects.get(tipo_poliza = tipo_poliza, mes=0, ano =0)
 	except ObjectDoesNotExist:
@@ -437,7 +441,7 @@ def get_folio_poliza(tipo_poliza):
 			consecutivo = 1
 
 		if tipo_poliza.tipo_consec == 'M':		
-			tipo_poliza_det = TipoPolizaDet.objects.create(id=c_get_next_key('ID_CATALOGOS'), tipo_poliza=tipo_poliza, ano=fecha_actual.year, mes=fecha_actual.month, consecutivo = 1,)
+			tipo_poliza_det = TipoPolizaDet.objects.create(id=c_get_next_key('ID_CATALOGOS'), tipo_poliza=tipo_poliza, ano=fecha.year, mes=fecha.month, consecutivo = 1,)
 		elif tipo_poliza.tipo_consec == 'E':
 			#Si existe permanente toma su consecutivo para crear uno nuevo si no existe inicia en 1
 			consecutivo = TipoPolizaDet.objects.filter(tipo_poliza = tipo_poliza, mes=0, ano =0).aggregate(max = Sum('consecutivo'))
@@ -446,27 +450,26 @@ def get_folio_poliza(tipo_poliza):
 			if consecutivo == None:
 				consecutivo = 1
 
-			tipo_poliza_det = TipoPolizaDet.objects.create(id=c_get_next_key('ID_CATALOGOS'), tipo_poliza=tipo_poliza, ano=fecha_actual.year, mes=0, consecutivo=consecutivo,)
+			tipo_poliza_det = TipoPolizaDet.objects.create(id=c_get_next_key('ID_CATALOGOS'), tipo_poliza=tipo_poliza, ano=fecha.year, mes=0, consecutivo=consecutivo,)
 		elif tipo_poliza.tipo_consec == 'P':
 			tipo_poliza_det = TipoPolizaDet.objects.create(id=c_get_next_key('ID_CATALOGOS'), tipo_poliza=tipo_poliza, ano=0, mes=0, consecutivo = consecutivo,)								
 		
 	return tipo_poliza_det
 
 def generar_polizas(fecha_ini=None, fecha_fin=None):
-	fecha_actual 			= datetime.date.today()
 	depto_co 				= get_object_or_404(DeptoCo, pk=2090) 
-	error = 0 
-	informacion_contable = []
-	
+	error 					= 0 
+	informacion_contable 	= []
+	facturas 				= DoctoVe.objects.filter(tipo='F', contabilizado ='N', estado ='N', fecha__gt=fecha_ini, fecha__lte=fecha_fin).order_by('fecha')[:99]
+	facturasData 			= []
+	msg 					= ''
+	cuenta = ''
+
 	try:
 		informacion_contable = InformacionContable.objects.all()[:1]
 		informacion_contable = informacion_contable[0]
 	except ObjectDoesNotExist:
 		error = 1
-	
-	facturas 				= DoctoVe.objects.filter(tipo='F', contabilizado ='N', estado ='N', fecha__gt=fecha_ini, fecha__lte=fecha_fin)[:90]
-	facturasData 			= []
-	msg 					= ''
 	
 	if error == 0:
 		#PREFIJO
@@ -474,19 +477,24 @@ def generar_polizas(fecha_ini=None, fecha_fin=None):
 		if not informacion_contable.tipo_poliza_ve.prefijo:
 			prefijo = ''
 
-		#CONSECUTIVO FOLIOS
-		tipo_poliza_det = get_folio_poliza(informacion_contable.tipo_poliza_ve)
-
 		for factura in facturas:
-			impuestos = factura.total_impuestos
-			#SI EL CLIENTE NO TIENE NO TIENE CUENTA SE VA A PUBLICO EN GENERAL
-			if not factura.cliente.cuenta_xcobrar == None:
-				cuentaxcobrar =  get_object_or_404(CuentaCo, cuenta = factura.cliente.cuenta_xcobrar)
-			else:
-				cuentaxcobrar = informacion_contable.cuantaxcobrar
-
-			tipo_cambio = factura.tipo_cambio
+			#CONSECUTIVO FOLIOS
+			tipo_poliza_det = get_folio_poliza(informacion_contable.tipo_poliza_ve, factura.fecha)
+			
+			descuento_total = get_descuento_total_ve(factura.id)
 			total = factura.total_impuestos + factura.importe_neto
+			bancos_o_clientes =  total - descuento_total
+
+			#SI ES DE CONTADO
+			if factura.condicion_pago == informacion_contable.condicion_pago_contado:
+				cuenta = informacion_contable.cobros
+			else:
+				#SI EL CLIENTE NO TIENE NO TIENE CUENTA SE VA A PUBLICO EN GENERAL
+				if not factura.cliente.cuenta_xcobrar == None:
+					cuenta =  get_object_or_404(CuentaCo, cuenta = factura.cliente.cuenta_xcobrar)
+				else:
+					cuenta = informacion_contable.cuantaxcobrar
+			
 			total_ventas_0 = DoctoVeDet.objects.filter(docto_ve= factura).extra(
 				tables =['impuestos_articulos', 'impuestos'],
 				where =
@@ -502,7 +510,7 @@ def generar_polizas(fecha_ini=None, fecha_fin=None):
 			else:
 				ventas_0 = total_ventas_0['ventas_0']
 
-			ventas_16 = total - ventas_0 - impuestos 
+			ventas_16 = total - ventas_0 - factura.total_impuestos 
 
 			if ventas_16 < 0:
 				msg = 'Existe al menos una factura del cluiente %s el cual [no tiene indicado cobrar inpuestos] por favor corrije esto para poder crear las polizas de este ciente '% factura.cliente.nombre
@@ -514,9 +522,9 @@ def generar_polizas(fecha_ini=None, fecha_fin=None):
 					id                    	= id_poli,
 					tipo_poliza				= informacion_contable.tipo_poliza_ve,
 					poliza					= folio,
-					fecha 					= datetime.date.today(),
+					fecha 					= factura.fecha,
 					moneda 					= factura.moneda, 
-					tipo_cambio 			= tipo_cambio,
+					tipo_cambio 			= factura.tipo_cambio,
 					estatus 				= 'P', cancelado= 'N', aplicado = 'N', ajuste = 'N', integ_co = 'S',
 					descripcion 			= informacion_contable.descripcion_polizas_ve,
 					forma_emitida 			= 'N', sistema_origen = 'CO',
@@ -536,24 +544,47 @@ def generar_polizas(fecha_ini=None, fecha_fin=None):
 
 				contabilizado ='N'
 				tipo_poliza_det.consecutivo += 1 
-				
+				tipo_poliza_det.save()
+
+				posicion = 1
 				#DEBE
 				DoctosCoDet.objects.create(
 						id				= -1,
 						docto_co		= poliza,
-						cuenta			= cuentaxcobrar,
-						depto_co		=  depto_co,
+						cuenta			= cuenta,
+						depto_co		= depto_co,
 						tipo_asiento	= 'C',
-						importe			= total,
+						importe			= bancos_o_clientes,
 						importe_mn		= 0,#PENDIENTE
 						ref				= factura.folio,
 						descripcion		= '',
-						posicion		= 1,
+						posicion		= posicion,
 						recordatorio	= None,
-						fecha			= datetime.date.today(),
+						fecha			= factura.fecha,
 						cancelado		= 'N', aplicado = 'N', ajuste = 'N', 
 						moneda			= factura.moneda,
 					)
+				posicion +=1
+
+				if not descuento_total == 0:
+					DoctosCoDet.objects.create(
+							id				= -1,
+							docto_co		= poliza,
+							cuenta			= informacion_contable.descuentos,
+							depto_co		= depto_co,
+							tipo_asiento	= 'C',
+							importe			= descuento_total,
+							importe_mn		= 0,#PENDIENTE
+							ref				= factura.folio,
+							descripcion		= '',
+							posicion		= posicion,
+							recordatorio	= None,
+							fecha			= factura.fecha,
+							cancelado		= 'N', aplicado = 'N', ajuste = 'N', 
+							moneda			= factura.moneda,
+						)
+					posicion +=1
+
 
 				if not ventas_0 == 0:
 					#HABER 0% en este caso el lade el id: 3414
@@ -567,14 +598,16 @@ def generar_polizas(fecha_ini=None, fecha_fin=None):
 							importe_mn		= 0,
 							ref				= factura.folio,
 							descripcion		= '',
-							posicion		= 2,
+							posicion		= posicion,
 							recordatorio	= None,
-							fecha			= datetime.date.today(),
+							fecha			= factura.fecha,
 							cancelado		= 'N', aplicado = 'N', ajuste = 'N', 
 							moneda			= factura.moneda,
 						)
+					posicion +=1
 
-				if not impuestos == 0:
+				if not factura.total_impuestos == 0:
+
 					DoctosCoDet.objects.bulk_create([
 						#HABER 16% en este caso el lade el id: 3415
 						DoctosCoDet(
@@ -587,9 +620,9 @@ def generar_polizas(fecha_ini=None, fecha_fin=None):
 							importe_mn		= 0,
 							ref				= factura.folio,
 							descripcion		= '',
-							posicion		= 3,
+							posicion		= posicion,
 							recordatorio	= None,
-							fecha			= datetime.date.today(),
+							fecha			= factura.fecha,# datetime.date(1000, 01, 01),#datetime.date.today()
 							cancelado		= 'N', aplicado = 'N', ajuste = 'N', 
 							moneda			= factura.moneda,
 						),
@@ -600,13 +633,13 @@ def generar_polizas(fecha_ini=None, fecha_fin=None):
 							cuenta			= get_object_or_404(CuentaCo, pk=2178),
 							depto_co		= depto_co,
 							tipo_asiento	= 'A',
-							importe			= impuestos,
+							importe			= factura.total_impuestos,
 							importe_mn		= 0,
 							ref				= factura.folio,
 							descripcion		= '',
-							posicion		= 4,
+							posicion		= posicion + 1,
 							recordatorio	= None,
-							fecha			= datetime.date.today(),
+							fecha			= factura.fecha,
 							cancelado		= 'N', aplicado = 'N', ajuste = 'N', 
 							moneda			= factura.moneda,
 						),
@@ -618,11 +651,10 @@ def generar_polizas(fecha_ini=None, fecha_fin=None):
 				'total'		:total,
 				'ventas_0'	:ventas_0,
 				'ventas_16'	:ventas_16,
-				'impuesos'	:impuestos,
-				'tipo_cambio':tipo_cambio,
+				'impuesos'	:factura.total_impuestos,
+				'tipo_cambio':factura.tipo_cambio,
 				})
 
-		tipo_poliza_det.save()
 	elif error == 1:
 		msg = 'No se han derfinido las preferencias de la empresa para generar polizas [Por favor definelas primero en Configuracion > Preferencias de la empresa]'
 

@@ -60,15 +60,19 @@ class DoctosInvfisManageForm(forms.ModelForm):
 class DoctosInvfisDetManageForm(forms.ModelForm):
 	class Meta:
 		widgets = autocomplete_light.get_widgets_dict(DoctosInvfisDet)
-		model = DoctosInvfisDet
+		model 	= DoctosInvfisDet
 		exclude = (
 			'claveArticulo',
 			)
 
 
 class InformacionContableManageForm(forms.ModelForm):
-	cuantaxcobrar = forms.ModelChoiceField(queryset= CuentaCo.objects.all().order_by('cuenta'), required=True)
-	tipo_poliza_ve = forms.ModelChoiceField(queryset= TipoPoliza.objects.all(), required=True)
+	cuantaxcobrar 			= forms.ModelChoiceField(queryset= CuentaCo.objects.all().order_by('cuenta'), required=True)
+	cobros					= forms.ModelChoiceField(queryset= CuentaCo.objects.all().order_by('cuenta'), required=True)
+	descuentos			    = forms.ModelChoiceField(queryset= CuentaCo.objects.all().order_by('cuenta'), required=True)
+	tipo_poliza_ve 			= forms.ModelChoiceField(queryset= TipoPoliza.objects.all(), required=True)
+	condicion_pago_contado 	= forms.ModelChoiceField(queryset= CondicionPago.objects.all(), required=True)
+	
 	class Meta:
 		model = InformacionContable
 

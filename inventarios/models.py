@@ -252,10 +252,12 @@ class ConceptosNo(models.Model):
     class Meta:
         db_table = u'conceptos_no'
 
-class CondicionesPago(models.Model):
+class CondicionPago(models.Model):
     id = models.AutoField(primary_key=True, db_column='COND_PAGO_ID')
     nombre = models.CharField(max_length=50, db_column='NOMBRE')
-
+    
+    def __unicode__(self):
+        return self.nombre
     class Meta:
         db_table = u'condiciones_pago'
 
@@ -595,6 +597,8 @@ class DoctoVe(models.Model):
     moneda          = models.ForeignKey(Moneda, db_column='MONEDA_ID')
     tipo_cambio     = models.DecimalField(max_digits=18, decimal_places=6, db_column='TIPO_CAMBIO')
     estado          = models.CharField(max_length=1, db_column='ESTATUS')
+    condicion_pago  = models.ForeignKey(CondicionPago, db_column='COND_PAGO_ID')
+    
     #almacen = models.ForeignKey(Almacenes, db_column='ALMACEN_ID')
     #condicion_pago = models.ForeignKey(CondicionesPago, on_delete= models.SET_NULL, blank=True, null=True, db_column='COND_PAGO_ID')
     def __unicode__(self):
@@ -626,10 +630,12 @@ class ImpuestosArticulo(models.Model):
 #############################################################################################################################################################
 
 class InformacionContable(models.Model):
-    cuantaxcobrar           = models.ForeignKey(CuentaCo, blank=True, null=True, on_delete= models.SET_NULL)
+    cuantaxcobrar           = models.ForeignKey(CuentaCo, blank=True, null=True, on_delete= models.SET_NULL, related_name='cuantaxcobrar')
+    cobros                  = models.ForeignKey(CuentaCo, blank=True, null=True, on_delete= models.SET_NULL, related_name='cobros')
+    descuentos              = models.ForeignKey(CuentaCo, blank=True, null=True, on_delete= models.SET_NULL, related_name='descuentos')
     tipo_poliza_ve          = models.ForeignKey(TipoPoliza, blank=True, null=True, on_delete= models.SET_NULL)
     descripcion_polizas_ve  = models.CharField(max_length=200, blank=True, null=True)
-
+    condicion_pago_contado  = models.ForeignKey(CondicionPago, blank=True, null=True, on_delete= models.SET_NULL)
 
     def __unicode__(self):
         return u'%s'% self.id
