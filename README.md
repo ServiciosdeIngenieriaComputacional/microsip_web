@@ -2,6 +2,8 @@ microsip_web
 ============
 LIBRERIA DE DJANGO-FIREBIRD
 
+installar setuptools con exe de python libreries
+
 pip install django-fiebird
 
 PATH DE PYTHON 
