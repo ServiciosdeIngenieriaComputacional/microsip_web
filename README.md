@@ -1,19 +1,30 @@
 microsip_web
 ============
-LIBRERIA DE DJANGO-FIREBIRD
 
-1)installar setuptools con exe de python libreries
+INSTALACION
 
-2)INSTALLAR PIP
-3) pip install django-autocomplete-light
+1) Instalar Python 2.7.3 de la pagina http://www.python.org/download/
+	Agregar a la variable de entorno de windows "PATH" 
+	"C:\Python27;C:\Python27\Lib;C:\Python27\DLLs;C:\Python27\Lib\lib-tk;C:\Python27\Scripts;"
+2) Reinstalar firebird (Asegurarse que al instalar de nuevo este seleccionado copiar libreria cliente a carpeta <sistem>)
 
-4) pip install fdb
+3) Installar setuptools de la pagina https://pypi.python.org/pypi/setuptools
 
-3) pip install django-fiebird
+4) Instalar pip con setup.py install de https://pypi.python.org/pypi/pip
 
-PATH DE PYTHON 
+5) Instalar django-auto-complete con el comando "pip install django-autocomplete-light"
 
-set PYTHONPATH=%PYTHONPATH%;C:\My_python_lib
+6) Instalar libreria de firebird en python "fdb" con el comando "pip install fdb"
+	
+	It seems you don't have Firebird client library installed, do you? If
+	it's installed, then the problem is that FDB can't find it. If you're on
+	Windows, try reinstall Firebird and check the option to copy client
+	library to Windows/System directory (recommended on Vista/7), or copy it
+	there yourself (XP).
+	
+7) Instalar django-firebird con el comando "pip install django-fiebird"
+
+8) LISTO
 
 CONFIGURACION EN APACHE
 
