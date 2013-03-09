@@ -18,7 +18,7 @@ MANAGERS = ADMINS
 DATABASES = {
     'default': {
        'ENGINE': 'django.db.backends.firebird', # Add 'postgresql_psycopg2', 'mysql', 'sqlite3' or 'oracle'.
-        'NAME': (DIR +'AD2007(POLISAS)0_9.fdb'), # Or path to database file if using sqlite3.
+        'NAME': 'C:\Microsip Datos\AD2007(POLISAS).fdb', # Or path to database file if using sqlite3.
         'USER': 'SYSDBA',                      # Not used with sqlite3.
         'PASSWORD': 'masterkey',                  # Not used with sqlite3.
         'HOST': 'localhost',                      # Set to empty string for localhost. Not used with sqlite3.
@@ -71,11 +71,12 @@ STATIC_URL = '/static/'
 
 # Additional locations of static files
 STATICFILES_DIRS = (
-    'C:\wamp\www\microsip_web\static',
+    #'C:\wamp\www\microsip_web\static',
+    'C:\GitHub\microsip_web\static',
     # Put strings here, like "/home/html/static" or "C:/www/django/static".
     # Always use forward slashes, even on Windows.
     # Don't forget to use absolute paths, not relative paths.
-    os.path.join(RUTA_PROYECTO,'static'),
+    (RUTA_PROYECTO + '/static/'),
 )
 
 # List of finder classes that know how to find static files in
@@ -127,8 +128,6 @@ DJANGO_APPS = (
     'django.contrib.staticfiles',
     'django.contrib.admin',
     'autocomplete_light',
-    'inventarios',
-    'ventas',
     #'apps.microsip.ventas',
     # Uncomment the next line to enable the admin:
     
@@ -140,7 +139,10 @@ DJANGO_APPS = (
 MICROSIP_MODULES = (
     # Modules created for microsip and installed by default. You can add
     # here your own modules
-    
+    'inventarios',
+    'ventas',
+    'cuentas_por_pagar',
+    'cuentas_por_cobrar',
 )
 
 # A sample logging configuration. The only tangible logging

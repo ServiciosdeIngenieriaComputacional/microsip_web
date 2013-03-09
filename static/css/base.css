@@ -5,6 +5,63 @@ body{
 	text-shadow: 0 1px 1px rgba(255, 255, 255, .5);
 }
 
+
+[class^="msicon-"],
+[class*="msicon-"] {
+  display: inline-block;
+  width: 30px;
+  height: 30px;
+  margin-top: 0px;
+  *margin-right: 0em;
+  line-height: 5px;
+  vertical-align: text-top;
+  background-image: url("../img/iconos-microsip.png");
+  background-position: 30px 30px;
+  background-repeat: no-repeat;
+}
+
+/* White icons with optional class, or on hover/focus/active states of certain elements */
+
+.msicon-white,
+.nav-pills > .active > a > [class^="msicon-"],
+.nav-pills > .active > a > [class*=" msicon-"],
+.nav-list > .active > a > [class^="msicon-"],
+.nav-list > .active > a > [class*=" msicon-"],
+.navbar-inverse .nav > .active > a > [class^="msicon-"],
+.navbar-inverse .nav > .active > a > [class*=" msicon-"],
+.dropdown-menu > li > a:hover > [class^="msicon-"],
+.dropdown-menu > li > a:focus > [class^="msicon-"],
+.dropdown-menu > li > a:hover > [class*=" msicon-"],
+.dropdown-menu > li > a:focus > [class*=" msicon-"],
+.dropdown-menu > .active > a > [class^="msicon-"],
+.dropdown-menu > .active > a > [class*=" msicon-"],
+.dropdown-submenu:hover > a > [class^="msicon-"],
+.dropdown-submenu:focus > a > [class^="msicon-"],
+.dropdown-submenu:hover > a > [class*=" msicon-"],
+.dropdown-submenu:focus > a > [class*=" msicon-"] {
+  background-image: url("../img/iconos-microsip.png");
+}
+
+
+.msicon-inventarios {
+  background-position: -4px -38px;
+}
+
+.msicon-ventas {
+  background-position: -5px -3px;
+}
+
+.msicon-cuentas_por_pagar {
+  background-position: -4px -68px;
+}
+
+.msicon-cuentas_por_cobrar {
+  background-position: -4px -101px;
+}
+
+.msicon-compras {
+  background-position: -4px -133px;
+}
 .pagecontent{
 	background-color: rgba(255, 255, 255, 0.49);
 	text-align: left;
