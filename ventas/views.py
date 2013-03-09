@@ -81,11 +81,16 @@ def get_folio_poliza(tipo_poliza, fecha=None):
 		
 	return tipo_poliza_det
 
-def generar_polizas(fecha_ini=None, fecha_fin=None):
+def generar_polizas(fecha_ini=None, fecha_fin=None, ignorar_facturas_cont=True):
 	depto_co 				= get_object_or_404(DeptoCo, pk=2090) 
 	error 					= 0 
 	informacion_contable 	= []
-	facturas 				= DoctoVe.objects.filter(tipo='F', contabilizado ='N', estado ='N', fecha__gt=fecha_ini, fecha__lte=fecha_fin).order_by('fecha')[:99]
+	
+	if ignorar_facturas_cont:
+		facturas 			= DoctoVe.objects.filter(tipo='F', contabilizado ='N', estado ='N', fecha__gt=fecha_ini, fecha__lte=fecha_fin).order_by('fecha')[:99]
+	else:
+		facturas 			= DoctoVe.objects.filter(tipo='F', estado ='N', fecha__gt=fecha_ini, fecha__lte=fecha_fin).order_by('fecha')[:99]
+
 	facturasData 			= []
 	msg 					= ''
 	cuenta = ''
@@ -294,8 +299,10 @@ def facturas_View(request, template_name='herramientas/generar_polizas.html'):
 		if form.is_valid():
 			fecha_ini = form.cleaned_data['fecha_ini']
 			fecha_fin = form.cleaned_data['fecha_fin']
+			ignorar_facturas_cont = form.cleaned_data['ignorar_facturas_cont']
+
 			msg = 'es valido'
-			facturasData, msg  = generar_polizas(fecha_ini, fecha_fin)		
+			facturasData, msg  = generar_polizas(fecha_ini, fecha_fin, ignorar_facturas_cont)		
 	else:
 		form = GenerarPolizasManageForm()
 
