@@ -4,7 +4,6 @@ from datetime import datetime
 from django.db.models.signals import pre_save
 from django.core import urlresolvers
 
-
 class Paises(models.Model):
     PAIS_ID = models.AutoField(primary_key=True)
     name = models.CharField(max_length=50, db_column='NOMBRE')

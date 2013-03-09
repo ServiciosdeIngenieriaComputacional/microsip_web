@@ -10,7 +10,7 @@
 {% block breadcrumb %}{{ block.super }} Entradas {% endblock %}
 {% block content %}
 <div class="form-actions mainmenu">
-  <a class="btn btn-success" href="/Entrada/">Nueva</a>
+  <a class="btn btn-success" href="/inventarios/Entrada/">Nueva</a>
 </div>
 <table class="table tableCell table-hover">
     <tr>
@@ -33,12 +33,12 @@
       </div>
       <div class="modal-footer">
         <button class="btn" data-dismiss="modal">Cancelar</button>
-        <a href="/Entrada/Delete/{{ entrada.id }}/" class="btn btn-primary">Estoy Seguro</a>
+        <a href="/inventarios/Entrada/Delete/{{ entrada.id }}/" class="btn btn-primary">Estoy Seguro</a>
       </div>
     </div>
     <tr>
       <td>
-        <a href="/Entrada/{{ entrada.id }}/">{{ entrada.id }}</a>
+        <a href="/inventarios/Entrada/{{ entrada.id }}/">{{ entrada.id }}</a>
       </td>
       <td>{{ entrada.folio }}</td>
       <td>{{ entrada.fecha }}</td>

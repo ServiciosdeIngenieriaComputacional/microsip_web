@@ -65,26 +65,6 @@ class DoctosInvfisDetManageForm(forms.ModelForm):
 			'claveArticulo',
 			)
 
-
-class InformacionContableManageForm(forms.ModelForm):
-	cuantaxcobrar 			= forms.ModelChoiceField(queryset= CuentaCo.objects.all().order_by('cuenta'), required=True)
-	cobros					= forms.ModelChoiceField(queryset= CuentaCo.objects.all().order_by('cuenta'), required=True)
-	descuentos			    = forms.ModelChoiceField(queryset= CuentaCo.objects.all().order_by('cuenta'), required=True)
-	tipo_poliza_ve 			= forms.ModelChoiceField(queryset= TipoPoliza.objects.all(), required=True)
-	condicion_pago_contado 	= forms.ModelChoiceField(queryset= CondicionPago.objects.all(), required=True)
-	
-	class Meta:
-		model = InformacionContable
-
-class GenerarPolizasManageForm(forms.Form):
-	fecha_ini =  forms.DateField()
-	fecha_fin =  forms.DateField()
-
-
-class ConfiguracionPolizasManageForm(forms.ModelForm):
-	class Meta:
-		model = ConfiguracionPolizas
-
 def doctoIn_items_formset(form, formset = BaseInlineFormSet, **kwargs):
 	return inlineformset_factory(DoctosIn, DoctosInDet, form, formset, **kwargs)
 

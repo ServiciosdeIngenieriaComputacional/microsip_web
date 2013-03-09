@@ -4,7 +4,6 @@
 # Identificando la ruta del proyecto
 import os
 RUTA_PROYECTO =os.path.dirname(os.path.realpath(__file__)).strip('settings')
-# os.path.dirname(os.path.realpath(__file__))
 
 DEBUG = True
 TEMPLATE_DEBUG = DEBUG
@@ -63,7 +62,7 @@ MEDIA_ROOT = os.path.join(RUTA_PROYECTO,'media')
 # Don't put anything in this directory yourself; store your static files
 # in apps' "static/" subdirectories and in STATICFILES_DIRS.
 # Example: "/home/media/media.lawrence.com/static/"
-MEDIA_URL = 'http://127.0.0.1:8000/media/'
+MEDIA_URL = os.path.join(RUTA_PROYECTO,'media')
 
 # URL prefix for static files.
 # Example: "http://media.lawrence.com/static/"
@@ -71,10 +70,11 @@ STATIC_URL = '/static/'
 
 # Additional locations of static files
 STATICFILES_DIRS = (
+    'C:\wamp\www\microsip_web\static',
     # Put strings here, like "/home/html/static" or "C:/www/django/static".
     # Always use forward slashes, even on Windows.
     # Don't forget to use absolute paths, not relative paths.
-    (RUTA_PROYECTO +'/static/'),
+    os.path.join(RUTA_PROYECTO,'static'),
 )
 
 # List of finder classes that know how to find static files in
@@ -126,6 +126,8 @@ DJANGO_APPS = (
     'django.contrib.staticfiles',
     'django.contrib.admin',
     'autocomplete_light',
+    'inventarios',
+    'ventas',
     #'apps.microsip.ventas',
     # Uncomment the next line to enable the admin:
     
@@ -137,7 +139,7 @@ DJANGO_APPS = (
 MICROSIP_MODULES = (
     # Modules created for microsip and installed by default. You can add
     # here your own modules
-    'inventarios',
+    
 )
 
 # A sample logging configuration. The only tangible logging

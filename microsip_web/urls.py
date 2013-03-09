@@ -11,8 +11,9 @@ from django.contrib import admin
 admin.autodiscover()
 
 urlpatterns = patterns('',
-    url(r'', include('inventarios.urls', namespace='Inventarios')),
-    url(r'', include('ventas.urls', namespace='Ventas')),
+	(r'^$', 'inventarios.views.index'),
+    url(r'^inventarios/', include('inventarios.urls', namespace='Inventarios')),
+    url(r'^ventas/', include('ventas.urls', namespace='ventas')),
     url(r'autocomplete/', include('autocomplete_light.urls')),
     url(r'^admin/', include(admin.site.urls)),
 )

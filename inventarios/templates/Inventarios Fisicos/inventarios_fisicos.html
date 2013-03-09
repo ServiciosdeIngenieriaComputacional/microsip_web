@@ -10,7 +10,7 @@
 {% block breadcrumb %}{{ block.super }} Inventarios Fisicos {% endblock %}
 {% block content %}
 <div class="form-actions mainmenu">
-  <a class="btn btn-success" href="/InventarioFisico/">Nuevo</a>
+  <a class="btn btn-success" href="/inventarios/InventarioFisico/">Nuevo</a>
 </div>
 <table class="table tableCell table-hover">
     <tr>
@@ -33,12 +33,12 @@
       </div>
       <div class="modal-footer">
         <button class="btn" data-dismiss="modal">Cancelar</button>
-        <a href="/InventarioFisico/Delete/{{ inventario_fisico.id }}/" class="btn btn-primary">Estoy Seguro</a>
+        <a href="/inventarios/InventarioFisico/Delete/{{ inventario_fisico.id }}/" class="btn btn-primary">Estoy Seguro</a>
       </div>
     </div>
     <tr>
       <td>
-        <a href="/InventarioFisico/{{ inventario_fisico.id }}/">{{ inventario_fisico.id }}</a>
+        <a href="/inventarios/InventarioFisico/{{ inventario_fisico.id }}/">{{ inventario_fisico.id }}</a>
       </td>
       <td>{{ inventario_fisico.folio }}</td>
       <td>{{ inventario_fisico.fecha }}</td>
