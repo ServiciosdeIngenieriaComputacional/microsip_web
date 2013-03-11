@@ -19,7 +19,5 @@ urlpatterns = patterns('',
     (r'^Salida/$', views.salida_manageView),
     (r'^Salida/(?P<id>\d+)/', views.salida_manageView),
     (r'^Salida/Delete/(?P<id>\d+)/', views.salida_delete),
-    #LOGIN
-    url(r'^login/$',views.ingresar),
-    url(r'^logout/$', views.logoutUser),
+    
 )

@@ -16,4 +16,7 @@ urlpatterns = patterns('',
     url(r'^ventas/', include('ventas.urls', namespace='ventas')),
     url(r'autocomplete/', include('autocomplete_light.urls')),
     url(r'^admin/', include(admin.site.urls)),
+    #LOGIN
+    url(r'^login/$','inventarios.views.ingresar'),
+    url(r'^logout/$', 'inventarios.views.logoutUser'),
 )

@@ -40,7 +40,7 @@ def ingresar(request):
 			if acceso is not None:
 				if acceso.is_active:
 					login(request, acceso)
-					return HttpResponseRedirect('/InventariosFisicos/')
+					return HttpResponseRedirect('/inventarios/')
 				else:
 					return render_to_response('noactivo.html', context_instance=RequestContext(request))
 			else:

@@ -165,9 +165,19 @@ class ClavesEmpleados(models.Model):
     class Meta:
         db_table = u'claves_empleados'
 
-class ClavesProveedores(models.Model):
+class ClavesProveedores(models.Model):    
     class Meta:
         db_table = u'claves_proveedores'
+
+class Proveedor(models.Model):
+    id      = models.AutoField(primary_key=True, db_column='PROVEEDOR_ID')
+    nombre  = models.CharField(max_length=100, db_column='NOMBRE')
+
+    def __unicode__(self):
+        return u'%s' % self.nombre
+
+    class Meta:
+        db_table = u'proveedores'
 
 class Cobradores(models.Model):
     class Meta:
@@ -225,7 +235,13 @@ class ConceptosCc(models.Model):
     class Meta:
         db_table = u'conceptos_cc'
 
-class ConceptosCp(models.Model):
+class ConceptoCp(models.Model):
+    id = models.AutoField(primary_key=True, db_column='CONCEPTO_CP_ID')
+    nombre_abrev = models.CharField(max_length=30, db_column='NOMBRE_ABREV')
+
+    def __unicode__(self):
+        return self.nombre_abrev
+
     class Meta:
         db_table = u'conceptos_cp'
 
@@ -451,6 +467,7 @@ class DoctoCo(models.Model):
 
     def __unicode__(self):
         return u'%s' % self.id
+
     class Meta:
         db_table = u'doctos_co'
 
@@ -476,6 +493,20 @@ class DoctosCoDet(models.Model):
         db_table = u'doctos_co_det'
 
 class DoctosCp(models.Model):
+    id                  = models.AutoField(primary_key=True, db_column='DOCTO_CP_ID')
+    concepto            = models.ForeignKey(ConceptoCp, db_column='CONCEPTO_CP_ID')
+    folio               = models.CharField(max_length=9, db_column='FOLIO')
+    naturaleza_concepto = models.CharField(max_length=1, db_column='NATURALEZA_CONCEPTO')
+    fecha               = models.DateField(auto_now=True, db_column='FECHA') 
+    proveedor           = models.ForeignKey(Proveedor, db_column='PROVEEDOR_ID')
+    cancelado           = models.CharField(default='N', max_length=1, db_column='CANCELADO')
+    aplicado            = models.CharField(default='S', max_length=1, db_column='APLICADO')
+    descripcion         = models.CharField(blank=True, null=True, max_length=200, db_column='DESCRIPCION')
+    contabilizado       = models.CharField(default='N', blank=True, null=True, max_length=1, db_column='CONTABILIZADO')
+
+    def __unicode__(self):
+        return u'%s' % self.id
+        
     class Meta:
         db_table = u'doctos_cp'
 
