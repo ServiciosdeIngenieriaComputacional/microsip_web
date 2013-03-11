@@ -169,8 +169,8 @@ def generar_polizas(fecha_ini=None, fecha_fin=None, ignorar_facturas_cont=True):
 
 				#GUARDA LA PILIZA
 				poliza_o = poliza.save()
-				#factura.contabilizado = 'S'
-				#factura.save()
+				factura.contabilizado = 'S'
+				factura.save()
 
 				contabilizado ='N'
 				tipo_poliza_det.consecutivo += 1 

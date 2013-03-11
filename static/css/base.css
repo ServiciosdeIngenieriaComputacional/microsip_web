@@ -43,26 +43,33 @@ body{
 }
 
 
-.msicon-inventarios {
+.msicon-inventarios 
+{
   background-position: -4px -38px;
 }
 
-.msicon-ventas {
+.msicon-ventas 
+{
   background-position: -5px -3px;
 }
 
-.msicon-cuentas_por_pagar {
-  background-position: -4px -68px;
-}
-
-.msicon-cuentas_por_cobrar {
+.msicon-cuentas_por_pagar 
+{
   background-position: -4px -101px;
 }
 
-.msicon-compras {
+.msicon-cuentas_por_cobrar 
+{
+  background-position: -4px -68px;
+}
+
+.msicon-compras 
+{
   background-position: -4px -133px;
 }
-.pagecontent{
+
+.pagecontent
+{
 	background-color: rgba(255, 255, 255, 0.49);
 	text-align: left;
 	padding: 1em;
@@ -72,7 +79,8 @@ body{
 	margin-right: 1em;
 }
 
-.table th, .table td{
+.table th, .table td
+{
 	padding: 0px;
 }
 
@@ -98,4 +106,16 @@ width: 60px; /* Ancho del botón */
 height: 60px; /* Alto del botón */
 display: block;
 background: url(http://lh5.googleusercontent.com/-luDGEoQ_WZE/T1Ak-gta5MI/AAAAAAAACPI/ojfEGiaNmGw/s60/flecha-arriba.png) no-repeat center center;
+}
+
+.labelMenu {
+    display:inline-block;
+}
+
+
+/* Pantallas grandes */
+@media only screen and (max-width : 1200px) {
+  .labelMenu {
+    display: none;
+  }
 }
