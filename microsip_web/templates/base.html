@@ -30,9 +30,6 @@
         <ul class="nav" role="navigation">
           <li class="dropdown">
             <a id="drop1" href="#" role="button" class="dropdown-toggle" data-toggle="dropdown"> <i class="msicon-cuentas_por_cobrar"></i><label class='labelMenu'> Cuentas por cobrar</label></a>
-            <ul class="dropdown-menu" role="menu" aria-labelledby="drop1">
-              <li><a tabindex="-1" href="#">Generar Polizas Contables</a></li>
-            </ul>
           </li>
           <li class="dropdown">
             <a id="drop1" href="#"role="button" class="dropdown-toggle" data-toggle="dropdown"> <i class="msicon-inventarios"></i><label class='labelMenu'>  
@@ -44,20 +41,22 @@
             </ul>
           </li>
           <li class="dropdown">
-            <a id="drop1" href="#" role="button" class="dropdown-toggle" data-toggle="dropdown"> <i class="msicon-ventas"></i><label class='labelMenu'> Ventas</label></a>
-            <ul class="dropdown-menu" role="menu" aria-labelledby="drop1">
-              <li><a tabindex="-1" href="/ventas/Facturas/">Generar Polizas Contables</a></li>
-            </ul>
+            <a id="drop1" href="/ventas/Facturas/" role="button" class="dropdown-toggle" data-toggle="dropdown"> <i class="msicon-ventas"></i><label class='labelMenu'> Ventas</label></a>
           </li>
           <li class="dropdown">
-            <a id="drop1" href="#" role="button" class="dropdown-toggle" data-toggle="dropdown"> <i class="msicon-cuentas_por_pagar"></i><label class='labelMenu'> Cuentas por pagar</label></a>
-            <ul class="dropdown-menu" role="menu" aria-labelledby="drop1">
-              <li><a tabindex="-1" href="#">Generar Polizas Contables</a></li>
-            </ul>
+            <a id="drop1" href="/cuentas_por_pagar/PreferenciasEmpresa/" role="button" class="dropdown-toggle" data-toggle="dropdown"> <i class="msicon-cuentas_por_pagar"></i><label class='labelMenu'> Cuentas por pagar</label></a>
           </li>
           
           <li><a href="#"> <i class="msicon-compras"></i><label class='labelMenu'> Compras</label></a></li>
-
+          
+          <li class="dropdown">
+            <a id="drop1" href="#" role="button" class="dropdown-toggle" data-toggle="dropdown"> <i class="msicon-contabilidad"></i><label class='labelMenu'> Contabilidad</label></a>
+            <ul class="dropdown-menu" role="menu" aria-labelledby="drop1">
+              <li><a tabindex="-1" href="/contabilidad/polizas/">Polizas</a></li>
+              <li><a tabindex="-1" href="/contabilidad/polizas_pendientes/">Polizas pendientes</a></li>
+              
+            </ul>
+          </li>
           <!-- <li class="dropdown">
             <a id="drop1" href="#" role="button" class="dropdown-toggle" data-toggle="dropdown"> <i class="msicon-reportes"></i><label class='labelMenu'> Reportes</label></a>
             <ul class="dropdown-menu" role="menu" aria-labelledby="drop1">
@@ -86,7 +85,7 @@
     {% endblock %}
   </div>
   <div id="span breadcrumbs" style="clear:both; margin-left: 35px;">
-    <div class='span4'>
+    <div class='span5'>
     {% block breadcrumb %}<a href="/"><i class="icon-home"></i></a>{% endblock %}
     </div>
   </div>

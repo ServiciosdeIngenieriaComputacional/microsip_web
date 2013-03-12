@@ -68,6 +68,11 @@ body{
   background-position: -4px -133px;
 }
 
+.msicon-contabilidad
+{
+  background-position: -4px -198px;
+}
+
 .msicon-reportes
 {
  background-position: -4px -164px; 
@@ -103,7 +108,7 @@ right: 30px; /* Distancia desde la derecha */
 
 .navbar
 {
-	margin-bottom: 4px;
+	margin-bottom: -1px;
 }
 
 #IrArriba span {

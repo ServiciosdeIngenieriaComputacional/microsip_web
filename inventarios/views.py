@@ -53,7 +53,7 @@ def logoutUser(request):
     logout(request)
     return HttpResponseRedirect('/')
 
-@login_required(login_url='/login/')
+@login_required(login_url='/inventarios/login/')
 def index(request):
 	#= ClavesArticulos.objects.all()
 	articulos = ClavesArticulos.objects.filter(articulo__id=219)
@@ -73,7 +73,7 @@ def c_get_next_key(seq_name):
 ##										##
 ##########################################
 
-@login_required(login_url='/login/')
+@login_required(login_url='/inventarios/login/')
 def invetariosFisicos_View(request, template_name='Inventarios Fisicos/inventarios_fisicos.html'):
 	inventarios_fisicos_list = DoctosInvfis.objects.all().order_by('-fecha') 
 
@@ -93,7 +93,7 @@ def invetariosFisicos_View(request, template_name='Inventarios Fisicos/inventari
 	c = {'inventarios_fisicos':inventarios_fisicos}
 	return render_to_response(template_name, c, context_instance=RequestContext(request))
 
-@login_required(login_url='/login/')
+@login_required(login_url='/inventarios/login/')
 def invetarioFisico_manageView(request, id = None, template_name='Inventarios Fisicos/inventario_fisico.html'):
 	message = ''
 	hay_repetido = False
@@ -172,7 +172,7 @@ def invetarioFisico_manageView(request, id = None, template_name='Inventarios Fi
 
 	return render_to_response(template_name, c, context_instance=RequestContext(request))
 
-@login_required(login_url='/login/')
+@login_required(login_url='/inventarios/login/')
 def invetarioFisico_delete(request, id = None):
 	inventario_fisico = get_object_or_404(DoctosInvfis, pk=id)
 	inventario_fisico.delete()
@@ -185,7 +185,7 @@ def invetarioFisico_delete(request, id = None):
 ##										##
 ##########################################
 
-@login_required(login_url='/login/')
+@login_required(login_url='/inventarios/login/')
 def entradas_View(request, template_name='Entradas/entradas.html'):
 	entradas_list = DoctosIn.objects.filter(naturaleza_concepto='E').order_by('-fecha') 
 
@@ -205,7 +205,7 @@ def entradas_View(request, template_name='Entradas/entradas.html'):
 	c = {'entradas':entradas}
 	return render_to_response(template_name, c, context_instance=RequestContext(request))
 
-@login_required(login_url='/login/')
+@login_required(login_url='/inventarios/login/')
 def entrada_manageView(request, id = None, template_name='Entradas/entrada.html'):
 	message = ''
 	hay_repetido = False
@@ -287,7 +287,7 @@ def entrada_manageView(request, id = None, template_name='Entradas/entrada.html'
 
 	return render_to_response(template_name, c, context_instance=RequestContext(request))
 
-@login_required(login_url='/login/')
+@login_required(login_url='/inventarios/login/')
 def entrada_delete(request, id = None):
 	entrada = get_object_or_404(DoctosIn, pk=id)
 	entrada.delete()
@@ -300,7 +300,7 @@ def entrada_delete(request, id = None):
 ##										##
 ##########################################
 
-@login_required(login_url='/login/')
+@login_required(login_url='/inventarios/login/')
 def salidas_View(request, template_name='Salidas/salidas.html'):
 	salidas_list = DoctosIn.objects.filter(naturaleza_concepto='S').order_by('-fecha') 
 
@@ -320,7 +320,7 @@ def salidas_View(request, template_name='Salidas/salidas.html'):
 	c = {'salidas':salidas}
 	return render_to_response(template_name, c, context_instance=RequestContext(request))
 
-@login_required(login_url='/login/')
+@login_required(login_url='/inventarios/login/')
 def salida_manageView(request, id = None, template_name='Salidas/salida.html'):
 	message = ''
 	hay_repetido = False
@@ -401,7 +401,7 @@ def salida_manageView(request, id = None, template_name='Salidas/salida.html'):
 
 	return render_to_response(template_name, c, context_instance=RequestContext(request))
 
-@login_required(login_url='/login/')
+@login_required(login_url='/inventarios/login/')
 def salida_delete(request, id = None):
 	salida = get_object_or_404(DoctosIn, pk=id)
 	salida.delete()

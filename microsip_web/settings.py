@@ -152,6 +152,7 @@ MICROSIP_MODULES = (
     'ventas',
     'cuentas_por_pagar',
     'cuentas_por_cobrar',
+    'contabilidad',
 )
 
 # A sample logging configuration. The only tangible logging

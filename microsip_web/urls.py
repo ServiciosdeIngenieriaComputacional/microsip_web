@@ -14,6 +14,9 @@ urlpatterns = patterns('',
 	(r'^$', 'inventarios.views.index'),
     url(r'^inventarios/', include('inventarios.urls', namespace='Inventarios')),
     url(r'^ventas/', include('ventas.urls', namespace='ventas')),
+    url(r'^cuentas_por_pagar/', include('cuentas_por_pagar.urls', namespace='cuentas_por_pagar')),
+    url(r'^contabilidad/', include('contabilidad.urls', namespace='contabilidad')),
+    
     url(r'autocomplete/', include('autocomplete_light.urls')),
     url(r'^admin/', include(admin.site.urls)),
     #LOGIN

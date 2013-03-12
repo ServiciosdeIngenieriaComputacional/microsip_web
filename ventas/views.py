@@ -24,7 +24,7 @@ from inventarios.views import c_get_next_key
 ##########################################
 
 @login_required(login_url='/inventarios/login/')
-def preferenciasEmpresa_View(request, template_name='configuracion/preferencias_empresa.html'):
+def preferenciasEmpresa_View(request, template_name='herramientas/preferencias_empresa.html'):
 	try:
 		informacion_contable = InformacionContable_V.objects.all()[:1]
 		informacion_contable = informacion_contable[0]
@@ -96,7 +96,7 @@ def generar_polizas(fecha_ini=None, fecha_fin=None, ignorar_facturas_cont=True):
 	cuenta = ''
 
 	try:
-		informacion_contable = InformacionContable.objects.all()[:1]
+		informacion_contable = InformacionContable_V.objects.all()[:1]
 		informacion_contable = informacion_contable[0]
 	except ObjectDoesNotExist:
 		error = 1
