@@ -78,22 +78,14 @@
             </div>
           </div>
         </ul>
-        <ul class="nav pull-right">
-          <div id=" span breadcrumbs" >
-            <div class ='span'style="text-align:right; height:2em;">
-              <li class="dropdown">
-                <a id="drop1" href="#" role="button" class="btn dropdown-toggle" data-toggle="dropdown"> <i class="icon-cog"></i> <b class="caret"></b></a>
-                <ul class="dropdown-menu" role="menu" aria-labelledby="drop1" style='text-align:left;'>
-                  <li><a tabindex="-1" href="/ventas/PreferenciasEmpresa/">Preferencias de la empresa</a></li>
-                </ul>
-              </li>
-            </div>
-          </div>
-        </ul>
       </div>
     </div>
   </div>
-  <div id="span breadcrumbs" style="margin-left: 35px;">
+  <div class="navbar-inner">
+    {% block tools-module %}
+    {% endblock %}
+  </div>
+  <div id="span breadcrumbs" style="clear:both; margin-left: 35px;">
     <div class='span4'>
     {% block breadcrumb %}<a href="/"><i class="icon-home"></i></a>{% endblock %}
     </div>

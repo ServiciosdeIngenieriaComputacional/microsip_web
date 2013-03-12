@@ -70,3 +70,5 @@ def doctoIn_items_formset(form, formset = BaseInlineFormSet, **kwargs):
 
 def inventarioFisico_items_formset(form, formset = BaseInlineFormSet, **kwargs):
 	return inlineformset_factory(DoctosInvfis, DoctosInvfisDet, form, formset, **kwargs)
+
+

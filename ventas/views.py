@@ -26,10 +26,10 @@ from inventarios.views import c_get_next_key
 @login_required(login_url='/inventarios/login/')
 def preferenciasEmpresa_View(request, template_name='configuracion/preferencias_empresa.html'):
 	try:
-		informacion_contable = InformacionContable.objects.all()[:1]
+		informacion_contable = InformacionContable_V.objects.all()[:1]
 		informacion_contable = informacion_contable[0]
 	except:
-		informacion_contable = InformacionContable()
+		informacion_contable = InformacionContable_V()
 
 	msg = ''
 	if request.method == 'POST':

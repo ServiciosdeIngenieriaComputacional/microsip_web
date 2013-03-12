@@ -655,11 +655,13 @@ class ImpuestosArticulo(models.Model):
 
     class Meta:
         db_table = u'impuestos_articulos'
+
+
 #############################################################################################################################################################
 ##################################################MODELOS DE APLICACION DJANGO###############################################################################
 #############################################################################################################################################################
 
-class InformacionContable(models.Model):
+class InformacionContable_V(models.Model):
     cuantaxcobrar           = models.ForeignKey(CuentaCo, blank=True, null=True, on_delete= models.SET_NULL, related_name='cuantaxcobrar')
     cobros                  = models.ForeignKey(CuentaCo, blank=True, null=True, on_delete= models.SET_NULL, related_name='cobros')
     descuentos              = models.ForeignKey(CuentaCo, blank=True, null=True, on_delete= models.SET_NULL, related_name='descuentos')
@@ -670,11 +672,14 @@ class InformacionContable(models.Model):
     def __unicode__(self):
         return u'%s'% self.id
 
-class ConfiguracionPolizas(models.Model):
-    CuentaPublicoGral = models.ForeignKey(CuentaCo, on_delete= models.SET_NULL, blank=True, null=True)
+class InformacionContable_CP(models.Model):
+    cuentas_por_pagar       = models.ForeignKey(CuentaCo, blank=True, null=True, on_delete= models.SET_NULL, related_name='cuantaxcobrar_cp')
+    anticipos               = models.ForeignKey(CuentaCo, blank=True, null=True, on_delete= models.SET_NULL, related_name='cobros_cp')
+    descuentos_pronto_pago  = models.ForeignKey(CuentaCo, blank=True, null=True, on_delete= models.SET_NULL, related_name='descuentos_cp')
 
     def __unicode__(self):
-        return u'%s' % self.id
+        return u'%s'% self.id
+
 #############################################################################################################################################################
 #############################################################################################################################################################
 #############################################################################################################################################################

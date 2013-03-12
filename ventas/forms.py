@@ -16,14 +16,9 @@ class InformacionContableManageForm(forms.ModelForm):
 	condicion_pago_contado 	= forms.ModelChoiceField(queryset= CondicionPago.objects.all(), required=True)
 	
 	class Meta:
-		model = InformacionContable
+		model = InformacionContable_V
 
 class GenerarPolizasManageForm(forms.Form):
 	fecha_ini =  forms.DateField()
 	fecha_fin =  forms.DateField()
 	ignorar_facturas_cont = forms.BooleanField(required=False, initial=True)
-
-
-class ConfiguracionPolizasManageForm(forms.ModelForm):
-	class Meta:
-		model = ConfiguracionPolizas
