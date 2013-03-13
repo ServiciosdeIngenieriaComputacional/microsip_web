@@ -23,7 +23,7 @@ from inventarios.views import c_get_next_key
 ##										##
 ##########################################
 
-@login_required(login_url='/inventarios/login/')
+@login_required(login_url='/login/')
 def preferenciasEmpresa_View(request, template_name='herramientas/preferencias_empresa.html'):
 	try:
 		informacion_contable = InformacionContable_V.objects.all()[:1]
@@ -290,7 +290,7 @@ def generar_polizas(fecha_ini=None, fecha_fin=None, ignorar_facturas_cont=True):
 
 	return facturasData, msg
 
-@login_required(login_url='/inventarios/login/')
+@login_required(login_url='/login/')
 def facturas_View(request, template_name='herramientas/generar_polizas.html'):
 	facturasData 	= []
 	msg 			= ''

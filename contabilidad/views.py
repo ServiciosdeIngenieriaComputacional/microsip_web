@@ -15,7 +15,7 @@ from django.contrib.auth.decorators import login_required, permission_required
 from django.core.exceptions import ObjectDoesNotExist
 from django.db.models import Sum, Max
 
-@login_required(login_url='/inventarios/login/')
+@login_required(login_url='/login/')
 def polizas_View(request, template_name='polizas/polizas.html'):
 	polizas_list = DoctoCo.objects.filter(estatus='N').order_by('-fecha') 
 
@@ -35,7 +35,7 @@ def polizas_View(request, template_name='polizas/polizas.html'):
 	c = {'polizas':polizas}
 	return render_to_response(template_name, c, context_instance=RequestContext(request))
 
-@login_required(login_url='/inventarios/login/')
+@login_required(login_url='/login/')
 def polizas_pendientesView(request, template_name='polizas/polizas_pendientes.html'):
 	polizas_list = DoctoCo.objects.filter(estatus='P').order_by('-fecha') 
 

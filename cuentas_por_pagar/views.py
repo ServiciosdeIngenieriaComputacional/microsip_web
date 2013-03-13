@@ -18,7 +18,7 @@ from django.db import connection
 from inventarios.views import c_get_next_key
 
 
-@login_required(login_url='/inventarios/login/')
+@login_required(login_url='/login/')
 def preferenciasEmpresa_View(request, template_name='herramientas/preferencias_empresa_CP.html'):
 	try:
 		informacion_contable = InformacionContable_CP.objects.all()[:1]
@@ -57,7 +57,7 @@ def generar_polizas(fecha_ini=None, fecha_fin=None, ignorar_facturas_cont=True):
 	except ObjectDoesNotExist:
 		error = 1
 	
-	if error == 0:
+	#if error == 0:
 
 		# for documento_cp in documentos_cp:
 		# 	#CONSECUTIVO FOLIOS

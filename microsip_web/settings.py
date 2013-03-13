@@ -30,7 +30,7 @@ DATABASES = {
         'NAME': 'C:\Microsip datos\AD2007(POLISAS)0_9.fdb', # Or path to database file if using sqlite3.
         'USER': 'SYSDBA',                      # Not used with sqlite3.
         'PASSWORD': 'masterkey',                  # Not used with sqlite3.
-        'HOST': '192.168.1.208',                      # Set to empty string for localhost. Not used with sqlite3.
+        'HOST': 'localhost',                      # Set to empty string for localhost. Not used with sqlite3.
         'PORT': '3050',                      # Set to empty string for default. Not used with sqlite3.
         'OPTIONS' : {'charset':'ISO8859_1'},
     }
@@ -81,7 +81,7 @@ STATIC_URL = '/static/'
 # Additional locations of static files
 STATICFILES_DIRS = (
     #'C:\wamp\www\microsip_web\static',
-    'C:\wamp\www\microsip_web\static',
+    'C:\Users\Admin\Documents\GitHub\microsip_web\static',
     # Put strings here, like "/home/html/static" or "C:/www/django/static".
     # Always use forward slashes, even on Windows.
     # Don't forget to use absolute paths, not relative paths.
