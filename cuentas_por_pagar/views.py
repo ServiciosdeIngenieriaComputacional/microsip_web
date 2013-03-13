@@ -43,9 +43,9 @@ def generar_polizas(fecha_ini=None, fecha_fin=None, ignorar_facturas_cont=True):
 	informacion_contable 	= []
 	
 	if ignorar_facturas_cont:
-		documentos_cp 			= DoctosCp.objects.filter(contabilizado ='N', fecha__gt=fecha_ini, fecha__lte=fecha_fin).order_by('fecha')[:99]
+		documentos_cp 		= DoctosCp.objects.filter(contabilizado ='N', concepto__crear_polizas='S', fecha__gt=fecha_ini, fecha__lte=fecha_fin).order_by('fecha')[:99]
 	else:
-		documentos_cp 			= DoctosCp.objects.filter(fecha__gt=fecha_ini, fecha__lte=fecha_fin).order_by('fecha')[:99]
+		documentos_cp 		= DoctosCp.objects.filter(concepto__crear_polizas='S', fecha__gt=fecha_ini, fecha__lte=fecha_fin).order_by('fecha')[:99]
 
 	facturasData 			= []
 	msg 					= ''
@@ -57,95 +57,83 @@ def generar_polizas(fecha_ini=None, fecha_fin=None, ignorar_facturas_cont=True):
 	except ObjectDoesNotExist:
 		error = 1
 	
-	# if error == 0:
-	# 	#PREFIJO
-	# 	#prefijo = informacion_contable.tipo_poliza_ve.prefijo
-	# 	#if not informacion_contable.tipo_poliza_ve.prefijo:
-	# 	#	prefijo = ''
+	if error == 0:
 
-	# 	for documento_cp in documentos_cp:
-	# 		#CONSECUTIVO FOLIOS
-	# 		tipo_poliza_det = ventas.views.get_folio_poliza(informacion_contable.tipo_poliza_ve, documento_cp.fecha)
+		# for documento_cp in documentos_cp:
+		# 	#CONSECUTIVO FOLIOS
+		# 	tipo_poliza = TipoPoliza.objects.filter(clave=documento_cp.concepto.clave_tipo_poliza)
 			
-	# 		descuento_total = get_descuento_total_ve(factura.id)
-	# 		total = factura.total_impuestos + factura.importe_neto
-	# 		bancos_o_clientes =  total - descuento_total
+		# 	#PREFIJO
+		# 	prefijo = tipo_poliza.prefijo
+		# 	if not tipo_poliza.prefijo:
+		# 		prefijo = ''
 
-	# 		#SI ES DE CONTADO
-	# 		if factura.condicion_pago == informacion_contable.condicion_pago_contado:
-	# 			cuenta = informacion_contable.cobros
-	# 		else:
-	# 			#SI EL CLIENTE NO TIENE NO TIENE CUENTA SE VA A PUBLICO EN GENERAL
-	# 			if not factura.cliente.cuenta_xcobrar == None:
-	# 				cuenta =  get_object_or_404(CuentaCo, cuenta = factura.cliente.cuenta_xcobrar)
-	# 			else:
-	# 				cuenta = informacion_contable.cuantaxcobrar
-			
+		# 	tipo_poliza_det = ventas.views.get_folio_poliza(tipo_poliza, documento_cp.fecha)
 
-	# 		if ventas_16 < 0:
-	# 			msg = 'Existe al menos una factura del cluiente %s el cual [no tiene indicado cobrar inpuestos] por favor corrije esto para poder crear las polizas de este ciente '% factura.cliente.nombre
-	# 		else:
-	# 			id_poli = c_get_next_key('ID_DOCTOS')
-	# 			folio = '%s%s'% (prefijo,("%09d" % tipo_poliza_det.consecutivo)[len(prefijo):])
+		# 	id_poli = c_get_next_key('ID_DOCTOS')
+		# 	folio = '%s%s'% (prefijo,("%09d" % tipo_poliza_det.consecutivo)[len(prefijo):])
 
-	# 			poliza = DoctoCo(
-	# 				id                    	= id_poli,
-	# 				tipo_poliza				= informacion_contable.tipo_poliza_ve,
-	# 				poliza					= folio,
-	# 				fecha 					= factura.fecha,
-	# 				moneda 					= factura.moneda, 
-	# 				tipo_cambio 			= factura.tipo_cambio,
-	# 				estatus 				= 'P', cancelado= 'N', aplicado = 'N', ajuste = 'N', integ_co = 'S',
-	# 				descripcion 			= informacion_contable.descripcion_polizas_ve,
-	# 				forma_emitida 			= 'N', sistema_origen = 'CO',
-	# 				nombre 					= '',
-	# 				grupo_poliza_periodo 	= None,
-	# 				integ_ba 				= 'N',
-	# 				usuario_creador			= 'SYSDBA',
-	# 				fechahora_creacion		= datetime.datetime.now(), usuario_aut_creacion = None, 
-	# 				usuario_ult_modif 		= 'SYSDBA', fechahora_ult_modif = datetime.datetime.now(), usuario_aut_modif 	= None,
-	# 				usuario_cancelacion 	= None, fechahora_cancelacion 	=  None, usuario_aut_cancelacion 				= None,
-	# 			)
+		# 	poliza = DoctoCo(
+		# 		id                    	= id_poli,
+		# 		tipo_poliza				= tipo_poliza,
+		# 		poliza					= folio,
+		# 		fecha 					= documento_cp.fecha,
+		# 		moneda 					= #no se de donde sale
+		# 		tipo_cambio 			= documento_cp.tipo_cambio,
+		# 		estatus 				= 'P', cancelado= 'N', aplicado = 'N', ajuste = 'N', integ_co = 'S',
+		# 		descripcion 			= documento_cp.concepto.descripcion_poliza,
+		# 		forma_emitida 			= 'N', sistema_origen = 'CP',
+		# 		nombre 					= '',
+		# 		grupo_poliza_periodo 	= None,
+		# 		integ_ba 				= 'N',
+		# 		usuario_creador			= 'SYSDBA',
+		# 		fechahora_creacion		= datetime.datetime.now(), usuario_aut_creacion = None, 
+		# 		usuario_ult_modif 		= 'SYSDBA', fechahora_ult_modif = datetime.datetime.now(), usuario_aut_modif 	= None,
+		# 		usuario_cancelacion 	= None, fechahora_cancelacion 	=  None, usuario_aut_cancelacion 				= None,
+		# 	)
 
-	# 			#GUARDA LA PILIZA
-	# 			poliza_o = poliza.save()
-	# 			factura.contabilizado = 'S'
-	# 			factura.save()
+		# 	#GUARDA LA PILIZA
+		# 	#poliza_o = poliza.save()
+		# 	#documento_cp.contabilizado = 'S'
+		# 	#documento_cp.save()
 
-	# 			tipo_poliza_det.consecutivo += 1 
-	# 			tipo_poliza_det.save()
+		# 	tipo_poliza_det.consecutivo += 1 
+		# 	tipo_poliza_det.save()
 
-	# 			posicion = 1
-	# 			#DEBE
-	# 			DoctosCoDet.objects.create(
-	# 					id				= -1,
-	# 					docto_co		= poliza,
-	# 					cuenta			= cuenta,
-	# 					depto_co		= depto_co,
-	# 					tipo_asiento	= 'C',
-	# 					importe			= bancos_o_clientes,
-	# 					importe_mn		= 0,#PENDIENTE
-	# 					ref				= factura.folio,
-	# 					descripcion		= '',
-	# 					posicion		= posicion,
-	# 					recordatorio	= None,
-	# 					fecha			= factura.fecha,
-	# 					cancelado		= 'N', aplicado = 'N', ajuste = 'N', 
-	# 					moneda			= factura.moneda,
-	# 				)
-	# 			posicion +=1
-			
-	# 		# facturasData.append ({
-	# 		# 	'folio'		:factura.folio,
-	# 		# 	'total'		:total,
-	# 		# 	'ventas_0'	:ventas_0,
-	# 		# 	'ventas_16'	:ventas_16,
-	# 		# 	'impuesos'	:factura.total_impuestos,
-	# 		# 	'tipo_cambio':factura.tipo_cambio,
-	# 		# 	})
+		# 	documento_cp.proveedor.cuenta_xpagar 
 
-	# elif error == 1:
-	# 	msg = 'No se han derfinido las preferencias de la empresa para generar polizas [Por favor definelas primero en Configuracion > Preferencias de la empresa]'
+		# 	if documento_cp.naturaleza_concepto == 'C':
+
+
+		# 	posicion = 1
+		# 	#DEBE
+		# 	DoctosCoDet.objects.create(
+		# 			id				= -1,
+		# 			docto_co		= poliza,
+		# 			cuenta			= cuenta,
+		# 			depto_co		= depto_co,
+		# 			tipo_asiento	= 'C',
+		# 			importe			= bancos_o_clientes,
+		# 			importe_mn		= 0,#PENDIENTE
+		# 			ref				= factura.folio,
+		# 			descripcion		= '',
+		# 			posicion		= posicion,
+		# 			recordatorio	= None,
+		# 			fecha			= factura.fecha,
+		# 			cancelado		= 'N', aplicado = 'N', ajuste = 'N', 
+		# 			moneda			= factura.moneda,
+		# 		)
+		# 	posicion +=1
+		
+		# 	# facturasData.append ({
+		# 	# 	'folio'		:factura.folio,
+		# 	# 	'total'		:total,
+		# 	# 	'ventas_0'	:ventas_0,
+		# 	# 	'ventas_16'	:ventas_16,
+		# 	# 	'impuesos'	:factura.total_impuestos,
+		# 	# 	'tipo_cambio':factura.tipo_cambio,
+		# 	# 	})
+
 
 	return facturasData, msg
 

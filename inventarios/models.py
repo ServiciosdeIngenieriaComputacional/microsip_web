@@ -170,8 +170,10 @@ class ClavesProveedores(models.Model):
         db_table = u'claves_proveedores'
 
 class Proveedor(models.Model):
-    id      = models.AutoField(primary_key=True, db_column='PROVEEDOR_ID')
-    nombre  = models.CharField(max_length=100, db_column='NOMBRE')
+    id                  = models.AutoField(primary_key=True, db_column='PROVEEDOR_ID')
+    nombre              = models.CharField(max_length=100, db_column='NOMBRE')
+    cuenta_xpagar       = models.CharField(max_length=9, db_column='CUENTA_CXP')
+    cuenta_anticipos    = models.CharField(max_length=9, db_column='CUENTA_ANTICIPOS')
 
     def __unicode__(self):
         return u'%s' % self.nombre
@@ -236,8 +238,12 @@ class ConceptosCc(models.Model):
         db_table = u'conceptos_cc'
 
 class ConceptoCp(models.Model):
-    id = models.AutoField(primary_key=True, db_column='CONCEPTO_CP_ID')
-    nombre_abrev = models.CharField(max_length=30, db_column='NOMBRE_ABREV')
+    id                  = models.AutoField(primary_key=True, db_column='CONCEPTO_CP_ID')
+    nombre_abrev        = models.CharField(max_length=30, db_column='NOMBRE_ABREV')
+    crear_polizas       = models.CharField(default='N', max_length=1, db_column='CREAR_POLIZAS')
+    cuenta_contable     = models.CharField(max_length=30, db_column='CUENTA_CONTABLE')
+    clave_tipo_poliza   = models.CharField(max_length=1, db_column='TIPO_POLIZA')
+    descripcion_poliza  = models.CharField(max_length=200, db_column='DESCRIPCION_POLIZA')
 
     def __unicode__(self):
         return self.nombre_abrev
@@ -413,6 +419,7 @@ class Moneda(models.Model):
 
 class TipoPoliza(models.Model):
     id          = models.AutoField(primary_key=True, db_column='TIPO_POLIZA_ID')
+    clave       = models.CharField(max_length=1, db_column='CLAVE')
     nombre      = models.CharField(max_length=30, db_column='NOMBRE')
     tipo_consec = models.CharField(max_length=1, db_column='TIPO_CONSEC')
     prefijo     = models.CharField(max_length=1, db_column='PREFIJO')
@@ -503,6 +510,7 @@ class DoctosCp(models.Model):
     aplicado            = models.CharField(default='S', max_length=1, db_column='APLICADO')
     descripcion         = models.CharField(blank=True, null=True, max_length=200, db_column='DESCRIPCION')
     contabilizado       = models.CharField(default='N', blank=True, null=True, max_length=1, db_column='CONTABILIZADO')
+    tipo_cambio         = models.DecimalField(max_digits=18, decimal_places=6, db_column='TIPO_CAMBIO')
 
     def __unicode__(self):
         return u'%s' % self.id
