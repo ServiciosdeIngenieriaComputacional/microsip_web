@@ -65,3 +65,14 @@ Repocitorio en github https://github.com/yourlabs/django-autocomplete-light
 
 
 
+I guess a test would be to install a package with pip using a --index-url=file:////localhost/c$/some/package/index where /index contains subdirectories of projects:
+
+/index
+/pkg
+/pkg-0.0.1.tar.gz
+The pip command: pip install --index-url=file:////localhost/c$/some/package/index pkg should find and install pkg-0.0.1.tar.gz.
+
+
+
+
+

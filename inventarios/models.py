@@ -4,6 +4,12 @@ from datetime import datetime
 from django.db.models.signals import pre_save
 from django.core import urlresolvers
 
+class Moneda(models.Model):
+    id = models.AutoField(primary_key=True, db_column='MONEDA_ID')
+        
+    class Meta:
+        db_table = u'monedas'
+
 class Paises(models.Model):
     PAIS_ID = models.AutoField(primary_key=True)
     name = models.CharField(max_length=50, db_column='NOMBRE')
@@ -174,6 +180,7 @@ class Proveedor(models.Model):
     nombre              = models.CharField(max_length=100, db_column='NOMBRE')
     cuenta_xpagar       = models.CharField(max_length=9, db_column='CUENTA_CXP')
     cuenta_anticipos    = models.CharField(max_length=9, db_column='CUENTA_ANTICIPOS')
+    moneda              = models.ForeignKey(Moneda, db_column='MONEDA_ID')
 
     def __unicode__(self):
         return u'%s' % self.nombre
@@ -411,12 +418,6 @@ class GrupoPolizasPeriodoCo(models.Model):
     class Meta:
         db_table = 'grupos_polizas_period_co'
 
-class Moneda(models.Model):
-    id = models.AutoField(primary_key=True, db_column='MONEDA_ID')
-        
-    class Meta:
-        db_table = u'monedas'
-
 class TipoPoliza(models.Model):
     id          = models.AutoField(primary_key=True, db_column='TIPO_POLIZA_ID')
     clave       = models.CharField(max_length=1, db_column='CLAVE')
@@ -518,6 +519,14 @@ class DoctosCp(models.Model):
     class Meta:
         db_table = u'doctos_cp'
 
+class ImportesDoctosCP(models.Model):
+    id          = models.AutoField(primary_key=True, db_column='IMPTE_DOCTO_CP_ID')
+    docto_cp    = models.ForeignKey(DoctosCp, db_column='DOCTO_CP_ID')
+    importe     = models.DecimalField(max_digits=15, decimal_places=2, db_column='IMPORTE')
+
+    class Meta:
+        db_table = u'importes_doctos_cp'
+        
 class DoctosEntreSis(models.Model):
     class Meta:
         db_table = u'doctos_entre_sis'

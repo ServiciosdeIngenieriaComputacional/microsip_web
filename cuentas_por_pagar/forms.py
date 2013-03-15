@@ -16,7 +16,7 @@ class InformacionContableManageForm(forms.ModelForm):
 	class Meta:
 		model = InformacionContable_CP
 
-# class GenerarPolizasManageForm(forms.Form):
-# 	fecha_ini =  forms.DateField()
-# 	fecha_fin =  forms.DateField()
-# 	ignorar_facturas_cont = forms.BooleanField(required=False, initial=True)
+class GenerarPolizasManageForm(forms.Form):
+	fecha_ini =  forms.DateField()
+	fecha_fin =  forms.DateField()
+	ignorar_facturas_cont = forms.BooleanField(required=False, initial=True)
