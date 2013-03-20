@@ -678,12 +678,39 @@ class ImpuestosArticulo(models.Model):
 ##################################################MODELOS DE APLICACION DJANGO###############################################################################
 #############################################################################################################################################################
 
+class PlantillaPolizas_V(models.Model):
+    nombre = models.CharField(max_length=200)
+
+    def __unicode__(self):
+        return u'%s'%self.nombre
+
+class DetallePlantillaPolizas_V(models.Model):
+    TIPOS = (('C', 'Cargo'),('A', 'Abono'),)
+    VALOR_TIPOS =(
+        ('Ventas', 'Ventas'),
+        ('Clientes', 'Clientes'),
+        ('Bancos', 'Bancos'),
+        ('Descuentos', 'Descuentos'),
+        ('IVA', 'IVA'),
+        ('IVA Pagado', 'IVA Pagado'),
+        ('IVA Pendiente', 'IVA Pendiente'),
+    )
+    VALOR_IVA_TIPOS             = (('A', 'Ambos'),('I', 'Solo IVA'),('0', 'Solo 0%'),)
+    VALOR_CONTADO_CREDITO_TIPOS = (('Ambos', 'Ambos'),('Contado', 'Contado'),('Credito', 'Credito'),)
+
+    plantilla_poliza_v      = models.ForeignKey(PlantillaPolizas_V)
+    cuenta_co               = models.ForeignKey(CuentaCo)
+    tipo                    =  models.CharField(max_length=2, choices=TIPOS, default='C')
+    valor_tipo              = models.CharField(max_length=20, choices=VALOR_TIPOS)
+    valor_iva               = models.CharField(max_length=2, choices=VALOR_IVA_TIPOS, default='A')
+    valor_contado_credito   = models.CharField(max_length=10, choices=VALOR_CONTADO_CREDITO_TIPOS, default='Ambos')
+
+    def __unicode__(self):
+        return u'%s'%self.id
+
 class InformacionContable_V(models.Model):
-    cuantaxcobrar           = models.ForeignKey(CuentaCo, blank=True, null=True, on_delete= models.SET_NULL, related_name='cuantaxcobrar')
-    cobros                  = models.ForeignKey(CuentaCo, blank=True, null=True, on_delete= models.SET_NULL, related_name='cobros')
-    descuentos              = models.ForeignKey(CuentaCo, blank=True, null=True, on_delete= models.SET_NULL, related_name='descuentos')
+    
     tipo_poliza_ve          = models.ForeignKey(TipoPoliza, blank=True, null=True, on_delete= models.SET_NULL)
-    descripcion_polizas_ve  = models.CharField(max_length=200, blank=True, null=True)
     condicion_pago_contado  = models.ForeignKey(CondicionPago, blank=True, null=True, on_delete= models.SET_NULL)
 
     def __unicode__(self):
