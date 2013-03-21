@@ -6,7 +6,8 @@ from django.core import urlresolvers
 
 class Moneda(models.Model):
     id = models.AutoField(primary_key=True, db_column='MONEDA_ID')
-        
+    es_moneda_local = models.CharField(default='N', max_length=1, db_column='ES_MONEDA_LOCAL')
+    
     class Meta:
         db_table = u'monedas'
 
@@ -692,8 +693,6 @@ class DetallePlantillaPolizas_V(models.Model):
         ('Bancos', 'Bancos'),
         ('Descuentos', 'Descuentos'),
         ('IVA', 'IVA'),
-        ('IVA Pagado', 'IVA Pagado'),
-        ('IVA Pendiente', 'IVA Pendiente'),
     )
     VALOR_IVA_TIPOS             = (('A', 'Ambos'),('I', 'Solo IVA'),('0', 'Solo 0%'),)
     VALOR_CONTADO_CREDITO_TIPOS = (('Ambos', 'Ambos'),('Contado', 'Contado'),('Credito', 'Credito'),)

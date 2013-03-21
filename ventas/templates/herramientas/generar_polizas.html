@@ -21,11 +21,10 @@
 <div class="alert alert-block alert-error fade in">
     <button type="button" class="close" data-dismiss="alert">×</button>
     <strong>Ocurio un Problema!</strong> {{ msg }}
+
 </div>
 {% endif %}
-
 {{ form.errors }}
-chunel
 <form method="post" class="form-horizontal" action="" width="300px"  enctype='multipart/form-data'>
   {% csrf_token %}
   <div class="form-actions">
