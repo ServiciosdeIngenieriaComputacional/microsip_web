@@ -86,7 +86,7 @@ def get_folio_poliza(tipo_poliza, fecha=None):
 def crear_polizas_por_documento(facturas, depto_co, informacion_contable, prefijo, msg, plantilla=None, descripcion = ''):
 	facturasData 		= []
 	cuenta 				= ''
-	conceptos_poliza	= DetallePlantillaPolizas_V.objects.filter(plantilla_poliza_v=plantilla)
+	conceptos_poliza	= DetallePlantillaPolizas_V.objects.filter(plantilla_poliza_v=plantilla).order_by('id')
 
 	for factura in facturas:
 		tipo_poliza_det = get_folio_poliza(informacion_contable.tipo_poliza_ve, factura.fecha)
@@ -119,9 +119,11 @@ def crear_polizas_por_documento(facturas, depto_co, informacion_contable, prefij
 		tipo_poliza_det.consecutivo += 1 
 		tipo_poliza_det.save()
 
-		descuento_total = get_descuento_total_ve(factura.id)
-		total = factura.total_impuestos + factura.importe_neto
-		bancos_o_clientes =  total - descuento_total
+		descuento_total 		= get_descuento_total_ve(factura.id)
+		total 					= factura.total_impuestos + factura.importe_neto
+		bancos_o_clientes 		= total - descuento_total
+		bancos_o_clientes_0 	= total - descuento_total
+		bancos_o_clientes_iva 	= total - descuento_total
 
 		ventas_0 = DoctoVeDet.objects.filter(docto_ve= factura).extra(
 			tables =['impuestos_articulos', 'impuestos'],
@@ -142,104 +144,75 @@ def crear_polizas_por_documento(facturas, depto_co, informacion_contable, prefij
 		if ventas_16 < 0:
 			msg = 'Existe al menos una factura del cliente %s el cual [no tiene indicado cobrar inpuestos] por favor corrije esto para poder crear las polizas de este ciente '% factura.cliente.nombre
 		else:
-			# #SI ES DE CONTADO
-			# if factura.condicion_pago == informacion_contable.condicion_pago_contado:
-			# 	cuenta = informacion_contable.cobros
-			# else:
-			# 	#SI EL CLIENTE NO TIENE CUENTA SE VA A PUBLICO EN GENERAL
-			# 	if not factura.cliente.cuenta_xcobrar == None:
-			# 		cuenta =  get_object_or_404(CuentaCo, cuenta = factura.cliente.cuenta_xcobrar)
-			# 	else:
-			# 		cuenta = informacion_contable.cuantaxcobrar
-
 			posicion = 1
 			for concepto in conceptos_poliza:
+				importe = 0
+				cuenta = []
+
 				if concepto.valor_tipo == 'Ventas':
 					if concepto.valor_iva == '0':
-						DoctosCoDet.objects.create(
-								id				= -1,
-								docto_co		= poliza,
-								cuenta			= concepto.cuenta_co,
-								depto_co		= depto_co,
-								tipo_asiento	= concepto.tipo,
-								importe			= ventas_0,
-								importe_mn		= 0,
-								ref				= factura.folio,
-								descripcion		= '',
-								posicion		= posicion,
-								recordatorio	= None,
-								fecha			= factura.fecha,
-								cancelado		= 'N', aplicado = 'N', ajuste = 'N', 
-								moneda			= factura.moneda,
-							)
+						importe = ventas_0
 					elif concepto.valor_iva == 'I':
-						DoctosCoDet.objects.create(
-							id				= -1,
-							docto_co		= poliza,
-							cuenta			= concepto.cuenta_co,
-							depto_co		= depto_co,
-							tipo_asiento	= concepto.tipo,
-							importe			= ventas_16,
-							importe_mn		= 0,
-							ref				= factura.folio,
-							descripcion		= '',
-							posicion		= posicion,
-							recordatorio	= None,
-							fecha			= factura.fecha,# datetime.date(1000, 01, 01),#datetime.date.today()
-							cancelado		= 'N', aplicado = 'N', ajuste = 'N', 
-							moneda			= factura.moneda,
-						)
+						importe = ventas_16
 					elif concepto.valor_iva == 'A':
-						DoctosCoDet.objects.create(
-							id				= -1,
-							docto_co		= poliza,
-							cuenta			= concepto.cuenta_co,
-							depto_co		= depto_co,
-							tipo_asiento	= concepto.tipo,
-							importe			= ventas_16 + ventas_0,
-							importe_mn		= 0,
-							ref				= factura.folio,
-							descripcion		= '',
-							posicion		= posicion,
-							recordatorio	= None,
-							fecha			= factura.fecha,# datetime.date(1000, 01, 01),#datetime.date.today()
-							cancelado		= 'N', aplicado = 'N', ajuste = 'N', 
-							moneda			= factura.moneda,
-						)
+						importe = ventas_16 + ventas_0
 					
-					posicion +=1
-				elif concepto.valor_tipo == 'Clientes' : 
-					#SI ES DE CONTADO
-					if not factura.condicion_pago == informacion_contable.condicion_pago_contado:
-						#SI EL CLIENTE NO TIENE CUENTA SE VA A PUBLICO EN GENERAL
-						if not factura.cliente.cuenta_xcobrar == None:
-							cuenta =  get_object_or_404(CuentaCo, cuenta = factura.cliente.cuenta_xcobrar)
+					#SI LA FACTURA ES A CREDITO Y EL CONCEPTO NO ES A CREDITO
+					if not factura.condicion_pago == informacion_contable.condicion_pago_contado and not concepto.valor_contado_credito == 'Credito' and not concepto.valor_contado_credito == 'Ambos':
+						importe = 0 
+					#SI LA FACTURA ES A CONTADO Y EL CONCEPTO NO ES DE CONTADO
+					elif factura.condicion_pago == informacion_contable.condicion_pago_contado and not concepto.valor_contado_credito == 'Contado' and not concepto.valor_contado_credito == 'Ambos':
+						importe = 0
 
-						DoctosCoDet.objects.create(
-								id				= -1,
-								docto_co		= poliza,
-								cuenta			= concepto.cuenta_co,
-								depto_co		= depto_co,
-								tipo_asiento	= concepto.tipo,
-								importe			= bancos_o_clientes,
-								importe_mn		= 0,#PENDIENTE
-								ref				= factura.folio,
-								descripcion		= '',
-								posicion		= posicion,
-								recordatorio	= None,
-								fecha			= factura.fecha,
-								cancelado		= 'N', aplicado = 'N', ajuste = 'N', 
-								moneda			= factura.moneda,
-							)
-					posicion +=1
-				elif concepto.valor_tipo == 'Bancos':
+					cuenta = concepto.cuenta_co
+				#SI ES A CREDITO y ES CLIENTES
+				elif concepto.valor_tipo == 'Clientes' and not factura.condicion_pago == informacion_contable.condicion_pago_contado: 
+					if concepto.valor_iva == '0':
+						importe = 0
+					elif concepto.valor_iva == 'I':
+						importe = 0
+					elif concepto.valor_iva == 'A':
+						importe = bancos_o_clientes
+
+					#SI EL CLIENTE NO TIENE CUENTA SE VA A PUBLICO EN GENERAL
+					if not factura.cliente.cuenta_xcobrar == None:
+						cuenta =  get_object_or_404(CuentaCo, cuenta = factura.cliente.cuenta_xcobrar)
+					else:
+						cuenta = concepto.cuenta_co
+				#SI ES BANCOS Y ES DE CONTADO
+				elif concepto.valor_tipo == 'Bancos' and factura.condicion_pago == informacion_contable.condicion_pago_contado:
+					if concepto.valor_iva == '0':
+						importe = 0
+					elif concepto.valor_iva == 'I':
+						importe = 0
+					elif concepto.valor_iva == 'A':
+						importe = bancos_o_clientes
+
+					cuenta = concepto.cuenta_co
+
+				elif concepto.valor_tipo == 'Descuentos':
+					importe = descuento_total
+					cuenta = concepto.cuenta_co
+
+				elif concepto.valor_tipo == 'IVA':
+					importe = factura.total_impuestos
+					cuenta = concepto.cuenta_co
+
+					#SI LA FACTURA ES A CREDITO Y EL CONCEPTO NO ES A CREDITO
+					if not factura.condicion_pago == informacion_contable.condicion_pago_contado and not concepto.valor_contado_credito == 'Credito' and not concepto.valor_contado_credito == 'Ambos':
+						importe = 0 
+					#SI LA FACTURA ES A CONTADO Y EL CONCEPTO NO ES DE CONTADO
+					elif factura.condicion_pago == informacion_contable.condicion_pago_contado and not concepto.valor_contado_credito == 'Contado' and not concepto.valor_contado_credito == 'Ambos':
+						importe = 0
+
+				if importe > 0 and not cuenta == []:
 					DoctosCoDet.objects.create(
 						id				= -1,
 						docto_co		= poliza,
-						cuenta			= concepto.cuenta_co,
+						cuenta			= cuenta,
 						depto_co		= depto_co,
 						tipo_asiento	= concepto.tipo,
-						importe			= bancos_o_clientes,
+						importe			= importe,
 						importe_mn		= 0,#PENDIENTE
 						ref				= factura.folio,
 						descripcion		= '',
@@ -250,42 +223,7 @@ def crear_polizas_por_documento(facturas, depto_co, informacion_contable, prefij
 						moneda			= factura.moneda,
 					)
 					posicion +=1
-				elif concepto.valor_tipo == 'Descuentos':
-					DoctosCoDet.objects.create(
-							id				= -1,
-							docto_co		= poliza,
-							cuenta			= concepto.cuenta_co,
-							depto_co		= depto_co,
-							tipo_asiento	= concepto.tipo,
-							importe			= descuento_total,
-							importe_mn		= 0,#PENDIENTE
-							ref				= factura.folio,
-							descripcion		= '',
-							posicion		= posicion,
-							recordatorio	= None,
-							fecha			= factura.fecha,
-							cancelado		= 'N', aplicado = 'N', ajuste = 'N', 
-							moneda			= factura.moneda,
-						)
-					posicion +=1
-				elif concepto.valor_tipo == 'IVA':
-					DoctosCoDet.objects.create(
-							id				= -1,
-							docto_co		= poliza,
-							cuenta			= concepto.cuenta_co,
-							depto_co		= depto_co,	
-							tipo_asiento	= concepto.tipo,
-							importe			= ventas_16,
-							importe_mn		= 0,
-							ref				= factura.folio,
-							descripcion		= '',
-							posicion		= posicion,
-							recordatorio	= None,
-							fecha			= factura.fecha,# datetime.date(1000, 01, 01),#datetime.date.today()
-							cancelado		= 'N', aplicado = 'N', ajuste = 'N', 
-							moneda			= factura.moneda,
-						)
-					posicion +=1
+
 				#elif if concepto.valor_tipo == 'IVA Pagado':
 				#elif if concepto.valor_tipo == 'IVA Pendiente':
 
@@ -297,6 +235,186 @@ def crear_polizas_por_documento(facturas, depto_co, informacion_contable, prefij
 			'impuesos'	:factura.total_impuestos,
 			'tipo_cambio':factura.tipo_cambio,
 			})
+
+	return msg, facturasData
+
+def crear_polizas_por_dia(facturas, depto_co, informacion_contable, prefijo, msg, plantilla=None, descripcion = ''):
+	facturasData 		= []
+	cuenta 				= ''
+	conceptos_poliza	= DetallePlantillaPolizas_V.objects.filter(plantilla_poliza_v=plantilla).order_by('id')
+	fecha_dia = facturas[0].fecha
+	iva_pend_cobrar = iva_efec_cobrado 	= iva_tot 			= descuento_total 	= total 			= bancos = clientes = 0 
+	ventas_0_tot 	= ventas_16_tot 	= ventas_16_credito = ventas_0_credito  = ventas_16_contado = ventas_0_contado 	= 0
+	moneda_local = get_object_or_404(Moneda,es_moneda_local='S')
+
+	for factura in facturas:
+		#Si es otra fecha resetea variables
+
+		if not fecha_dia == factura.fecha:
+			if ventas_16 < 0:
+				msg = 'Existe al menos una factura del cliente %s el cual [no tiene indicado cobrar inpuestos] por favor corrije esto para poder crear las polizas de este ciente '% factura.cliente.nombre
+			else:
+			
+				tipo_poliza_det = get_folio_poliza(informacion_contable.tipo_poliza_ve, fecha_dia)
+
+				poliza = DoctoCo(
+						id                    	= c_get_next_key('ID_DOCTOS'),
+						tipo_poliza				= informacion_contable.tipo_poliza_ve,
+						poliza					= '%s%s'% (prefijo,("%09d" % tipo_poliza_det.consecutivo)[len(prefijo):]),
+						fecha 					= fecha_dia,
+						moneda 					= moneda_local, 
+						tipo_cambio 			= 1,
+						estatus 				= 'P', cancelado= 'N', aplicado = 'N', ajuste = 'N', integ_co = 'S',
+						descripcion 			= descripcion,
+						forma_emitida 			= 'N', sistema_origen = 'CO',
+						nombre 					= '',
+						grupo_poliza_periodo 	= None,
+						integ_ba 				= 'N',
+						usuario_creador			= 'SYSDBA',
+						fechahora_creacion		= datetime.datetime.now(), usuario_aut_creacion = None, 
+						usuario_ult_modif 		= 'SYSDBA', fechahora_ult_modif = datetime.datetime.now(), usuario_aut_modif 	= None,
+						usuario_cancelacion 	= None, fechahora_cancelacion 	=  None, usuario_aut_cancelacion 				= None,
+					)
+
+				#GUARDA LA PILIZA
+				poliza_o = poliza.save()
+				
+				#CONSECUTIVO DE FOLIO DE POLIZA
+				tipo_poliza_det.consecutivo += 1 
+				tipo_poliza_det.save()
+
+				posicion = 1
+				for concepto in conceptos_poliza:
+					importe = 0
+					cuenta = []
+
+					if concepto.valor_tipo == 'Ventas': 
+						if concepto.valor_contado_credito == 'Credito':
+							if concepto.valor_iva == '0':
+								importe = ventas_0_credito
+							elif concepto.valor_iva == 'I':
+								importe = ventas_16_credito
+							elif concepto.valor_iva == 'A':
+								importe = ventas_16_credito + ventas_0_credito
+						elif concepto.valor_contado_credito == 'Contado':
+							if concepto.valor_iva == '0':
+								importe = ventas_0_contado
+							elif concepto.valor_iva == 'I':
+								importe = ventas_16_contado
+							elif concepto.valor_iva == 'A':
+								importe = ventas_16_contado + ventas_0_contado
+						elif concepto.valor_contado_credito == 'Ambos':
+							if concepto.valor_iva == '0':
+								importe = ventas_0_tot
+							elif concepto.valor_iva == 'I':
+								importe = ventas_16_tot
+							elif concepto.valor_iva == 'A':
+								importe = ventas_16_tot + ventas_0_tot
+
+						cuenta = concepto.cuenta_co
+					#SI ES A CREDITO y ES CLIENTES
+					elif concepto.valor_tipo == 'Clientes': 
+						if concepto.valor_iva == '0':
+							importe = 0
+						elif concepto.valor_iva == 'I':
+							importe = 0
+						elif concepto.valor_iva == 'A':
+							importe = clientes
+
+						cuenta = concepto.cuenta_co
+					#SI ES BANCOS Y ES DE CONTADO
+					elif concepto.valor_tipo == 'Bancos':
+						if concepto.valor_iva == '0':
+							importe = 0
+						elif concepto.valor_iva == 'I':
+							importe = 0
+						elif concepto.valor_iva == 'A':
+							importe = bancos
+
+						cuenta = concepto.cuenta_co
+
+					elif concepto.valor_tipo == 'Descuentos':
+						importe = descuento_total
+						cuenta = concepto.cuenta_co
+
+					elif concepto.valor_tipo == 'IVA':
+						if concepto.valor_contado_credito == 'Credito':
+							importe = iva_pend_cobrar
+						elif concepto.valor_contado_credito == 'Contado':
+							importe = iva_efec_cobrado
+						elif concepto.valor_contado_credito == 'Ambos':
+							importe = iva_tot
+
+						cuenta = concepto.cuenta_co
+							
+					if importe > 0 and not cuenta == []:
+						DoctosCoDet.objects.create(
+							id				= -1,
+							docto_co		= poliza,
+							cuenta			= cuenta,
+							depto_co		= depto_co,
+							tipo_asiento	= concepto.tipo,
+							importe			= importe,
+							importe_mn		= 0,#PENDIENTE
+							ref				= fecha_dia,#PENDIENTE VER COMO VA
+							descripcion		= '',
+							posicion		= posicion,
+							recordatorio	= None,
+							fecha			= fecha_dia,
+							cancelado		= 'N', aplicado = 'N', ajuste = 'N', 
+							moneda			= moneda_local,
+						)
+						posicion +=1
+
+				facturasData.append ({
+					'folio'		:poliza.poliza,
+					'total'		:total,
+					'ventas_0'	:ventas_0_tot,
+					'ventas_16'	:ventas_16_tot,
+					'impuesos'	:iva_tot,
+					'tipo_cambio':1,
+					})
+				iva_pend_cobrar = iva_efec_cobrado 	= iva_tot 			= descuento_total 	= total 			= bancos = clientes = 0 
+				ventas_0_tot 	= ventas_16_tot 	= ventas_16_credito = ventas_0_credito  = ventas_16_contado = ventas_0_contado 	= 0
+			fecha_dia = factura.fecha
+
+		descuento_total 		+= get_descuento_total_ve(factura.id)
+		total 					+= factura.total_impuestos + factura.importe_neto
+		
+		ventas_0 = DoctoVeDet.objects.filter(docto_ve= factura).extra(
+			tables =['impuestos_articulos', 'impuestos'],
+			where =
+			[
+				"impuestos_articulos.ARTICULO_ID = doctos_ve_det.ARTICULO_ID",
+				"impuestos.IMPUESTO_ID = impuestos_articulos.IMPUESTO_ID",
+				"impuestos.PCTJE_IMPUESTO = 0 ",
+			],
+		).aggregate(ventas_0 = Sum('precio_total_neto'))
+
+		if ventas_0['ventas_0'] == None:
+			ventas_0 = 0 
+		else:
+			ventas_0 = ventas_0['ventas_0']
+		
+		ventas_16 = total - ventas_0 - factura.total_impuestos
+		ventas_16_tot += ventas_16
+		iva_tot += factura.total_impuestos
+		ventas_0_tot += ventas_0 
+		
+		#SI LA FACTURA ES A CREDITO
+		if not factura.condicion_pago == informacion_contable.condicion_pago_contado:
+			ventas_16_credito 	+= ventas_16
+			ventas_0_credito 	+= ventas_0
+			iva_pend_cobrar 	+= factura.total_impuestos
+			clientes 			+= total - descuento_total
+		elif factura.condicion_pago == informacion_contable.condicion_pago_contado:
+			ventas_16_contado 	+= ventas_16
+			ventas_0_contado	+= ventas_0
+			iva_efec_cobrado 	+= factura.total_impuestos
+			bancos 				+= total - descuento_total
+
+		factura.contabilizado = 'S'
+		factura.save()
 
 	return msg, facturasData
 
@@ -315,9 +433,9 @@ def generar_polizas(fecha_ini=None, fecha_fin=None, ignorar_facturas_cont=True, 
 	if error == 0:
 
 		if ignorar_facturas_cont:
-			facturas 			= DoctoVe.objects.filter(tipo='F', contabilizado ='N', estado ='N', fecha__gt=fecha_ini, fecha__lte=fecha_fin).order_by('fecha')[:99]
+			facturas 			= DoctoVe.objects.filter(tipo='F', contabilizado ='N', estado ='N', fecha__gte=fecha_ini, fecha__lte=fecha_fin).order_by('fecha')[:99]
 		else:
-			facturas 			= DoctoVe.objects.filter(tipo='F', estado ='N', fecha__gt=fecha_ini, fecha__lte=fecha_fin).order_by('fecha')[:99]
+			facturas 			= DoctoVe.objects.filter(tipo='F', estado ='N', fecha__gte=fecha_ini, fecha__lte=fecha_fin).order_by('fecha')[:99]
 
 		#PREFIJO
 		prefijo = informacion_contable.tipo_poliza_ve.prefijo
@@ -326,6 +444,8 @@ def generar_polizas(fecha_ini=None, fecha_fin=None, ignorar_facturas_cont=True, 
 
 		if crear_polizas_por =='Documento':
 			msg, facturasData = crear_polizas_por_documento(facturas, get_object_or_404(DeptoCo, pk=2090), informacion_contable, prefijo, msg , plantilla, descripcion)
+		if crear_polizas_por =='Dia':
+			msg, facturasData = crear_polizas_por_dia(facturas, get_object_or_404(DeptoCo, pk=2090), informacion_contable, prefijo, msg , plantilla, descripcion)
 
 	elif error == 1:
 		msg = 'No se han derfinido las preferencias de la empresa para generar polizas [Por favor definelas primero en Configuracion > Preferencias de la empresa]'
@@ -334,7 +454,7 @@ def generar_polizas(fecha_ini=None, fecha_fin=None, ignorar_facturas_cont=True, 
 
 @login_required(login_url='/login/')
 def facturas_View(request, template_name='herramientas/generar_polizas.html'):
-	facturasData 	= []
+	facturasData = []
 	msg 			= ''
 	if request.method == 'POST':
 		form = GenerarPolizasManageForm(request.POST)
@@ -347,13 +467,12 @@ def facturas_View(request, template_name='herramientas/generar_polizas.html'):
 			descripcion 			= form.cleaned_data['descripcion']
 
 			msg = 'es valido'
-			facturasData, msg  = generar_polizas(fecha_ini, fecha_fin, ignorar_facturas_cont, crear_polizas_por, plantilla, descripcion)
+			facturasData, msg = generar_polizas(fecha_ini, fecha_fin, ignorar_facturas_cont, crear_polizas_por, plantilla, descripcion)
 	else:
 		form = GenerarPolizasManageForm()
 
 	c = {'facturas':facturasData,'msg':msg,'form':form,}
 	return render_to_response(template_name, c, context_instance=RequestContext(request))
-
 
 @login_required(login_url='/login/')
 def plantilla_poliza_manageView(request, id = None, template_name='herramientas/plantilla_poliza.html'):
@@ -391,7 +510,6 @@ def plantilla_poliza_manageView(request, id = None, template_name='herramientas/
 	c = {'plantilla_form': plantilla_form, 'formset': plantilla_items_formset , 'message':message,}
 
 	return render_to_response(template_name, c, context_instance=RequestContext(request))
-
 
 @login_required(login_url='/login/')
 def plantilla_poliza_delete(request, id = None):
