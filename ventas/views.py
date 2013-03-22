@@ -6,6 +6,7 @@ from inventarios.models import *
 from ventas.forms import *
 import datetime, time
 from django.db.models import Q
+from datetime import timedelta
 #Paginacion
 
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
@@ -242,26 +243,64 @@ def crear_polizas_por_dia(facturas, depto_co, informacion_contable, prefijo, msg
 	facturasData 		= []
 	cuenta 				= ''
 	conceptos_poliza	= DetallePlantillaPolizas_V.objects.filter(plantilla_poliza_v=plantilla).order_by('id')
-	fecha_dia = facturas[0].fecha
-	iva_pend_cobrar = iva_efec_cobrado 	= iva_tot 			= descuento_total 	= total 			= bancos = clientes = 0 
+	
+	iva_pend_cobrar = iva_efec_cobrado 	= iva_tot 			= descuento_total 	= descuento_total_tot = total = total_tot	= bancos = clientes = 0 
 	ventas_0_tot 	= ventas_16_tot 	= ventas_16_credito = ventas_0_credito  = ventas_16_contado = ventas_0_contado 	= 0
 	moneda_local = get_object_or_404(Moneda,es_moneda_local='S')
 
-	for factura in facturas:
-		#Si es otra fecha resetea variables
+	factura_numero = 0
+	for factura_no, factura in enumerate(facturas):
+		siguente_fatura = facturas[(factura_no +1)%len(facturas)]
+		factura_numero = factura_no
 
-		if not fecha_dia == factura.fecha:
+		descuento_total 		= get_descuento_total_ve(factura.id)
+		descuento_total_tot 	+= descuento_total 
+		total 					= factura.total_impuestos + factura.importe_neto
+		total_tot += total
+		ventas_0 = DoctoVeDet.objects.filter(docto_ve= factura).extra(
+			tables =['impuestos_articulos', 'impuestos'],
+			where =
+			[
+				"impuestos_articulos.ARTICULO_ID = doctos_ve_det.ARTICULO_ID",
+				"impuestos.IMPUESTO_ID = impuestos_articulos.IMPUESTO_ID",
+				"impuestos.PCTJE_IMPUESTO = 0 ",
+			],
+		).aggregate(ventas_0 = Sum('precio_total_neto'))
+
+		if ventas_0['ventas_0'] == None:
+			ventas_0 = 0 
+		else:
+			ventas_0 = ventas_0['ventas_0']
+		
+		ventas_16 = total - ventas_0 - factura.total_impuestos
+		ventas_16_tot += ventas_16
+		iva_tot += factura.total_impuestos
+		ventas_0_tot += ventas_0 
+		
+		#SI LA FACTURA ES A CREDITO
+		if not factura.condicion_pago == informacion_contable.condicion_pago_contado:
+			ventas_16_credito 	+= ventas_16
+			ventas_0_credito 	+= ventas_0
+			iva_pend_cobrar 	+= factura.total_impuestos
+			clientes 			+= total - descuento_total
+		elif factura.condicion_pago == informacion_contable.condicion_pago_contado:
+			ventas_16_contado 	+= ventas_16
+			ventas_0_contado	+= ventas_0
+			iva_efec_cobrado 	+= factura.total_impuestos
+			bancos 				+= total - descuento_total
+
+		#Cuando la fecha de la factura siguiente sea diferente
+		if not factura.fecha == siguente_fatura.fecha or factura_no +1 == len(facturas):
 			if ventas_16 < 0:
 				msg = 'Existe al menos una factura del cliente %s el cual [no tiene indicado cobrar inpuestos] por favor corrije esto para poder crear las polizas de este ciente '% factura.cliente.nombre
 			else:
-			
-				tipo_poliza_det = get_folio_poliza(informacion_contable.tipo_poliza_ve, fecha_dia)
+				tipo_poliza_det = get_folio_poliza(informacion_contable.tipo_poliza_ve, factura.fecha)
 
 				poliza = DoctoCo(
 						id                    	= c_get_next_key('ID_DOCTOS'),
 						tipo_poliza				= informacion_contable.tipo_poliza_ve,
 						poliza					= '%s%s'% (prefijo,("%09d" % tipo_poliza_det.consecutivo)[len(prefijo):]),
-						fecha 					= fecha_dia,
+						fecha 					= factura.fecha,
 						moneda 					= moneda_local, 
 						tipo_cambio 			= 1,
 						estatus 				= 'P', cancelado= 'N', aplicado = 'N', ajuste = 'N', integ_co = 'S',
@@ -334,7 +373,7 @@ def crear_polizas_por_dia(facturas, depto_co, informacion_contable, prefijo, msg
 						cuenta = concepto.cuenta_co
 
 					elif concepto.valor_tipo == 'Descuentos':
-						importe = descuento_total
+						importe = descuento_total_tot
 						cuenta = concepto.cuenta_co
 
 					elif concepto.valor_tipo == 'IVA':
@@ -356,11 +395,11 @@ def crear_polizas_por_dia(facturas, depto_co, informacion_contable, prefijo, msg
 							tipo_asiento	= concepto.tipo,
 							importe			= importe,
 							importe_mn		= 0,#PENDIENTE
-							ref				= fecha_dia,#PENDIENTE VER COMO VA
+							ref				= factura.fecha,#PENDIENTE VER COMO VA
 							descripcion		= '',
 							posicion		= posicion,
 							recordatorio	= None,
-							fecha			= fecha_dia,
+							fecha			= factura.fecha,
 							cancelado		= 'N', aplicado = 'N', ajuste = 'N', 
 							moneda			= moneda_local,
 						)
@@ -374,48 +413,11 @@ def crear_polizas_por_dia(facturas, depto_co, informacion_contable, prefijo, msg
 					'impuesos'	:iva_tot,
 					'tipo_cambio':1,
 					})
-				iva_pend_cobrar = iva_efec_cobrado 	= iva_tot 			= descuento_total 	= total 			= bancos = clientes = 0 
+				iva_pend_cobrar = iva_efec_cobrado 	= iva_tot 			= descuento_total = descuento_total_tot	= total = total_tot = bancos = clientes = 0 
 				ventas_0_tot 	= ventas_16_tot 	= ventas_16_credito = ventas_0_credito  = ventas_16_contado = ventas_0_contado 	= 0
-			fecha_dia = factura.fecha
-
-		descuento_total 		+= get_descuento_total_ve(factura.id)
-		total 					+= factura.total_impuestos + factura.importe_neto
-		
-		ventas_0 = DoctoVeDet.objects.filter(docto_ve= factura).extra(
-			tables =['impuestos_articulos', 'impuestos'],
-			where =
-			[
-				"impuestos_articulos.ARTICULO_ID = doctos_ve_det.ARTICULO_ID",
-				"impuestos.IMPUESTO_ID = impuestos_articulos.IMPUESTO_ID",
-				"impuestos.PCTJE_IMPUESTO = 0 ",
-			],
-		).aggregate(ventas_0 = Sum('precio_total_neto'))
-
-		if ventas_0['ventas_0'] == None:
-			ventas_0 = 0 
-		else:
-			ventas_0 = ventas_0['ventas_0']
-		
-		ventas_16 = total - ventas_0 - factura.total_impuestos
-		ventas_16_tot += ventas_16
-		iva_tot += factura.total_impuestos
-		ventas_0_tot += ventas_0 
-		
-		#SI LA FACTURA ES A CREDITO
-		if not factura.condicion_pago == informacion_contable.condicion_pago_contado:
-			ventas_16_credito 	+= ventas_16
-			ventas_0_credito 	+= ventas_0
-			iva_pend_cobrar 	+= factura.total_impuestos
-			clientes 			+= total - descuento_total
-		elif factura.condicion_pago == informacion_contable.condicion_pago_contado:
-			ventas_16_contado 	+= ventas_16
-			ventas_0_contado	+= ventas_0
-			iva_efec_cobrado 	+= factura.total_impuestos
-			bancos 				+= total - descuento_total
 
 		factura.contabilizado = 'S'
 		factura.save()
-
 	return msg, facturasData
 
 def generar_polizas(fecha_ini=None, fecha_fin=None, ignorar_facturas_cont=True, crear_polizas_por='Documento', plantilla='', descripcion= ''):
@@ -429,6 +431,8 @@ def generar_polizas(fecha_ini=None, fecha_fin=None, ignorar_facturas_cont=True, 
 	except ObjectDoesNotExist:
 		error = 1
 	
+	if crear_polizas_por == 'Dia':
+		fecha_fin = fecha_fin# + timedelta(days=1)
 	#Si estadefinida la informacion contable no hay error!!!
 	if error == 0:
 
