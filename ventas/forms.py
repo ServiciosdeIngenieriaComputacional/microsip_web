@@ -27,14 +27,21 @@ class GenerarPolizasManageForm(forms.Form):
 	    ('Dia', 'Dia'),
 	    ('Periodo', 'Periodo'),
 	)
-
 	crear_polizas_por 		= forms.ChoiceField(choices=CREAR_POR)
+	
+	CREAR_DE = (
+	    ('Facturas y Devoluciones', 'Facturas y Devoluciones'),
+	    ('Facturas', 'Facturas'),
+	    ('Devoluciones', 'Devoluciones'),
+	)
+	crear_polizas_de 		= forms.ChoiceField(choices=CREAR_DE)
 
 class PlantillaPolizaManageForm(forms.ModelForm):
 	class Meta:
 		model = PlantillaPolizas_V
 
 class ConceptoPlantillaPolizaManageForm(forms.ModelForm):
+	cuenta_co = forms.ModelChoiceField(queryset=CuentaCo.objects.all().order_by('cuenta'), required=True)
 	class Meta:
 		model = DetallePlantillaPolizas_V
 

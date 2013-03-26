@@ -72,7 +72,14 @@ I guess a test would be to install a package with pip using a --index-url=file:/
 /pkg-0.0.1.tar.gz
 The pip command: pip install --index-url=file:////localhost/c$/some/package/index pkg should find and install pkg-0.0.1.tar.gz.
 
+MIGRATIONS
 
+Follow these steps:
+
+Export your data to a fixture using the dumpdata management command
+Drop the table
+Run syncdb
+Reload your data from the fixture using the loaddata management command
 
 
 

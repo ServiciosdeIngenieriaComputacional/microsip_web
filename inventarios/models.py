@@ -666,6 +666,14 @@ class DoctoVeDet(models.Model):
     class Meta:
         db_table = u'doctos_ve_det'
 
+class DoctoVeLigas(models.Model):
+    id          = models.AutoField(primary_key=True, db_column='DOCTO_VE_LIGA_ID')
+    factura     = models.ForeignKey(DoctoVe, db_column='DOCTO_VE_FTE_ID', related_name='factura')
+    devolucion  = models.ForeignKey(DoctoVe, db_column='DOCTO_VE_DEST_ID', related_name='devolucion')
+
+    class Meta:
+        db_table = u'doctos_ve_ligas'
+
 class ImpuestosArticulo(models.Model):
     id          = models.AutoField(primary_key=True, db_column='IMPUESTO_ART_ID')
     articulo    = models.ForeignKey(Articulos, on_delete= models.SET_NULL, blank=True, null=True, db_column='ARTICULO_ID')
@@ -692,6 +700,7 @@ class DetallePlantillaPolizas_V(models.Model):
         ('Clientes', 'Clientes'),
         ('Bancos', 'Bancos'),
         ('Descuentos', 'Descuentos'),
+        ('Devoluciones','Devoluciones'),
         ('IVA', 'IVA'),
     )
     VALOR_IVA_TIPOS             = (('A', 'Ambos'),('I', 'Solo IVA'),('0', 'Solo 0%'),)
@@ -699,7 +708,7 @@ class DetallePlantillaPolizas_V(models.Model):
 
     plantilla_poliza_v      = models.ForeignKey(PlantillaPolizas_V)
     cuenta_co               = models.ForeignKey(CuentaCo)
-    tipo                    =  models.CharField(max_length=2, choices=TIPOS, default='C')
+    tipo                    = models.CharField(max_length=2, choices=TIPOS, default='C')
     valor_tipo              = models.CharField(max_length=20, choices=VALOR_TIPOS)
     valor_iva               = models.CharField(max_length=2, choices=VALOR_IVA_TIPOS, default='A')
     valor_contado_credito   = models.CharField(max_length=10, choices=VALOR_CONTADO_CREDITO_TIPOS, default='Ambos')
@@ -708,9 +717,9 @@ class DetallePlantillaPolizas_V(models.Model):
         return u'%s'%self.id
 
 class InformacionContable_V(models.Model):
-    
-    tipo_poliza_ve          = models.ForeignKey(TipoPoliza, blank=True, null=True, on_delete= models.SET_NULL)
-    condicion_pago_contado  = models.ForeignKey(CondicionPago, blank=True, null=True, on_delete= models.SET_NULL)
+    tipo_poliza_ve          = models.ForeignKey(TipoPoliza, blank=True, null=True, related_name='tipo_poliza_ve')
+    tipo_poliza_dev         = models.ForeignKey(TipoPoliza, blank=True, null=True, related_name='tipo_poliza_dev')
+    condicion_pago_contado  = models.ForeignKey(CondicionPago, blank=True, null=True)
 
     def __unicode__(self):
         return u'%s'% self.id
