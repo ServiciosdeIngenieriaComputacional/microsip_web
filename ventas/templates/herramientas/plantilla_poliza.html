@@ -43,17 +43,24 @@ $(function() {
     <input type="submit" class="btn btn-primary" value="Guardar y Salir" />
   </div>
     {{ plantilla_form.errors }}
-  
-   <div class="control-group">
-    <label class="control-label" for="id_nombre">Nombre</label>
-    <div class="controls">
-      {{ plantilla_form.nombre }} 
+    <div class="span4">
+      <label>Nombre</label>
+      <div class="input-prepend input-append">
+        {{ plantilla_form.nombre }} 
+      </div>
     </div>
-  </div>
+    <div class="span4">
+      <label>Tipo de Plizas</label>
+      <div class="input-prepend input-append">
+        {{ plantilla_form.tipo }} 
+      </div>
+    </div>
   
-  {{ formset.total_form_count }} Asientos
+  <div style='clear:both;'>
+    {{ formset.total_form_count }} Asientos
+  <div>
   {% if message %}
-  <div class="alert alert-block alert-error fade in">
+  <div class="alert alert-block alert-error fade in" >
     <button type="button" class="close" data-dismiss="alert">×</button>
     <h4 class="alert-heading">Oh NO! Ocurio un error!</h4>
     <p>{{ message }}</p>
@@ -61,7 +68,7 @@ $(function() {
   {% endif %}
   <hr>
   <div>
-    <fieldset>
+    <fieldset style='clear:both;'>
       <table class="table tableCell table-hover" id="id_detalles_data" border="0" cellpadding="0" cellspacing="5">
         <thead>
           <tr>

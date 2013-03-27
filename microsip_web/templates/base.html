@@ -1,3 +1,4 @@
+{% load dajaxice_templatetags %}
 <!DOCTYPE html>
 <html lang='es'>
 <head>
@@ -20,7 +21,7 @@
   {% block js_code %}
     
   {% endblock %}
-  
+  {% dajaxice_js_import %}
 </head>
 <body>
   <div id="navbar-example" class="navbar navbar-static">

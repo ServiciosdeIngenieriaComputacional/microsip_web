@@ -93,7 +93,9 @@ STATICFILES_DIRS = (
 STATICFILES_FINDERS = (
     'django.contrib.staticfiles.finders.FileSystemFinder',
     'django.contrib.staticfiles.finders.AppDirectoriesFinder',
+    'dajaxice.finders.DajaxiceFinder',
 #    'django.contrib.staticfiles.finders.DefaultStorageFinder',
+
 )
 
 # Make this unique, and don't share it with anybody.
@@ -103,7 +105,7 @@ SECRET_KEY = '3pq$&amp;*)sd$k_olmn@lup_5)-)d=qk-&amp;)18!+5bw7+$z++n2jm@'
 TEMPLATE_LOADERS = (
     'django.template.loaders.filesystem.Loader',
     'django.template.loaders.app_directories.Loader',
-#     'django.template.loaders.eggs.Loader',
+    'django.template.loaders.eggs.Loader',
 )
 
 MIDDLEWARE_CLASSES = (
@@ -128,6 +130,16 @@ TEMPLATE_DIRS = (
     (RUTA_PROYECTO + '/templates'),
 )
 
+TEMPLATE_CONTEXT_PROCESSORS = (
+    'django.contrib.auth.context_processors.auth',
+    'django.core.context_processors.debug',
+    'django.core.context_processors.i18n',
+    'django.core.context_processors.media',
+    'django.core.context_processors.static',
+    'django.core.context_processors.request',
+    'django.contrib.messages.context_processors.messages'
+)
+
 DJANGO_APPS = (
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -137,6 +149,7 @@ DJANGO_APPS = (
     'django.contrib.staticfiles',
     'django.contrib.admin',
     'autocomplete_light',
+    'dajaxice',
     #'south',
     #'apps.microsip.ventas',
     # Uncomment the next line to enable the admin:

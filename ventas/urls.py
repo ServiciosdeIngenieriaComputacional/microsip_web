@@ -5,7 +5,7 @@ from ventas import views
 urlpatterns = patterns('',
 	(r'^Facturas/$', views.facturas_View),
 	(r'^PreferenciasEmpresa/$', views.preferenciasEmpresa_View),
-
+	
 	#Plantilla Poliza
 	(r'^plantilla_poliza/$', views.plantilla_poliza_manageView),
     (r'^plantilla_poliza/(?P<id>\d+)/', views.plantilla_poliza_manageView),

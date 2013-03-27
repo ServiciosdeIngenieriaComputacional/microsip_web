@@ -688,7 +688,9 @@ class ImpuestosArticulo(models.Model):
 #############################################################################################################################################################
 
 class PlantillaPolizas_V(models.Model):
-    nombre = models.CharField(max_length=200)
+    nombre  = models.CharField(max_length=200)
+    TIPOS   = (('F', 'facturas'),('D', 'Devoluciones'),)
+    tipo    = models.CharField(max_length=2, choices=TIPOS, default='F')
 
     def __unicode__(self):
         return u'%s'%self.nombre

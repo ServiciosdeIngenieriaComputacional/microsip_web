@@ -3,7 +3,10 @@ from django.conf.urls import patterns, include, url
 from django.contrib import admin
 from django.conf import settings
 from django.views import generic
+from dajaxice.core import dajaxice_autodiscover, dajaxice_config
+from django.contrib.staticfiles.urls import staticfiles_urlpatterns
 
+dajaxice_autodiscover()
 import autocomplete_light
 autocomplete_light.autodiscover()
 
@@ -11,6 +14,7 @@ from django.contrib import admin
 admin.autodiscover()
 
 urlpatterns = patterns('',
+    url(dajaxice_config.dajaxice_url, include('dajaxice.urls')),
 	(r'^$', 'inventarios.views.index'),
     url(r'^inventarios/', include('inventarios.urls', namespace='Inventarios')),
     url(r'^ventas/', include('ventas.urls', namespace='ventas')),
@@ -23,3 +27,5 @@ urlpatterns = patterns('',
     url(r'^login/$','inventarios.views.ingresar'),
     url(r'^logout/$', 'inventarios.views.logoutUser'),
 )
+
+urlpatterns += staticfiles_urlpatterns()

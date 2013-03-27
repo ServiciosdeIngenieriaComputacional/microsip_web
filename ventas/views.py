@@ -7,6 +7,8 @@ from ventas.forms import *
 import datetime, time
 from django.db.models import Q
 from datetime import timedelta
+
+from django.core import serializers
 #Paginacion
 
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
@@ -17,6 +19,7 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.db.models import Sum, Max
 from django.db import connection
 from inventarios.views import c_get_next_key
+
 
 ##########################################
 ## 										##
@@ -62,26 +65,24 @@ def get_folio_poliza(tipo_poliza, fecha=None):
 		elif tipo_poliza.tipo_consec == 'P':
 			tipo_poliza_det = TipoPolizaDet.objects.get(tipo_poliza = tipo_poliza, mes=0, ano =0)
 	except ObjectDoesNotExist:
-		consecutivo = TipoPolizaDet.objects.all().aggregate(max = Sum('consecutivo'))
-		consecutivo = consecutivo['max']
-
-		if consecutivo == None:
-			consecutivo = 1
-
 		if tipo_poliza.tipo_consec == 'M':		
 			tipo_poliza_det = TipoPolizaDet.objects.create(id=c_get_next_key('ID_CATALOGOS'), tipo_poliza=tipo_poliza, ano=fecha.year, mes=fecha.month, consecutivo = 1,)
 		elif tipo_poliza.tipo_consec == 'E':
 			#Si existe permanente toma su consecutivo para crear uno nuevo si no existe inicia en 1
-			consecutivo = TipoPolizaDet.objects.filter(tipo_poliza = tipo_poliza, mes=0, ano =0).aggregate(max = Sum('consecutivo'))
-			consecutivo = consecutivo['max']
+			consecutivo = TipoPolizaDet.objects.filter(tipo_poliza = tipo_poliza, mes=0, ano =0).aggregate(max = Sum('consecutivo'))['max']
 
 			if consecutivo == None:
 				consecutivo = 1
 
 			tipo_poliza_det = TipoPolizaDet.objects.create(id=c_get_next_key('ID_CATALOGOS'), tipo_poliza=tipo_poliza, ano=fecha.year, mes=0, consecutivo=consecutivo,)
 		elif tipo_poliza.tipo_consec == 'P':
+			consecutivo = TipoPolizaDet.objects.all().aggregate(max = Sum('consecutivo'))['max']
+
+			if consecutivo == None:
+				consecutivo = 1
+
 			tipo_poliza_det = TipoPolizaDet.objects.create(id=c_get_next_key('ID_CATALOGOS'), tipo_poliza=tipo_poliza, ano=0, mes=0, consecutivo = consecutivo,)								
-		
+
 	return tipo_poliza_det
 
 def crear_polizas_por_documento(facturas, depto_co, informacion_contable, prefijo, msg, plantilla=None, descripcion = '', crear_polizas_de=None):
@@ -91,11 +92,17 @@ def crear_polizas_por_documento(facturas, depto_co, informacion_contable, prefij
 	moneda_local = get_object_or_404(Moneda,es_moneda_local='S')
 
 	for factura in facturas:
-		tipo_poliza_det = get_folio_poliza(informacion_contable.tipo_poliza_ve, factura.fecha)
+
+		if 	plantilla.tipo == 'F':
+			tipo_poliza = informacion_contable.tipo_poliza_ve
+		elif plantilla.tipo == 'D': 
+			tipo_poliza = informacion_contable.tipo_poliza_dev
+
+		tipo_poliza_det = get_folio_poliza(tipo_poliza, factura.fecha)
 
 		poliza = DoctoCo(
 				id                    	= c_get_next_key('ID_DOCTOS'),
-				tipo_poliza				= informacion_contable.tipo_poliza_ve,
+				tipo_poliza				= tipo_poliza,
 				poliza					= '%s%s'% (prefijo,("%09d" % tipo_poliza_det.consecutivo)[len(prefijo):]),
 				fecha 					= factura.fecha,
 				moneda 					= moneda_local, 
@@ -309,6 +316,12 @@ def get_totales_factura(factura, es_contado=None, totales=None):
 		'msg'				: msg,
 	}
 
+# #SI ES UNA DEVOLUCION
+# 		if factura.estado == 'D':
+# 			devoluciones = DoctoVeLigas.objects.filter(factura=factura)
+# 			for devolucion in devoluciones:
+# 				totales_factura = get_totales_factura(devolucion, es_contado, totales_factura)
+
 def crear_polizas_por_periodo(facturas, depto_co, informacion_contable, prefijo, msg, plantilla=None, descripcion = '', crear_polizas_por='Dia',crear_polizas_de=None,):
 	facturasData 		= []
 	cuenta 				= ''
@@ -317,7 +330,7 @@ def crear_polizas_por_periodo(facturas, depto_co, informacion_contable, prefijo,
 	totales_factura = {
 		'descuento_total'	: 0, 'total'				: 0, 'ventas_16_credito' : 0, 'ventas_0_credito' 	: 0,
 		'iva_pend_cobrar' 	: 0, 'clientes' 			: 0, 'ventas_16_contado' : 0, 'ventas_0_contado' 	: 0,
-		'iva_efec_cobrado' 	: 0, 'iva_total'			: 0, 'bancos'			: 0, 'error'				: 0, 'msg'				: msg,
+		'iva_efec_cobrado' 	: 0, 'iva_total'			: 0, 'bancos'			 : 0, 'error'				: 0, 'msg'				: msg,
 	}
 
 	moneda_local = get_object_or_404(Moneda,es_moneda_local='S')
@@ -325,14 +338,6 @@ def crear_polizas_por_periodo(facturas, depto_co, informacion_contable, prefijo,
 	factura_numero = 0
 	for factura_no, factura in enumerate(facturas):
 		es_contado = factura.condicion_pago == informacion_contable.condicion_pago_contado
-
-		# #SI ES UNA DEVOLUCION
-		# if factura.estado == 'D':
-		# 	devoluciones = DoctoVeLigas.objects.filter(factura=factura)
-
-		# 	for devolucion in devoluciones:
-		# 		datos_devolucion['desc_tot'] 	= get_descuento_total_ve(devolucion.id) * devolucion.tipo_cambio
-		# 		datos_devolucion['total'] 		= (devolucion.total_impuestos * devolucion.tipo_cambio) + (devolucion.importe_neto * devolucion.tipo_cambio)
 
 		siguente_fatura = facturas[(factura_no +1)%len(facturas)]
 		factura_numero = factura_no
@@ -344,11 +349,16 @@ def crear_polizas_por_periodo(facturas, depto_co, informacion_contable, prefijo,
 			#Cuando la fecha de la factura siguiente sea diferente y sea por DIA, o sea la ultima
 			if (not factura.fecha == siguente_fatura.fecha and crear_polizas_por == 'Dia') or factura_no +1 == len(facturas):
 
-				tipo_poliza_det = get_folio_poliza(informacion_contable.tipo_poliza_ve, factura.fecha)
+				if 	plantilla.tipo == 'F':
+					tipo_poliza = informacion_contable.tipo_poliza_ve
+				elif plantilla.tipo == 'D': 
+					tipo_poliza = informacion_contable.tipo_poliza_dev
+
+				tipo_poliza_det = get_folio_poliza(tipo_poliza, factura.fecha)
 
 				poliza = DoctoCo(
 						id                    	= c_get_next_key('ID_DOCTOS'),
-						tipo_poliza				= informacion_contable.tipo_poliza_ve,
+						tipo_poliza				= tipo_poliza,
 						poliza					= '%s%s'% (prefijo,("%09d" % tipo_poliza_det.consecutivo)[len(prefijo):]),
 						fecha 					= factura.fecha,
 						moneda 					= moneda_local, 
@@ -364,6 +374,7 @@ def crear_polizas_por_periodo(facturas, depto_co, informacion_contable, prefijo,
 						usuario_ult_modif 		= 'SYSDBA', fechahora_ult_modif = datetime.datetime.now(), usuario_aut_modif 	= None,
 						usuario_cancelacion 	= None, fechahora_cancelacion 	=  None, usuario_aut_cancelacion 				= None,
 					)
+				
 
 				#GUARDA LA PILIZA
 				poliza_o = poliza.save()
@@ -484,7 +495,7 @@ def crear_polizas_por_periodo(facturas, depto_co, informacion_contable, prefijo,
 			factura.save()
 	return totales_factura['msg'], facturasData
 
-def generar_polizas(fecha_ini=None, fecha_fin=None, ignorar_facturas_cont=True, crear_polizas_por='Documento', crear_polizas_de='Facturas y Devoluciones', plantilla='', descripcion= ''):
+def generar_polizas(fecha_ini=None, fecha_fin=None, ignorar_facturas_cont=True, crear_polizas_por='Documento', crear_polizas_de='', plantilla='', descripcion= ''):
 	error 	= 0
 	msg		= ''
 	facturasData = []
@@ -498,21 +509,22 @@ def generar_polizas(fecha_ini=None, fecha_fin=None, ignorar_facturas_cont=True, 
 	#Si estadefinida la informacion contable no hay error!!!
 	if error == 0:
 
+		facturas = []
 		if ignorar_facturas_cont:
-			if crear_polizas_de 	== 'Facturas':
-				facturas 			= DoctoVe.objects.filter(estado ='N').filter(tipo='F', contabilizado ='N',  fecha__gte=fecha_ini, fecha__lte=fecha_fin).order_by('fecha')[:99]
-			elif crear_polizas_de 	== 'Devoluciones':
-				facturas 			= DoctoVe.objects.filter(estado = 'D').filter(tipo='F', contabilizado ='N',  fecha__gte=fecha_ini, fecha__lte=fecha_fin).order_by('fecha')[:99]
-			elif crear_polizas_de 	== 'Facturas y Devoluciones':
-				facturas 			= DoctoVe.objects.filter(Q(estado ='N') | Q(estado = 'D')).filter(tipo='F', contabilizado ='N',  fecha__gte=fecha_ini, fecha__lte=fecha_fin).order_by('fecha')[:99]
+			if crear_polizas_de 	== 'F':
+				facturas 			= DoctoVe.objects.filter(estado = 'N').filter(tipo 	='F', contabilizado ='N',  fecha__gte=fecha_ini, fecha__lte=fecha_fin).order_by('fecha')[:99]
+			elif crear_polizas_de 	== 'D':
+				facturas 			= DoctoVe.objects.filter(estado = 'N').filter(tipo 	='D', contabilizado ='N',  fecha__gte=fecha_ini, fecha__lte=fecha_fin).order_by('fecha')[:99]
+			elif crear_polizas_de 	== 'FD':
+				facturas 			= DoctoVe.objects.filter(estado = 'N').filter(Q(tipo ='F')|Q(tipo='D'), contabilizado ='N',  fecha__gte=fecha_ini, fecha__lte=fecha_fin).order_by('fecha')[:99]			
 		else:
-			if crear_polizas_de 	== 'Facturas':
-				facturas 			= DoctoVe.objects.filter(estado ='N').filter(tipo='F', fecha__gte=fecha_ini, fecha__lte=fecha_fin).order_by('fecha')[:99]
-			elif crear_polizas_de 	== 'Devoluciones':
-				facturas 			= DoctoVe.objects.filter(estado = 'D').filter(tipo='F', fecha__gte=fecha_ini, fecha__lte=fecha_fin).order_by('fecha')[:99]
-			elif crear_polizas_de 	== 'Facturas y Devoluciones':
-				facturas 			= DoctoVe.objects.filter(Q(estado ='N') | Q(estado = 'D')).filter(tipo='F', fecha__gte=fecha_ini, fecha__lte=fecha_fin).order_by('fecha')[:99]
-			
+			if crear_polizas_de 	== 'F':
+				facturas 			= DoctoVe.objects.filter(estado = 'N').filter(tipo 	= 'F', fecha__gte=fecha_ini, fecha__lte=fecha_fin).order_by('fecha')[:99]
+			elif crear_polizas_de 	== 'D':
+				facturas 			= DoctoVe.objects.filter(estado = 'N').filter(tipo 	= 'D', fecha__gte=fecha_ini, fecha__lte=fecha_fin).order_by('fecha')[:99]
+			elif crear_polizas_de 	== 'FD':
+				facturas 			= DoctoVe.objects.filter(estado = 'N').filter(Q(tipo='F')|Q(tipo='D'), fecha__gte=fecha_ini, fecha__lte=fecha_fin).order_by('fecha')[:99]
+
 		#PREFIJO
 		prefijo = informacion_contable.tipo_poliza_ve.prefijo
 		if not informacion_contable.tipo_poliza_ve.prefijo:

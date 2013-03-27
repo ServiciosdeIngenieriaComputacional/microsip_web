@@ -19,20 +19,23 @@ class GenerarPolizasManageForm(forms.Form):
 	fecha_ini 				= forms.DateField()
 	fecha_fin 				= forms.DateField()
 	ignorar_facturas_cont 	= forms.BooleanField(required=False, initial=True)
-	plantilla  				= forms.ModelChoiceField(queryset= PlantillaPolizas_V.objects.all(), required=True)
-	descripcion 			= forms.CharField(max_length=100, required=False)
-
 	CREAR_POR = (
 	    ('Documento', 'Documento'),
 	    ('Dia', 'Dia'),
 	    ('Periodo', 'Periodo'),
 	)
 	crear_polizas_por 		= forms.ChoiceField(choices=CREAR_POR)
+
+	plantilla  				= forms.ModelChoiceField(queryset= PlantillaPolizas_V.objects.all(), required=True)
+	descripcion 			= forms.CharField(max_length=100, required=False)
+
+	
 	
 	CREAR_DE = (
-	    ('Facturas y Devoluciones', 'Facturas y Devoluciones'),
-	    ('Facturas', 'Facturas'),
-	    ('Devoluciones', 'Devoluciones'),
+		('', '---------------'),
+	    ('F', 'Facturas'),
+	    ('D', 'Devoluciones'),
+	    ('FD', 'Facturas y Devoluciones'),
 	)
 	crear_polizas_de 		= forms.ChoiceField(choices=CREAR_DE)
 
