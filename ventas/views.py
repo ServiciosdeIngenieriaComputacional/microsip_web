@@ -322,7 +322,7 @@ def get_totales_factura(factura, es_contado=None, totales=None):
 # 			for devolucion in devoluciones:
 # 				totales_factura = get_totales_factura(devolucion, es_contado, totales_factura)
 
-def crear_polizas_por_periodo(facturas, depto_co, informacion_contable, prefijo, msg, plantilla=None, descripcion = '', crear_polizas_por='Dia',crear_polizas_de=None,):
+def crear_polizas_por_periodo(facturas, depto_co, informacion_contable, prefijo, msg, plantilla=None, descripcion = '', crear_polizas_por='Dia',crear_polizas_de=None, tipo_poliza=''):
 	facturasData 		= []
 	cuenta 				= ''
 	conceptos_poliza	= DetallePlantillaPolizas_V.objects.filter(plantilla_poliza_v=plantilla).order_by('id')
@@ -349,9 +349,9 @@ def crear_polizas_por_periodo(facturas, depto_co, informacion_contable, prefijo,
 			#Cuando la fecha de la factura siguiente sea diferente y sea por DIA, o sea la ultima
 			if (not factura.fecha == siguente_fatura.fecha and crear_polizas_por == 'Dia') or factura_no +1 == len(facturas):
 
-				if 	plantilla.tipo == 'F':
+				if 	tipo_poliza == 'F':
 					tipo_poliza = informacion_contable.tipo_poliza_ve
-				elif plantilla.tipo == 'D': 
+				elif tipo_poliza == 'D': 
 					tipo_poliza = informacion_contable.tipo_poliza_dev
 
 				tipo_poliza_det = get_folio_poliza(tipo_poliza, factura.fecha)
@@ -512,18 +512,20 @@ def generar_polizas(fecha_ini=None, fecha_fin=None, ignorar_facturas_cont=True, 
 		facturas = []
 		if ignorar_facturas_cont:
 			if crear_polizas_de 	== 'F':
-				facturas 			= DoctoVe.objects.filter(estado = 'N').filter(tipo 	='F', contabilizado ='N',  fecha__gte=fecha_ini, fecha__lte=fecha_fin).order_by('fecha')[:99]
+				facturas 			= DoctoVe.objects.filter(Q(estado='N')|Q(estado='D'), tipo ='F', contabilizado ='N',  fecha__gte=fecha_ini, fecha__lte=fecha_fin).order_by('fecha')[:99]
 			elif crear_polizas_de 	== 'D':
-				facturas 			= DoctoVe.objects.filter(estado = 'N').filter(tipo 	='D', contabilizado ='N',  fecha__gte=fecha_ini, fecha__lte=fecha_fin).order_by('fecha')[:99]
+				devoluciones 		= DoctoVe.objects.filter(estado = 'N').filter(tipo 	='D', contabilizado ='N',  fecha__gte=fecha_ini, fecha__lte=fecha_fin).order_by('fecha')[:99]
 			elif crear_polizas_de 	== 'FD':
-				facturas 			= DoctoVe.objects.filter(estado = 'N').filter(Q(tipo ='F')|Q(tipo='D'), contabilizado ='N',  fecha__gte=fecha_ini, fecha__lte=fecha_fin).order_by('fecha')[:99]			
+				facturas 			= DoctoVe.objects.filter(Q(estado='N')|Q(estado='D') ,Q(tipo ='F')|Q(tipo='D'), contabilizado ='N',  fecha__gte=fecha_ini, fecha__lte=fecha_fin).order_by('fecha')[:99]			
+				devoluciones 		= DoctoVe.objects.filter(estado = 'N').filter(tipo 	='D', contabilizado ='N',  fecha__gte=fecha_ini, fecha__lte=fecha_fin).order_by('fecha')[:99]
 		else:
 			if crear_polizas_de 	== 'F':
-				facturas 			= DoctoVe.objects.filter(estado = 'N').filter(tipo 	= 'F', fecha__gte=fecha_ini, fecha__lte=fecha_fin).order_by('fecha')[:99]
+				facturas 			= DoctoVe.objects.filter(Q(estado='N')|Q(estado='D'), tipo ='F', fecha__gte=fecha_ini, fecha__lte=fecha_fin).order_by('fecha')[:99]
 			elif crear_polizas_de 	== 'D':
-				facturas 			= DoctoVe.objects.filter(estado = 'N').filter(tipo 	= 'D', fecha__gte=fecha_ini, fecha__lte=fecha_fin).order_by('fecha')[:99]
+				devoluciones 		= DoctoVe.objects.filter(estado = 'N').filter(tipo 	= 'D', fecha__gte=fecha_ini, fecha__lte=fecha_fin).order_by('fecha')[:99]
 			elif crear_polizas_de 	== 'FD':
-				facturas 			= DoctoVe.objects.filter(estado = 'N').filter(Q(tipo='F')|Q(tipo='D'), fecha__gte=fecha_ini, fecha__lte=fecha_fin).order_by('fecha')[:99]
+				facturas 			= DoctoVe.objects.filter(Q(estado='N')|Q(estado='D') ,Q(tipo ='F')|Q(tipo='D'), fecha__gte=fecha_ini, fecha__lte=fecha_fin).order_by('fecha')[:99]
+				devoluciones 		= DoctoVe.objects.filter(estado = 'N').filter(tipo 	= 'D', fecha__gte=fecha_ini, fecha__lte=fecha_fin).order_by('fecha')[:99]
 
 		#PREFIJO
 		prefijo = informacion_contable.tipo_poliza_ve.prefijo
@@ -533,8 +535,12 @@ def generar_polizas(fecha_ini=None, fecha_fin=None, ignorar_facturas_cont=True, 
 		if crear_polizas_por =='Documento':
 			msg, facturasData = crear_polizas_por_documento(facturas, get_object_or_404(DeptoCo, pk=856223), informacion_contable, prefijo, msg , plantilla, descripcion, crear_polizas_de)
 		if crear_polizas_por =='Dia' or crear_polizas_por =='Periodo':
-			msg, facturasData = crear_polizas_por_periodo(facturas, get_object_or_404(DeptoCo, pk=856223), informacion_contable, prefijo, msg , plantilla, descripcion, crear_polizas_por, crear_polizas_de)
-
+			if crear_polizas_de 	== 'F' or crear_polizas_de 	== 'FD':
+				msg, facturasData = crear_polizas_por_periodo(facturas, get_object_or_404(DeptoCo, pk=856223), informacion_contable, prefijo, msg , plantilla, descripcion, crear_polizas_por, crear_polizas_de, 'F')
+			
+			if crear_polizas_de 	== 'D' or crear_polizas_de 	== 'FD':
+				msg, devolucionesData = crear_polizas_por_periodo(devoluciones, get_object_or_404(DeptoCo, pk=856223), informacion_contable, prefijo, msg , plantilla, descripcion, crear_polizas_por, crear_polizas_de, 'D')
+	
 	elif error == 1:
 		msg = 'No se han derfinido las preferencias de la empresa para generar polizas [Por favor definelas primero en Configuracion > Preferencias de la empresa]'
 

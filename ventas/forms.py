@@ -26,8 +26,9 @@ class GenerarPolizasManageForm(forms.Form):
 	)
 	crear_polizas_por 		= forms.ChoiceField(choices=CREAR_POR)
 
-	plantilla  				= forms.ModelChoiceField(queryset= PlantillaPolizas_V.objects.all(), required=True)
-	descripcion 			= forms.CharField(max_length=100, required=False)
+	plantilla 	= forms.ModelChoiceField(queryset= PlantillaPolizas_V.objects.all(), required=True)
+	plantilla_2 = forms.ModelChoiceField(queryset= PlantillaPolizas_V.objects.all(), required=True)
+	descripcion = forms.CharField(max_length=100, required=False)
 
 	
 	
