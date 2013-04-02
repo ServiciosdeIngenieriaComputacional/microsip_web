@@ -290,7 +290,13 @@ class CondicionPago(models.Model):
     class Meta:
         db_table = u'condiciones_pago'
 
-class CondicionesPagoCp(models.Model):
+class CondicionPagoCp(models.Model):
+    id = models.AutoField(primary_key=True, db_column='COND_PAGO_ID')
+    nombre = models.CharField(max_length=50, db_column='NOMBRE')
+
+    def __unicode__(self):
+        return self.nombre
+
     class Meta:
         db_table = u'condiciones_pago_cp'
 
@@ -513,6 +519,7 @@ class DoctosCp(models.Model):
     descripcion         = models.CharField(blank=True, null=True, max_length=200, db_column='DESCRIPCION')
     contabilizado       = models.CharField(default='N', blank=True, null=True, max_length=1, db_column='CONTABILIZADO')
     tipo_cambio         = models.DecimalField(max_digits=18, decimal_places=6, db_column='TIPO_CAMBIO')
+    condicion_pago      = models.ForeignKey(CondicionPagoCp, db_column='COND_PAGO_ID')
 
     def __unicode__(self):
         return u'%s' % self.id
@@ -521,9 +528,10 @@ class DoctosCp(models.Model):
         db_table = u'doctos_cp'
 
 class ImportesDoctosCP(models.Model):
-    id          = models.AutoField(primary_key=True, db_column='IMPTE_DOCTO_CP_ID')
-    docto_cp    = models.ForeignKey(DoctosCp, db_column='DOCTO_CP_ID')
-    importe     = models.DecimalField(max_digits=15, decimal_places=2, db_column='IMPORTE')
+    id              = models.AutoField(primary_key=True, db_column='IMPTE_DOCTO_CP_ID')
+    docto_cp        = models.ForeignKey(DoctosCp, db_column='DOCTO_CP_ID')
+    importe_neto    = models.DecimalField(max_digits=15, decimal_places=2, db_column='IMPORTE')
+    total_impuestos = models.DecimalField(max_digits=15, decimal_places=2, db_column='IMPUESTO')
 
     class Meta:
         db_table = u'importes_doctos_cp'
@@ -682,6 +690,17 @@ class ImpuestosArticulo(models.Model):
     class Meta:
         db_table = u'impuestos_articulos'
 
+class LibresCargosCP(models.Model):
+    id                      = models.AutoField(primary_key=True, db_column='DOCTO_CP_ID')
+    departamentos           = models.CharField(max_length=99, db_column='DEPTO')
+    importes                = models.CharField(max_length=99, db_column='IMPORTE')
+    fletes_departamentos    = models.CharField(max_length=99, db_column='DEPTOFLET')
+    fletes_importes         = models.CharField(max_length=99, db_column='IMPORTEFLET')
+
+    def __unicode__(self):
+        return u'%s' % self.id
+    class Meta:
+        db_table = u'libres_cargos_cp'
 
 #############################################################################################################################################################
 ##################################################MODELOS DE APLICACION DJANGO###############################################################################
@@ -689,7 +708,7 @@ class ImpuestosArticulo(models.Model):
 
 class PlantillaPolizas_V(models.Model):
     nombre  = models.CharField(max_length=200)
-    TIPOS   = (('F', 'facturas'),('D', 'Devoluciones'),)
+    TIPOS   = (('F', 'Facturas'),('D', 'Devoluciones'),)
     tipo    = models.CharField(max_length=2, choices=TIPOS, default='F')
 
     def __unicode__(self):
@@ -727,12 +746,44 @@ class InformacionContable_V(models.Model):
         return u'%s'% self.id
 
 class InformacionContable_CP(models.Model):
-    cuentas_por_pagar       = models.ForeignKey(CuentaCo, blank=True, null=True, on_delete= models.SET_NULL, related_name='cuantaxcobrar_cp')
-    anticipos               = models.ForeignKey(CuentaCo, blank=True, null=True, on_delete= models.SET_NULL, related_name='cobros_cp')
-    descuentos_pronto_pago  = models.ForeignKey(CuentaCo, blank=True, null=True, on_delete= models.SET_NULL, related_name='descuentos_cp')
+    condicion_pago_contado  = models.ForeignKey(CondicionPagoCp, blank=True, null=True)
 
     def __unicode__(self):
         return u'%s'% self.id
+
+class PlantillaPolizas_CP(models.Model):
+    nombre  = models.CharField(max_length=200)
+    tipo    = models.ForeignKey(ConceptoCp)
+    
+    def __unicode__(self):
+        return u'%s'%self.nombre
+
+class DetallePlantillaPolizas_CP(models.Model):
+    TIPOS = (('C', 'Cargo'),('A', 'Abono'),)
+    VALOR_TIPOS =(
+        ('Compras', 'Compras'),
+        ('Proveedores', 'Proveedores'),
+        ('Bancos', 'Bancos'),
+        ('Fletes', 'Fletes'),
+        ('Descuentos', 'Descuentos'),
+        ('Devoluciones','Devoluciones'),
+        ('Anticipos','Anticipos'),
+        ('IVA', 'IVA'),
+    )
+    VALOR_IVA_TIPOS             = (('A', 'Ambos'),('I', 'Solo IVA'),('0', 'Solo 0%'),)
+    VALOR_CONTADO_CREDITO_TIPOS = (('Ambos', 'Ambos'),('Contado', 'Contado'),('Credito', 'Credito'),)
+
+    plantilla_poliza_CP      = models.ForeignKey(PlantillaPolizas_CP)
+    cuenta_co               = models.ForeignKey(CuentaCo)
+    tipo                    = models.CharField(max_length=2, choices=TIPOS, default='C')
+    valor_tipo              = models.CharField(max_length=20, choices=VALOR_TIPOS)
+    valor_iva               = models.CharField(max_length=2, choices=VALOR_IVA_TIPOS, default='A')
+    valor_contado_credito   = models.CharField(max_length=10, choices=VALOR_CONTADO_CREDITO_TIPOS, default='Ambos')
+
+    def __unicode__(self):
+        return u'%s'%self.id
+
+
 
 #############################################################################################################################################################
 #############################################################################################################################################################

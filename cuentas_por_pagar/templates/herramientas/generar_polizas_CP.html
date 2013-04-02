@@ -1,4 +1,4 @@
-{% extends "base_ventas.html" %}
+{% extends "base_cp.html" %}
 {% block title %}Inicio{% endblock %}
 
 <!-- CSS Code -->
@@ -11,6 +11,33 @@
     $( "#id_fecha_ini" ).datepicker({dateFormat:'dd/mm/yy',});
     $( "#id_fecha_fin" ).datepicker({dateFormat:'dd/mm/yy',});
   });
+
+  $(document).ready(function() {
+      $('#id_crear_polizas_de').change(function(event){
+        $('#id_plantilla_2').hide(); 
+        Dajaxice.ventas.obtener_plantillas_cp(cargar_plantillas_1, {'tipo_plantilla': $('#id_crear_polizas_de').val()});
+        
+      });
+  });
+
+  function cargar_plantillas_1(data){
+    var options = '<option value="">-----------</option>';
+    for (var i = 0; i < data.length; i++){
+      options += '<option value="'+data[i]["pk"]+'">' +data[i]["fields"]["nombre"] +'</option>';
+    }
+    $('#id_plantilla').html(options)
+    $("#id_plantilla option:first").attr('selected', 'selected');
+  }
+
+  function cargar_plantillas_2(data){
+    var options = '<option value="">-----------</option>';
+    for (var i = 0; i < data.length; i++){
+      options += '<option value="'+data[i]["pk"]+'">' +data[i]["fields"]["nombre"] +'</option>';
+    }
+    $('#id_plantilla_2').html(options)
+    $("#id_plantilla_2 option:first").attr('selected', 'selected');
+  }
+
 </script>
 {% endblock %}
 
@@ -25,10 +52,27 @@
 {% endif %}
 
 {{ form.errors }}
-chunel
 <form method="post" class="form-horizontal" action="" width="300px"  enctype='multipart/form-data'>
   {% csrf_token %}
   <div class="form-actions">
+    <div class="span4" style='clear:both;'>
+      <label>Crear polizas por</label>
+      <div class="input-prepend input-append">
+        {{ form.crear_polizas_por }}
+      </div>
+    </div>
+    <div class="span4" >
+      <label>Crear polizas de</label>
+      <div class="input-prepend input-append">
+        {{ form.crear_polizas_de }}
+      </div>
+    </div>
+    <div class="span4">
+      <label>Plantilla</label>
+      <div class="input-prepend input-append">
+        {{ form.plantilla }} {{ form.plantilla_2 }}
+      </div>
+    </div> 
     <div class="span4" style='clear:both;'>
       <label>Fecha de Inicio</label>
       <div class="input-prepend input-append">
@@ -44,9 +88,15 @@ chunel
       </div>
     </div>
     <div class="span4">
-      <label>Ignorar Facturas Contabilizadas</label>
+      <label>Ignorar Documentos Contabilizados</label>
       <div class="input-prepend input-append">
-        {{ form.ignorar_facturas_cont }}
+        {{ form.ignorar_documentos_cont }}
+      </div>
+    </div>
+     <div class="span4" style='clear:both;'>
+      <label>Descripcion</label>
+      <div class="input-prepend input-append">
+        {{ form.descripcion }}
       </div>
     </div>
     <div class="span2">
@@ -59,8 +109,8 @@ chunel
   <br style='clear:both;'>
   <hr >
 </form>
-<!-- 
-{% if facturas %}
+
+{% if documentos %}
 <table class="table tableCell table-hover">
     <tr>
       	<th>FOLIO</th>
@@ -69,15 +119,15 @@ chunel
       	<th>VENTAS_16</th>
       	<th>IVA TRANSALDADO</th>
     </tr>
-	{% for factura in facturas %}
+	{% for documento in documentos %}
 	<tr>
-	  	<td>{{ factura.folio }}</td>
-	  	<td>{{ factura.total }}</td>
-	  	<td>{{ factura.ventas_0 }}</td>
-	  	<td>{{ factura.ventas_16 }}</td>
-	  	<td>{{ factura.impuesos }}</td>
+	  	<td>{{ documento.folio }}</td>
+	  	<td>{{ documento.total }}</td>
+	  	<td>{{ documento.ventas_0 }}</td>
+	  	<td>{{ documento.ventas_16 }}</td>
+	  	<td>{{ documento.impuesos }}</td>
 	</tr>
-	{% endfor %} -->
+	{% endfor %}
 </table>
 {% endif %}
 
