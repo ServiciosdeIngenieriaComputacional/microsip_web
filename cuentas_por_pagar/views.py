@@ -46,16 +46,16 @@ def get_totales_documento_cp(documento, es_contado=None, totales=None):
 	error = totales['error']
 	importesDocto = ImportesDoctosCP.objects.filter(docto_cp=documento)[0]
 
-	compras_16_credito = compras_0_credito = iva_pend_cobrar 	= proveedores 	= compras_0 	= 0
-	compras_16_contado = compras_0_contado = iva_efec_cobrado 	= bancos  		= compras_16 	= 0
+	compras_16_credito = compras_0_credito = iva_pend_pagar 	= proveedores 	= compras_0 	= 0
+	compras_16_contado = compras_0_contado = iva_efec_pagado 	= bancos  		= compras_16 	= 0
 
 	descuento_total 		= 0
 	total 					= (importesDocto.total_impuestos * documento.tipo_cambio) + (importesDocto.importe_neto * documento.tipo_cambio)
 	
 	if importesDocto.total_impuestos <= 0:
-		compras_0 = importesDocto.total_impuestos * documento.tipo_cambio
+		compras_0 = importesDocto.importe_neto * documento.tipo_cambio
 	else:
-		compras_16 = importesDocto.total_impuestos * documento.tipo_cambio
+		compras_16 = importesDocto.importe_neto * documento.tipo_cambio
 
 	#si llega a  haber un proveedor que no tenga cargar impuestos
 	if compras_16 < 0:
@@ -66,29 +66,33 @@ def get_totales_documento_cp(documento, es_contado=None, totales=None):
 			msg = '%s, REVISA LAS POLIZAS QUE SE CREARON'% msg 
 
 		error = 1
-
+	impuestos = importesDocto.total_impuestos
+	tipo_cambio = documento.tipo_cambio
+	tot_impuestos =impuestos * tipo_cambio
 	#SI LA documento ES A CREDITO
+	
 	if not es_contado:
 		compras_16_credito 	= compras_16
 		compras_0_credito 	= compras_0
-		iva_pend_pagar 		= importesDocto.total_impuestos * documento.tipo_cambio
+		iva_pend_pagar 		= tot_impuestos
 		proveedores 		= total - descuento_total
 	elif es_contado:
 		compras_16_contado 	= compras_16
 		compras_0_contado	= compras_0
-		iva_efec_pagado 	= importesDocto.total_impuestos * documento.tipo_cambio
+		iva_efec_pagado 	= tot_impuestos
 		bancos 				= total - descuento_total
-
+	
+	
 	return {
 		'descuento_total'	: totales['descuento_total'] + descuento_total,
 		'total'				: totales['total']+total,
 		'compras_16_credito': totales['compras_16_credito']+ compras_16_credito,
 		'compras_0_credito' : totales['compras_0_credito'] + compras_0_credito,
-		'iva_pend_cobrar' 	: totales['iva_pend_cobrar'] + iva_pend_cobrar,
+		'iva_pend_pagar' 	: totales['iva_pend_pagar'] + iva_pend_pagar,
 		'proveedores' 		: totales['proveedores']+proveedores,
 		'compras_16_contado': totales['compras_16_contado'] + compras_16_contado,
 		'compras_0_contado' : totales['compras_0_contado'] + compras_0_contado,
-		'iva_efec_cobrado' 	: totales['iva_efec_cobrado'] + iva_efec_cobrado,
+		'iva_efec_pagado' 	: totales['iva_efec_pagado'] + iva_efec_pagado,
 		'bancos'			: totales['bancos'] + bancos,
 		'error'				: error,
 		'msg'				: msg,
@@ -101,16 +105,21 @@ def crear_polizas(documentos, depto_co, informacion_contable, msg, plantilla=Non
 	
 	totales_documento = {
 		'descuento_total'	: 0, 'total'				: 0, 'compras_16_credito' : 0, 'compras_0_credito' 	: 0,
-		'iva_pend_cobrar' 	: 0, 'proveedores' 			: 0, 'compras_16_contado' : 0, 'compras_0_contado' 	: 0,
-		'iva_efec_cobrado' 	: 0, 'iva_total'			: 0, 'bancos'			 : 0, 'error'				: 0, 'msg'				: msg,
+		'iva_pend_pagar' 	: 0, 'proveedores' 			: 0, 'compras_16_contado' : 0, 'compras_0_contado' 	: 0,
+		'iva_efec_pagado' 	: 0, 'iva_total'			: 0, 'bancos'			 : 0, 'error'				: 0, 'msg'				: msg,
 	}
+
+	departamentos = importes = fletes_departamentos =fletes_importes = []
 
 	moneda_local = get_object_or_404(Moneda,es_moneda_local='S')
 	documento_numero = 0
 
 	for documento_no, documento in enumerate(documentos):
 
-		es_contado = documento.condicion_pago == informacion_contable.condicion_pago_contado
+		if documento.naturaleza_concepto == 'C':
+			es_contado = documento.condicion_pago == informacion_contable.condicion_pago_contado
+		else:
+			es_contado = False
 
 		siguente_documento = documentos[(documento_no +1)%len(documentos)]
 		documento_numero = documento_no
@@ -119,6 +128,7 @@ def crear_polizas(documentos, depto_co, informacion_contable, msg, plantilla=Non
 
 		if totales_documento['error'] == 0:
 			
+
 			#Cuando la fecha de la documento siguiente sea diferente y sea por DIA, o sea la ultima
 			if (not documento.fecha == siguente_documento.fecha and crear_polizas_por == 'Dia') or documento_no +1 == len(documentos) or crear_polizas_por == 'Documento':
 
@@ -141,8 +151,13 @@ def crear_polizas(documentos, depto_co, informacion_contable, msg, plantilla=Non
 				if not tipo_poliza.prefijo:
 					prefijo = ''
 				
-#				prefijo.objects.all()
+				try:
+					cuenta_proveedor =  CuentaCo.objects.get(cuenta=documento.proveedor.cuenta_xpagar)
 
+				except ObjectDoesNotExist:
+					cuenta_proveedor = None
+
+				descripcion = documento.descripcion
 				poliza = DoctoCo(
 						id                    	= c_get_next_key('ID_DOCTOS'),
 						tipo_poliza				= tipo_poliza,
@@ -176,7 +191,6 @@ def crear_polizas(documentos, depto_co, informacion_contable, msg, plantilla=Non
 					cuenta = []
 
 					if concepto.valor_tipo == 'Compras': 
-
 						if concepto.valor_contado_credito == 'Credito':
 							if concepto.valor_iva == '0':
 								importe = totales_documento['compras_0_credito']
@@ -190,29 +204,42 @@ def crear_polizas(documentos, depto_co, informacion_contable, msg, plantilla=Non
 							elif concepto.valor_iva == 'I':
 								importe = totales_documento['compras_16_contado']
 							elif concepto.valor_iva == 'A':
-								importe = totales_documento['compras_16_contado'] + totales_documento['compras_0_contado']
+								importe = totales_documento['compras_16_contado'] + totales_documento['compras_0_contado']+totales_documento['compras_16_credito'] + totales_documento['compras_0_credito']
 						elif concepto.valor_contado_credito == 'Ambos':
-							if not importes.count == 0:
-								for impor in importes:
+							
+							if not importes  == []:
+								for depto, impor in zip(departamentos,importes):
 									importe = impor
-									cuenta = concepto.cuenta_co
-									DoctosCoDet.objects.create(
-										id				= -1,
-										docto_co		= poliza,
-										cuenta			= cuenta,
-										depto_co		= depto_co,
-										tipo_asiento	= concepto.tipo,
-										importe			= importe,
-										importe_mn		= 0,#PENDIENTE
-										ref				= '',
-										descripcion		= '',
-										posicion		= posicion,
-										recordatorio	= None,
-										fecha			= documento.fecha,
-										cancelado		= 'N', aplicado = 'N', ajuste = 'N', 
-										moneda			= moneda_local,
-									)
-									posicion +=1
+									if cuenta_proveedor == None:
+										cuenta = concepto.cuenta_co
+									else:
+										cuenta = cuenta_proveedor
+
+									try:
+										depto = DeptoCo.objects.get(clave=depto)
+										if importe > 0 and not cuenta == []:
+											DoctosCoDet.objects.create(
+												id				= -1,
+												docto_co		= poliza,
+												cuenta			= cuenta,
+												depto_co		= depto,
+												tipo_asiento	= concepto.tipo,
+												importe			= importe,
+												importe_mn		= 0,#PENDIENTE
+												ref				= '',
+												descripcion		= '',
+												posicion		= posicion,
+												recordatorio	= None,
+												fecha			= documento.fecha,
+												cancelado		= 'N', aplicado = 'N', ajuste = 'N', 
+												moneda			= moneda_local,
+											)
+											posicion +=1
+									except ObjectDoesNotExist:
+										importe = 0
+										cuenta = 0
+								importe = 0
+								cuenta = 0
 							else:
 								if concepto.valor_iva == '0':
 									importe = totales_documento['compras_0_credito'] + totales_documento['compras_0_contado']
@@ -221,7 +248,10 @@ def crear_polizas(documentos, depto_co, informacion_contable, msg, plantilla=Non
 								elif concepto.valor_iva == 'A':
 									importe =totales_documento['compras_0_credito'] + totales_documento['compras_0_contado'] + totales_documento['compras_16_credito'] + totales_documento['compras_16_contado']
 
-						cuenta = concepto.cuenta_co
+						if cuenta_proveedor == None:
+							cuenta = concepto.cuenta_co
+						else:
+							cuenta = cuenta_proveedor
 					#SI ES A CREDITO y ES proveedores
 					elif concepto.valor_tipo == 'Proveedores': 
 						if concepto.valor_iva == '0':
@@ -233,6 +263,39 @@ def crear_polizas(documentos, depto_co, informacion_contable, msg, plantilla=Non
 
 						cuenta = concepto.cuenta_co
 					#SI ES BANCOS Y ES DE CONTADO
+
+					elif concepto.valor_tipo == 'Fletes':
+						if not importes == []:
+							for depto, impor in zip(fletes_departamentos,fletes_importes):
+								importe = impor
+								cuenta = concepto.cuenta_co
+								try:
+									depto = DeptoCo.objects.get(clave=depto)
+									DoctosCoDet.objects.create(
+										id				= -1,
+										docto_co		= poliza,
+										cuenta			= cuenta,
+										depto_co		= depto,
+										tipo_asiento	= concepto.tipo,
+										importe			= importe,
+										importe_mn		= 0,#PENDIENTE
+										ref				= '',
+										descripcion		= '',
+										posicion		= posicion,
+										recordatorio	= None,
+										fecha			= documento.fecha,
+										cancelado		= 'N', aplicado = 'N', ajuste = 'N', 
+										moneda			= moneda_local,
+										)
+									posicion +=1
+
+								except ObjectDoesNotExist:
+									importe = 0
+									cuenta = 0
+							
+							importe = 0
+							cuenta = 0
+							
 					elif concepto.valor_tipo == 'Bancos':
 						if concepto.valor_iva == '0':
 							importe = 0
@@ -249,11 +312,11 @@ def crear_polizas(documentos, depto_co, informacion_contable, msg, plantilla=Non
 
 					elif concepto.valor_tipo == 'IVA':
 						if concepto.valor_contado_credito == 'Credito':
-							importe = totales_documento['iva_pend_cobrar']
+							importe = totales_documento['iva_pend_pagar']
 						elif concepto.valor_contado_credito == 'Contado':
-							importe = totales_documento['iva_efec_cobrado']
+							importe = totales_documento['iva_efec_pagado']
 						elif concepto.valor_contado_credito == 'Ambos':
-							importe = totales_documento['iva_pend_cobrar'] + totales_documento['iva_efec_cobrado']
+							importe = totales_documento['iva_pend_pagar'] + totales_documento['iva_efec_pagado']
 
 						cuenta = concepto.cuenta_co
 							
@@ -281,7 +344,7 @@ def crear_polizas(documentos, depto_co, informacion_contable, msg, plantilla=Non
 					'total'		:totales_documento['total'],
 					'compras_0'	:totales_documento['compras_0_credito'] + totales_documento['compras_0_contado'],
 					'compras_16'	:totales_documento['compras_16_credito'] + totales_documento['compras_16_contado'],
-					'impuesos'	:totales_documento['iva_pend_cobrar'] + totales_documento['iva_efec_cobrado'],
+					'impuesos'	:totales_documento['iva_pend_pagar'] + totales_documento['iva_efec_pagado'],
 					'tipo_cambio':1,
 					})
 				
@@ -290,11 +353,11 @@ def crear_polizas(documentos, depto_co, informacion_contable, msg, plantilla=Non
 					'total'				: 0,
 					'compras_16_credito': 0,
 					'compras_0_credito' : 0,
-					'iva_pend_cobrar' 	: 0,
+					'iva_pend_pagar' 	: 0,
 					'proveedores' 		: 0,
 					'compras_16_contado': 0,
 					'compras_0_contado' : 0,
-					'iva_efec_cobrado' 	: 0,
+					'iva_efec_pagado' 	: 0,
 					'iva_total'			: 0,
 					'bancos'			: 0,
 					'error'				: 0,
@@ -325,6 +388,8 @@ def generar_polizas(fecha_ini=None, fecha_fin=None, ignorar_documentos_cont=True
 			documentosCP  = DoctosCp.objects.filter(contabilizado ='N', concepto= crear_polizas_de , fecha__gt=fecha_ini, fecha__lte=fecha_fin).order_by('fecha')[:99]
 		else:
 			documentosCP  = DoctosCp.objects.filter(concepto= crear_polizas_de , fecha__gt=fecha_ini, fecha__lte=fecha_fin).order_by('fecha')[:99]
+		
+		documentosCP  = DoctosCp.objects.filter(concepto= crear_polizas_de, fecha__gt=fecha_ini, fecha__lte=fecha_fin)
 
 		msg, documentosCPData = crear_polizas(documentosCP, get_object_or_404(DeptoCo, pk=76), informacion_contable, msg , plantilla, descripcion, crear_polizas_por, crear_polizas_de)
 	

@@ -332,7 +332,11 @@ class CuentasNo(models.Model):
 
 class DeptoCo(models.Model):
     id = models.AutoField(primary_key=True, db_column='DEPTO_CO_ID')
-    
+    clave       = models.CharField(max_length=1, db_column='CLAVE')
+
+    def __unicode__(self):
+        return u'%s' % self.id
+
     class Meta:
         db_table = u'deptos_co'
 
