@@ -34,3 +34,10 @@ def obtener_plantillas_cp(request, tipo_plantilla):
     
 
     return HttpResponse(data, mimetype="application/javascript")
+
+@dajaxice_register(method='GET')
+def genera_polizas_cp(request, formulario):
+    form = ExampleForm(deserialize_form(formulario))
+    form = cuentas_por_pagar.generar_polizas_ajax(form)
+    form = serializers.serialize("json", form)
+    return HttpResponse(form, mimetype="application/javascript")

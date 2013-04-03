@@ -18,7 +18,22 @@
         Dajaxice.ventas.obtener_plantillas_cp(cargar_plantillas_1, {'tipo_plantilla': $('#id_crear_polizas_de').val()});
         
       });
+
+      $('#submit_ajax').click(function(event){
+        send_form();
+      });
   });
+
+  function send_form()
+  {
+    data = $('#formulario').serializeObject(true);
+    data = decodeURIComponent(data);
+    Dajaxice.ventas.genera_polizas_cp(estado, {'formulario':data});
+  }
+
+  function estado(){
+    alert('termino');
+  }
 
   function cargar_plantillas_1(data){
     var options = '<option value="">-----------</option>';
@@ -52,7 +67,7 @@
 {% endif %}
 
 {{ form.errors }}
-<form method="post" class="form-horizontal" action="" width="300px"  enctype='multipart/form-data'>
+<form method="post" id='formulario'class="form-horizontal" action="" width="300px"  enctype='multipart/form-data'>
   {% csrf_token %}
   <div class="form-actions">
     <div class="span4" style='clear:both;'>
@@ -103,6 +118,7 @@
       <label>.</label>
       <div class="btn-group">
         <input type="submit" class="btn btn-primary" value="Generar Plizas" />
+        <!-- <a class='btn' href="#" id='submit_ajax' >Enviar por ajax</a> -->
       </div>
     </div>
   </div>

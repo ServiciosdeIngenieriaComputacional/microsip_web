@@ -3,6 +3,7 @@ from dajaxice.decorators import dajaxice_register
 from inventarios.models import *
 from django.core import serializers
 from django.http import HttpResponse
+from dajaxice.utils import deserialize_form
 
 @dajaxice_register(method='GET')
 def obtener_plantillas(request, tipo_plantilla):
@@ -17,3 +18,5 @@ def obtener_plantillas(request, tipo_plantilla):
     
 
     return HttpResponse(data, mimetype="application/javascript")
+
+

@@ -114,6 +114,8 @@ def crear_polizas(documentos, depto_co, informacion_contable, msg, plantilla=Non
 	moneda_local = get_object_or_404(Moneda,es_moneda_local='S')
 	documento_numero = 0
 
+	polizas = []
+
 	for documento_no, documento in enumerate(documentos):
 
 		if documento.naturaleza_concepto == 'C':
@@ -178,6 +180,7 @@ def crear_polizas(documentos, depto_co, informacion_contable, msg, plantilla=Non
 					)
 				
 
+				#polizas.append(poliza)
 				#GUARDA LA PILIZA
 				poliza_o = poliza.save()
 				
@@ -397,6 +400,26 @@ def generar_polizas(fecha_ini=None, fecha_fin=None, ignorar_documentos_cont=True
 		msg = 'No se han derfinido las preferencias de la empresa para generar polizas [Por favor definelas primero en Configuracion > Preferencias de la empresa]'
 
 	return documentosCPData, msg
+
+def generar_polizas_ajax(formulario):
+	msg 			= ''
+	if request.method == 'POST':
+		form = GenerarPolizasManageForm(request.POST)
+		if form.is_valid():
+			fecha_ini 				= form.cleaned_data['fecha_ini']
+			fecha_fin 				= form.cleaned_data['fecha_fin']
+			ignorar_documentos_cont = form.cleaned_data['ignorar_documentos_cont']
+			crear_polizas_por 		= form.cleaned_data['crear_polizas_por']
+			crear_polizas_de 		= form.cleaned_data['crear_polizas_de']
+			plantilla 				= form.cleaned_data['plantilla']
+			descripcion 			= form.cleaned_data['descripcion']
+
+			msg = 'es valido'
+			documentosData, msg = generar_polizas(fecha_ini, fecha_fin, ignorar_documentos_cont, crear_polizas_por, crear_polizas_de, plantilla, descripcion)
+	else:
+		form = GenerarPolizasManageForm()
+	
+	return form
 
 @login_required(login_url='/login/')
 def generar_polizas_View(request, template_name='herramientas/generar_polizas_CP.html'):
