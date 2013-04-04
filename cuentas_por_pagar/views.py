@@ -115,6 +115,7 @@ def crear_polizas(documentos, depto_co, informacion_contable, msg, plantilla=Non
 	documento_numero = 0
 
 	polizas = []
+	detalles_polizas = []
 
 	for documento_no, documento in enumerate(documentos):
 
@@ -180,9 +181,9 @@ def crear_polizas(documentos, depto_co, informacion_contable, msg, plantilla=Non
 					)
 				
 
-				#polizas.append(poliza)
+				polizas.append(poliza)
 				#GUARDA LA PILIZA
-				poliza_o = poliza.save()
+				#poliza_o = poliza.save()
 				
 				#CONSECUTIVO DE FOLIO DE POLIZA
 				tipo_poliza_det.consecutivo += 1 
@@ -221,7 +222,7 @@ def crear_polizas(documentos, depto_co, informacion_contable, msg, plantilla=Non
 									try:
 										depto = DeptoCo.objects.get(clave=depto)
 										if importe > 0 and not cuenta == []:
-											DoctosCoDet.objects.create(
+											detalle_poliza = DoctosCoDet(
 												id				= -1,
 												docto_co		= poliza,
 												cuenta			= cuenta,
@@ -238,6 +239,8 @@ def crear_polizas(documentos, depto_co, informacion_contable, msg, plantilla=Non
 												moneda			= moneda_local,
 											)
 											posicion +=1
+											detalles_polizas.append(detalle_poliza)
+
 									except ObjectDoesNotExist:
 										importe = 0
 										cuenta = 0
@@ -274,7 +277,8 @@ def crear_polizas(documentos, depto_co, informacion_contable, msg, plantilla=Non
 								cuenta = concepto.cuenta_co
 								try:
 									depto = DeptoCo.objects.get(clave=depto)
-									DoctosCoDet.objects.create(
+
+									detalle_poliza = DoctosCoDet(
 										id				= -1,
 										docto_co		= poliza,
 										cuenta			= cuenta,
@@ -289,8 +293,9 @@ def crear_polizas(documentos, depto_co, informacion_contable, msg, plantilla=Non
 										fecha			= documento.fecha,
 										cancelado		= 'N', aplicado = 'N', ajuste = 'N', 
 										moneda			= moneda_local,
-										)
+									)
 									posicion +=1
+									detalles_polizas.append(detalle_poliza)
 
 								except ObjectDoesNotExist:
 									importe = 0
@@ -324,7 +329,7 @@ def crear_polizas(documentos, depto_co, informacion_contable, msg, plantilla=Non
 						cuenta = concepto.cuenta_co
 							
 					if importe > 0 and not cuenta == []:
-						DoctosCoDet.objects.create(
+						detalle_poliza = DoctosCoDet(
 							id				= -1,
 							docto_co		= poliza,
 							cuenta			= cuenta,
@@ -341,6 +346,8 @@ def crear_polizas(documentos, depto_co, informacion_contable, msg, plantilla=Non
 							moneda			= moneda_local,
 						)
 						posicion +=1
+						detalles_polizas.append(detalle_poliza)
+
 
 				DocumentosData.append ({
 					'folio'		:poliza.poliza,
@@ -369,6 +376,13 @@ def crear_polizas(documentos, depto_co, informacion_contable, msg, plantilla=Non
 
 			documento.contabilizado = 'S'
 			documento.save()
+	
+	DoctoCo.objects.bulk_create(polizas)
+	DoctosCoDet.objects.bulk_create(detalles_polizas)
+
+	polizas = []
+	detalles_polizas = []
+
 	return totales_documento['msg'], DocumentosData
 
 def generar_polizas(fecha_ini=None, fecha_fin=None, ignorar_documentos_cont=True, crear_polizas_por='Documento', crear_polizas_de='', plantilla='', descripcion= ''):
@@ -445,7 +459,7 @@ def generar_polizas_View(request, template_name='herramientas/generar_polizas_CP
 	return render_to_response(template_name, c, context_instance=RequestContext(request))
 
 @login_required(login_url='/login/')
-def plantilla_poliza_manageView(request, id = None, template_name='herramientas/plantilla_poliza.html'):
+def plantilla_poliza_manageView(request, id = None, template_name='herramientas/plantilla_poliza_CP.html'):
 	message = ''
 
 	if id:

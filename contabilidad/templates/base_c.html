@@ -3,7 +3,14 @@
 
 <!-- CSS Code -->
 {% block style_css %}{% endblock %}
-
+{% block modulestyle_css %}
+<style type="text/css">
+  body
+  {
+    background-color: rgb(206, 218, 231);
+  }
+</style>
+{% endblock %}
 <!-- JavaScript Code -->
 {% block js_code %}{% endblock %}
 {% block breadcrumb %}{{ block.super }} Contabilidad >{% endblock %}

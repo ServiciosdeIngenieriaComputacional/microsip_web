@@ -8,17 +8,11 @@
     margin-left:5px;
   }
 </style>
-
 <link rel='stylesheet' href='{{STATIC_URL}}css/redmond/jquery-ui-1.8.23.custom.css'/>
-
 {% endblock %}
 
 <!-- JavaScript Code -->
 {% block js_code %}
-<script type="text/javascript">
-    // Define this so we don't have to bother with the admin jsi18n stuff:
-    function gettext(msgid) { return msgid; }
-</script>
 <script src='{{STATIC_URL}}js/jquery.formset.js'></script>
 <script type="text/javascript">
 $(function() {
@@ -29,8 +23,6 @@ $(function() {
     deleteText:'',
   });
 });
-
- 
 </script>
 
 {% endblock %}
@@ -109,6 +101,4 @@ $(function() {
     <input type="submit" class="btn btn-primary" value="Guardar y Salir" />
   </div>
 </form>
-
-
 {% endblock %}

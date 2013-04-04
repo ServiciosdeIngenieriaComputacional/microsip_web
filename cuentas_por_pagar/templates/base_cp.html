@@ -3,7 +3,14 @@
 
 <!-- CSS Code -->
 {% block style_css %}{% endblock %}
-
+{% block modulestyle_css %}
+<style type="text/css">
+  body
+  {
+    background-color: rgb(252, 232, 232)
+  }
+</style>
+{% endblock %}
 <!-- JavaScript Code -->
 {% block js_code %}{% endblock %}
 {% block breadcrumb %}{{ block.super }} Cuentas por pagar{% endblock %}
