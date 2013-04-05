@@ -37,6 +37,7 @@ def polizas_View(request, template_name='polizas/polizas.html'):
 
 @login_required(login_url='/login/')
 def polizas_pendientesView(request, template_name='polizas/polizas_pendientes.html'):
+	#polizas_list = DoctoCo.objects.using('db_chuy').filter(estatus='P').order_by('-fecha') 
 	polizas_list = DoctoCo.objects.filter(estatus='P').order_by('-fecha') 
 
 	paginator = Paginator(polizas_list, 15) # Muestra 5 inventarios por pagina
