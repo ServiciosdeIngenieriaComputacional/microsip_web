@@ -5,9 +5,12 @@ body{
 	text-shadow: 0 1px 1px rgba(255, 255, 255, .5);
 }
 
+footer
+{
+  text-align: center;
+}
 
-[class^="msicon-"],
-[class*="msicon-"] {
+[class^="msicon-"],[class*="msicon-"] {
   display: inline-block;
   width: 30px;
   height: 30px;
@@ -20,6 +23,9 @@ body{
   background-repeat: no-repeat;
 }
 
+.text-center{
+  text-align: center;
+}
 /* White icons with optional class, or on hover/focus/active states of certain elements */
 
 .msicon-white,

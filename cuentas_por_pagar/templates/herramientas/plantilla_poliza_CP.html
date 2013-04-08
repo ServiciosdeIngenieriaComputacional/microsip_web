@@ -15,7 +15,12 @@
 {% block js_code %}
 <script src='{{STATIC_URL}}js/jquery.formset.js'></script>
 <script type="text/javascript">
+
+
+
+
 $(function() {
+  $("select[name*='valor_iva'], select[name*='valor_contado_credito']").hide();
   $('#id_detalles_data tbody tr').formset({
     prefix: '{{ formset.prefix }}',
     addCssClass:'btn btn-success',
@@ -42,7 +47,7 @@ $(function() {
       </div>
     </div>
     <div class="span4">
-      <label>Tipo de Plizas</label>
+      <label>Tipo de Poliza</label>
       <div class="input-prepend input-append">
         {{ plantilla_form.tipo }} 
       </div>

@@ -80,8 +80,7 @@ def get_totales_documento_cp(documento, es_contado=None, totales=None):
 		compras_16_contado 	= compras_16
 		compras_0_contado	= compras_0
 		iva_efec_pagado 	= tot_impuestos
-		bancos 				= total - descuento_total
-	
+		proveedores 		= total - descuento_total
 	
 	return {
 		'descuento_total'	: totales['descuento_total'] + descuento_total,
@@ -99,6 +98,7 @@ def get_totales_documento_cp(documento, es_contado=None, totales=None):
 	}
 
 def crear_polizas(documentos, depto_co, informacion_contable, msg, plantilla=None, descripcion = '', crear_polizas_por='',crear_polizas_de=None,):
+	
 	DocumentosData 		= []
 	cuenta 				= ''
 	conceptos_poliza	= DetallePlantillaPolizas_CP.objects.filter(plantilla_poliza_CP=plantilla).order_by('id')
@@ -109,16 +109,17 @@ def crear_polizas(documentos, depto_co, informacion_contable, msg, plantilla=Non
 		'iva_efec_pagado' 	: 0, 'iva_total'			: 0, 'bancos'			 : 0, 'error'				: 0, 'msg'				: msg,
 	}
 
-	departamentos = importes = fletes_departamentos =fletes_importes = []
-
+	departamentos = []
+	importes = []
+	fletes_departamentos = []
+	fletes_importes = []
 	moneda_local = get_object_or_404(Moneda,es_moneda_local='S')
 	documento_numero = 0
-
 	polizas = []
 	detalles_polizas = []
-
+	
 	for documento_no, documento in enumerate(documentos):
-
+		
 		if documento.naturaleza_concepto == 'C':
 			es_contado = documento.condicion_pago == informacion_contable.condicion_pago_contado
 		else:
@@ -128,10 +129,10 @@ def crear_polizas(documentos, depto_co, informacion_contable, msg, plantilla=Non
 		documento_numero = documento_no
 
 		totales_documento = get_totales_documento_cp(documento, es_contado, totales_documento)
+		departamentos = importes = fletes_departamentos =fletes_importes = []
 
 		if totales_documento['error'] == 0:
-			
-
+		
 			#Cuando la fecha de la documento siguiente sea diferente y sea por DIA, o sea la ultima
 			if (not documento.fecha == siguente_documento.fecha and crear_polizas_por == 'Dia') or documento_no +1 == len(documentos) or crear_polizas_por == 'Documento':
 
@@ -160,7 +161,16 @@ def crear_polizas(documentos, depto_co, informacion_contable, msg, plantilla=Non
 				except ObjectDoesNotExist:
 					cuenta_proveedor = None
 
-				descripcion = documento.descripcion
+				
+				#Si no tiene una descripcion el documento se pone lo que esta indicado en la descripcion general
+				descripcion_doc = documento.descripcion
+				if documento.descripcion == None or crear_polizas_por=='Dia':
+					descripcion_doc = descripcion
+
+				referencia = documento.folio
+				if crear_polizas_por == 'Dia':
+					referencia = ''
+
 				poliza = DoctoCo(
 						id                    	= c_get_next_key('ID_DOCTOS'),
 						tipo_poliza				= tipo_poliza,
@@ -169,7 +179,7 @@ def crear_polizas(documentos, depto_co, informacion_contable, msg, plantilla=Non
 						moneda 					= moneda_local, 
 						tipo_cambio 			= 1,
 						estatus 				= 'P', cancelado= 'N', aplicado = 'N', ajuste = 'N', integ_co = 'S',
-						descripcion 			= descripcion,
+						descripcion 			= descripcion_doc,
 						forma_emitida 			= 'N', sistema_origen = 'CO',
 						nombre 					= '',
 						grupo_poliza_periodo 	= None,
@@ -214,10 +224,8 @@ def crear_polizas(documentos, depto_co, informacion_contable, msg, plantilla=Non
 							if not importes  == []:
 								for depto, impor in zip(departamentos,importes):
 									importe = impor
-									if cuenta_proveedor == None:
-										cuenta = concepto.cuenta_co
-									else:
-										cuenta = cuenta_proveedor
+
+									cuenta = concepto.cuenta_co
 
 									try:
 										depto = DeptoCo.objects.get(clave=depto)
@@ -230,7 +238,7 @@ def crear_polizas(documentos, depto_co, informacion_contable, msg, plantilla=Non
 												tipo_asiento	= concepto.tipo,
 												importe			= importe,
 												importe_mn		= 0,#PENDIENTE
-												ref				= '',
+												ref				= referencia,
 												descripcion		= '',
 												posicion		= posicion,
 												recordatorio	= None,
@@ -247,6 +255,7 @@ def crear_polizas(documentos, depto_co, informacion_contable, msg, plantilla=Non
 								importe = 0
 								cuenta = 0
 							else:
+								
 								if concepto.valor_iva == '0':
 									importe = totales_documento['compras_0_credito'] + totales_documento['compras_0_contado']
 								elif concepto.valor_iva == 'I':
@@ -254,12 +263,14 @@ def crear_polizas(documentos, depto_co, informacion_contable, msg, plantilla=Non
 								elif concepto.valor_iva == 'A':
 									importe =totales_documento['compras_0_credito'] + totales_documento['compras_0_contado'] + totales_documento['compras_16_credito'] + totales_documento['compras_16_contado']
 
-						if cuenta_proveedor == None:
-							cuenta = concepto.cuenta_co
-						else:
-							cuenta = cuenta_proveedor
+								cuenta = concepto.cuenta_co
+								folio_doc = documento.folio
+
+
+						
 					#SI ES A CREDITO y ES proveedores
 					elif concepto.valor_tipo == 'Proveedores': 
+						
 						if concepto.valor_iva == '0':
 							importe = 0
 						elif concepto.valor_iva == 'I':
@@ -267,7 +278,11 @@ def crear_polizas(documentos, depto_co, informacion_contable, msg, plantilla=Non
 						elif concepto.valor_iva == 'A':
 							importe = totales_documento['proveedores']
 
-						cuenta = concepto.cuenta_co
+						if cuenta_proveedor == None:
+							cuenta = concepto.cuenta_co
+						else:
+							cuenta = cuenta_proveedor
+
 					#SI ES BANCOS Y ES DE CONTADO
 
 					elif concepto.valor_tipo == 'Fletes':
@@ -286,7 +301,7 @@ def crear_polizas(documentos, depto_co, informacion_contable, msg, plantilla=Non
 										tipo_asiento	= concepto.tipo,
 										importe			= importe,
 										importe_mn		= 0,#PENDIENTE
-										ref				= '',
+										ref				= referencia,
 										descripcion		= '',
 										posicion		= posicion,
 										recordatorio	= None,
@@ -337,7 +352,7 @@ def crear_polizas(documentos, depto_co, informacion_contable, msg, plantilla=Non
 							tipo_asiento	= concepto.tipo,
 							importe			= importe,
 							importe_mn		= 0,#PENDIENTE
-							ref				= '',
+							ref				= referencia,
 							descripcion		= '',
 							posicion		= posicion,
 							recordatorio	= None,
@@ -347,7 +362,6 @@ def crear_polizas(documentos, depto_co, informacion_contable, msg, plantilla=Non
 						)
 						posicion +=1
 						detalles_polizas.append(detalle_poliza)
-
 
 				DocumentosData.append ({
 					'folio'		:poliza.poliza,
@@ -374,8 +388,7 @@ def crear_polizas(documentos, depto_co, informacion_contable, msg, plantilla=Non
 					'msg'				: msg,
 				}
 
-			documento.contabilizado = 'S'
-			documento.save()
+ 			DoctosCp.objects.filter(id=documento.id).update(contabilizado = 'S')
 	
 	DoctoCo.objects.bulk_create(polizas)
 	DoctosCoDet.objects.bulk_create(detalles_polizas)
@@ -386,6 +399,7 @@ def crear_polizas(documentos, depto_co, informacion_contable, msg, plantilla=Non
 	return totales_documento['msg'], DocumentosData
 
 def generar_polizas(fecha_ini=None, fecha_fin=None, ignorar_documentos_cont=True, crear_polizas_por='Documento', crear_polizas_de='', plantilla='', descripcion= ''):
+	
 	error 	= 0
 	msg		= ''
 	documentosCPData = []
@@ -395,18 +409,15 @@ def generar_polizas(fecha_ini=None, fecha_fin=None, ignorar_documentos_cont=True
 		informacion_contable = informacion_contable[0]
 	except ObjectDoesNotExist:
 		error = 1
-	
+
 	#Si estadefinida la informacion contable no hay error!!!
 	if error == 0:
 
-		documentosCP = []
-
 		if ignorar_documentos_cont:
-			documentosCP  = DoctosCp.objects.filter(contabilizado ='N', concepto= crear_polizas_de , fecha__gt=fecha_ini, fecha__lte=fecha_fin).order_by('fecha')[:99]
+			documentosCP  = DoctosCp.objects.filter(contabilizado ='N', concepto= crear_polizas_de , fecha__gte=fecha_ini, fecha__lte=fecha_fin).order_by('fecha')[:99]
 		else:
-			documentosCP  = DoctosCp.objects.filter(concepto= crear_polizas_de , fecha__gt=fecha_ini, fecha__lte=fecha_fin).order_by('fecha')[:99]
+			documentosCP  = DoctosCp.objects.filter(concepto= crear_polizas_de , fecha__gte=fecha_ini, fecha__lte=fecha_fin).order_by('fecha')[:99]
 		
-		documentosCP  = DoctosCp.objects.filter(concepto= crear_polizas_de, fecha__gt=fecha_ini, fecha__lte=fecha_fin)
 
 		msg, documentosCPData = crear_polizas(documentosCP, get_object_or_404(DeptoCo, pk=76), informacion_contable, msg , plantilla, descripcion, crear_polizas_por, crear_polizas_de)
 	
@@ -415,31 +426,14 @@ def generar_polizas(fecha_ini=None, fecha_fin=None, ignorar_documentos_cont=True
 
 	return documentosCPData, msg
 
-def generar_polizas_ajax(formulario):
-	msg 			= ''
-	if request.method == 'POST':
-		form = GenerarPolizasManageForm(request.POST)
-		if form.is_valid():
-			fecha_ini 				= form.cleaned_data['fecha_ini']
-			fecha_fin 				= form.cleaned_data['fecha_fin']
-			ignorar_documentos_cont = form.cleaned_data['ignorar_documentos_cont']
-			crear_polizas_por 		= form.cleaned_data['crear_polizas_por']
-			crear_polizas_de 		= form.cleaned_data['crear_polizas_de']
-			plantilla 				= form.cleaned_data['plantilla']
-			descripcion 			= form.cleaned_data['descripcion']
-
-			msg = 'es valido'
-			documentosData, msg = generar_polizas(fecha_ini, fecha_fin, ignorar_documentos_cont, crear_polizas_por, crear_polizas_de, plantilla, descripcion)
-	else:
-		form = GenerarPolizasManageForm()
-	
-	return form
-
 @login_required(login_url='/login/')
 def generar_polizas_View(request, template_name='herramientas/generar_polizas_CP.html'):
-	documentosData = []
-	msg 			= ''
+	
+	documentosData 	= []
+	msg 			= msg_resultados = ''
+
 	if request.method == 'POST':
+		
 		form = GenerarPolizasManageForm(request.POST)
 		if form.is_valid():
 			fecha_ini 				= form.cleaned_data['fecha_ini']
@@ -451,11 +445,14 @@ def generar_polizas_View(request, template_name='herramientas/generar_polizas_CP
 			descripcion 			= form.cleaned_data['descripcion']
 
 			msg = 'es valido'
+
 			documentosData, msg = generar_polizas(fecha_ini, fecha_fin, ignorar_documentos_cont, crear_polizas_por, crear_polizas_de, plantilla, descripcion)
+			if documentosData == []:
+				msg_resultados = 'Lo siento, no se encontraron resultados para este filtro'
 	else:
 		form = GenerarPolizasManageForm()
 
-	c = {'documentos':documentosData,'msg':msg,'form':form,}
+	c = {'documentos':documentosData,'msg':msg,'form':form, 'msg_resultados':msg_resultados,}
 	return render_to_response(template_name, c, context_instance=RequestContext(request))
 
 @login_required(login_url='/login/')
