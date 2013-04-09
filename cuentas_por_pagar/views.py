@@ -117,6 +117,7 @@ def crear_polizas(documentos, depto_co, informacion_contable, msg, plantilla=Non
 	}
 
 	departamentos = []
+	importes_material = []
 	importes = []
 	fletes_departamentos = []
 	fletes_importes = []
@@ -144,10 +145,7 @@ def crear_polizas(documentos, depto_co, informacion_contable, msg, plantilla=Non
 		
 		proveedores_cuentas = totales_documento['proveedores_cuentas']
 
-		es_contado.objects.asd
-
-
-		departamentos = importes = fletes_departamentos =fletes_importes = []
+		departamentos = importes = fletes_departamentos =fletes_importes = importes_material = []
 
 		if totales_documento['error'] == 0:
 		
@@ -167,12 +165,13 @@ def crear_polizas(documentos, depto_co, informacion_contable, msg, plantilla=Non
 					fletes_departamentos = campos_particulares.fletes_departamentos.split(',')
 				if not campos_particulares.fletes_importes == None:
 					fletes_importes = campos_particulares.fletes_importes.split(',')
-				
+				if not campos_particulares.material == None:
+					importes_material = campos_particulares.material.split(",")
+			
 				#PREFIJO
 				prefijo = tipo_poliza.prefijo
 				if not tipo_poliza.prefijo:
 					prefijo = ''
-				
 				
 				#Si no tiene una descripcion el documento se pone lo que esta indicado en la descripcion general
 				descripcion_doc = documento.descripcion
@@ -206,7 +205,7 @@ def crear_polizas(documentos, depto_co, informacion_contable, msg, plantilla=Non
 				polizas.append(poliza)
 				#GUARDA LA PILIZA
 				#poliza_o = poliza.save()
-				
+
 				#CONSECUTIVO DE FOLIO DE POLIZA
 				tipo_poliza_det.consecutivo += 1 
 				tipo_poliza_det.save()
@@ -216,6 +215,21 @@ def crear_polizas(documentos, depto_co, informacion_contable, msg, plantilla=Non
 					importe = 0
 					cuenta = []
 
+					detalle_poliza = DoctosCoDet(
+						id				= -1,
+						docto_co		= poliza,
+						depto_co		= depto_co,
+						tipo_asiento	= concepto.tipo,
+						importe_mn		= 0,#PENDIENTE
+						ref				= referencia,
+						descripcion		= '',
+						posicion		= posicion,
+						recordatorio	= None,
+						fecha			= documento.fecha,
+						cancelado		= 'N', aplicado = 'N', ajuste = 'N', 
+						moneda			= moneda_local,
+					)
+
 					if concepto.valor_tipo == 'Compras': 
 						if concepto.valor_contado_credito == 'Credito':
 							if concepto.valor_iva == '0':
@@ -224,6 +238,31 @@ def crear_polizas(documentos, depto_co, informacion_contable, msg, plantilla=Non
 								importe = totales_documento['compras_16_credito']
 							elif concepto.valor_iva == 'A':
 								importe = totales_documento['compras_16_credito'] + totales_documento['compras_0_credito']
+								
+								#PARA SEPARAR IMPORTES POR MATERIALES LOS IMPORTES
+								if not importes_material == []:
+									for material in importes_material:
+										material 	= material.split('=')
+										cuenta_depto= material[0].split('/')
+										cuenta 		=  CuentaCo.objects.get(cuenta=cuenta_depto[0])
+										
+										if not cuenta_depto[1] == None
+											depto_co = DeptoCo.objects.get(clave=cuenta_depto[1]))
+	
+										importe = float(material[1])
+
+										if importe > 0 and not cuenta == []:
+											try:
+												detalles_polizas.append(detalle_poliza(importe=importe,cuenta=cuenta, depto_co=depto_co))
+												posicion +=1
+
+											except ObjectDoesNotExist:
+												importe = 0
+												cuenta 	= 0
+
+									importe = 0
+									cuenta 	= 0 
+									
 						elif concepto.valor_contado_credito == 'Contado':
 							if concepto.valor_iva == '0':
 								importe = totales_documento['compras_0_contado']

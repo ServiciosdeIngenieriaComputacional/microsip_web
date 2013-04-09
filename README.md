@@ -16,7 +16,7 @@ INSTALACION DE APLICACION
 /////////////INTALAR PYTHON, SETUPTOOLS Y PIP ////////////////////
  5) Instalar python y Agregar en variables de entorno
 	a) Instalar 2.7.3 de la pagina http://www.python.org/download/
-	b) Agregar en variables de entorno en path ";C:\Python27;C:\Python27\Lib;C:\Python27\DLLs;C:\Python27\Lib\lib-tk;C:\Python27\Scripts;"
+	b) Agregar en variables de entorno de python con "SET PATH=%PATH%;C:\Python27;C:\Python27\Lib;C:\Python27\DLLs;C:\Python27\Lib\lib-tk;C:\Python27\Scripts;"
 
  6) Instalar setuptools-0.6c11.win32-py2.7 de la pagina https://pypi.python.org/pypi/setuptools
 
@@ -30,6 +30,14 @@ INSTALACION DE APLICACION
 /////////////SYNCRONISAR BASE DE DATOS PYTHON ////////////////////
  9) Sincronizar base de datos con python manage.py syncdb
 10) CONFIGURAR INICIADOR DE SERVIDOR CON IP Y RUTAS
+
+11) Agregar campos particulares en tabla libres_cargos_cp
+	- DEPTO 			(char 99)
+	- IMPORTE 			(char 99)
+	- DEPTOFLET 		(char 99)
+	- IMPORTEFLET		(char 99)
+	- MATERIAL 			(char 99)
+
 
 11) LISTO
 

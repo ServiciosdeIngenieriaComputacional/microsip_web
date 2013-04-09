@@ -24,6 +24,7 @@ urlpatterns = patterns('',
     #url(r'^ventas/', 'inventarios.views.index'),
     
     url(r'^cuentas_por_pagar/', include('cuentas_por_pagar.urls', namespace='cuentas_por_pagar')),
+    url(r'^cuentas_por_cobrar/', include('cuentas_por_cobrar.urls', namespace='cuentas_por_cobrar')),
     url(r'^contabilidad/', include('contabilidad.urls', namespace='contabilidad')),
     
     url(r'autocomplete/', include('autocomplete_light.urls')),

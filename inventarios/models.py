@@ -241,10 +241,6 @@ class ConceptosBa(models.Model):
     class Meta:
         db_table = u'conceptos_ba'
 
-class ConceptosCc(models.Model):
-    class Meta:
-        db_table = u'conceptos_cc'
-
 class ConceptoCp(models.Model):
     id                  = models.AutoField(primary_key=True, db_column='CONCEPTO_CP_ID')
     nombre_abrev        = models.CharField(max_length=30, db_column='NOMBRE_ABREV')
@@ -387,10 +383,6 @@ class DispositivosCajas(models.Model):
 class DoctosBa(models.Model):
     class Meta:
         db_table = u'doctos_ba'
-
-class DoctosCc(models.Model):
-    class Meta:
-        db_table = u'doctos_cc'
 
 class DoctosCm(models.Model):
     class Meta:
@@ -700,6 +692,7 @@ class LibresCargosCP(models.Model):
     importes                = models.CharField(max_length=99, db_column='IMPORTE')
     fletes_departamentos    = models.CharField(max_length=99, db_column='DEPTOFLET')
     fletes_importes         = models.CharField(max_length=99, db_column='IMPORTEFLET')
+    material                = models.CharField(max_length=99, db_column='MATERIAL')
 
     def __unicode__(self):
         return u'%s' % self.id
