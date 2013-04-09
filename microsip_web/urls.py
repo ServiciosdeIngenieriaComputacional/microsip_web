@@ -17,11 +17,11 @@ urlpatterns = patterns('',
     url(dajaxice_config.dajaxice_url, include('dajaxice.urls')),
 	(r'^$', 'inventarios.views.index'),
     #Descomentar esta linea para habilitar inventarios
-    #url(r'^inventarios/', include('inventarios.urls', namespace='Inventarios')),
-    url(r'^inventarios/', 'inventarios.views.index'),
+    url(r'^inventarios/', include('inventarios.urls', namespace='Inventarios')),
+    #url(r'^inventarios/', 'inventarios.views.index'),
     #Descomentar esta linea para habilitar ventas
-    #url(r'^ventas/', include('ventas.urls', namespace='ventas')),
-    url(r'^ventas/', 'inventarios.views.index'),
+    url(r'^ventas/', include('ventas.urls', namespace='ventas')),
+    #url(r'^ventas/', 'inventarios.views.index'),
     
     url(r'^cuentas_por_pagar/', include('cuentas_por_pagar.urls', namespace='cuentas_por_pagar')),
     url(r'^contabilidad/', include('contabilidad.urls', namespace='contabilidad')),

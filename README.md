@@ -1,26 +1,46 @@
 microsip_web
 ============
 
-INSTALACION
+INSTALACION DE APLICACION
 
-1) Instalar Python 2.7.3 de la pagina http://www.python.org/download/
-	Agregar a la variable de entorno de windows "PATH" 
-	"C:\Python27;C:\Python27\Lib;C:\Python27\DLLs;C:\Python27\Lib\lib-tk;C:\Python27\Scripts;"
-2) Reinstalar firebird (Asegurarse que al instalar de nuevo este seleccionado copiar libreria cliente a carpeta <sistem>)
+/////////////RESPALDAR/////////////////
+ 1) Respaldar microsip app
 
-3) Installar setuptools de la pagina https://pypi.python.org/pypi/setuptools
+ 2) Respaldar microsip bases de datos
 
-4) Instalar pip con setup.py install de https://pypi.python.org/pypi/pip
+ 3) Respaldar firebird de archivos de programa
 
-5) Instalar django-auto-complete con el comando "pip install django-autocomplete-light"
+/////////////REINSTALAR FIREBIRD/////////////////
+ 4) Reinstalar firbird Server **poner no nada borrar archivos** (EN INSTALCION INDICAR Copiar la libreria cliente de firebird al directorio<system>)
 
-6) Instalar libreria de firebird en python "fdb" con el comando "pip install fdb"
-	
-	It seems you don't have Firebird client library installed, do you? If
-	it's installed, then the problem is that FDB can't find it. If you're on
-	Windows, try reinstall Firebird and check the option to copy client
-	library to Windows/System directory (recommended on Vista/7), or copy it
-	there yourself (XP).
+/////////////INTALAR PYTHON, SETUPTOOLS Y PIP ////////////////////
+ 5) Instalar python y Agregar en variables de entorno
+	a) Instalar 2.7.3 de la pagina http://www.python.org/download/
+	b) Agregar en variables de entorno en path ";C:\Python27;C:\Python27\Lib;C:\Python27\DLLs;C:\Python27\Lib\lib-tk;C:\Python27\Scripts;"
+
+ 6) Instalar setuptools-0.6c11.win32-py2.7 de la pagina https://pypi.python.org/pypi/setuptools
+
+ 7) Copiar carpeta de pip-1.3 a escritorio e instalar pip de carpeta pip-1.3 con python setup.py install porar carpeta pip  de escritorio
+
+/////////////INTALAR APLICACION Y LIBRERIAS NESESARIAS////////////////////
+
+ 8) Instalar requerimentos de aplicacion con "pip install -r requirements.txt"
+	copiar carpeta de firebird de instaladores a C:\Python27\Lib\site-packages y C:\Python27\Lib\site-packages\django\db\backends
+
+/////////////SYNCRONISAR BASE DE DATOS PYTHON ////////////////////
+ 9) Sincronizar base de datos con python manage.py syncdb
+10) CONFIGURAR INICIADOR DE SERVIDOR CON IP Y RUTAS
+
+11) LISTO
+
+
+
+
+
+
+
+
+
 	
 7) Instalar django-firebird con el comando "pip install django-fiebird"
 
