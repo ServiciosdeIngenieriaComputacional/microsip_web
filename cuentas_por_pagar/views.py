@@ -41,7 +41,7 @@ def preferenciasEmpresa_View(request, template_name='herramientas/preferencias_e
 	c= {'form':form,'msg':msg,'plantillas':plantillas,}
 	return render_to_response(template_name, c, context_instance=RequestContext(request))
 
-def get_totales_documento_cp(documento, es_contado=None, totales=None):
+def get_totales_documento_cp(documento, es_contado=None, totales=None, cuenta_proveedor=None):
 	msg = totales['msg']
 	error = totales['error']
 	importesDocto = ImportesDoctosCP.objects.filter(docto_cp=documento)[0]
@@ -69,18 +69,23 @@ def get_totales_documento_cp(documento, es_contado=None, totales=None):
 	impuestos = importesDocto.total_impuestos
 	tipo_cambio = documento.tipo_cambio
 	tot_impuestos =impuestos * tipo_cambio
-	#SI LA documento ES A CREDITO
 	
+	proveedores 			= total - descuento_total
+
+	if str(cuenta_proveedor.id) not in totales['proveedores_cuentas']:
+		totales['proveedores_cuentas'].append({str(cuenta_proveedor.id): proveedores})
+	else:
+		totales['proveedores_cuentas'][str(cuenta_proveedor)] = totales['proveedores_cuentas'][str(cuenta_proveedor)] + proveedores
+	
+	#SI LA documento ES A CREDITO
 	if not es_contado:
 		compras_16_credito 	= compras_16
 		compras_0_credito 	= compras_0
 		iva_pend_pagar 		= tot_impuestos
-		proveedores 		= total - descuento_total
 	elif es_contado:
 		compras_16_contado 	= compras_16
 		compras_0_contado	= compras_0
 		iva_efec_pagado 	= tot_impuestos
-		proveedores 		= total - descuento_total
 	
 	return {
 		'descuento_total'	: totales['descuento_total'] + descuento_total,
@@ -95,6 +100,7 @@ def get_totales_documento_cp(documento, es_contado=None, totales=None):
 		'bancos'			: totales['bancos'] + bancos,
 		'error'				: error,
 		'msg'				: msg,
+		'proveedores_cuentas':totales['proveedores_cuentas'],
 	}
 
 def crear_polizas(documentos, depto_co, informacion_contable, msg, plantilla=None, descripcion = '', crear_polizas_por='',crear_polizas_de=None,):
@@ -106,7 +112,8 @@ def crear_polizas(documentos, depto_co, informacion_contable, msg, plantilla=Non
 	totales_documento = {
 		'descuento_total'	: 0, 'total'				: 0, 'compras_16_credito' : 0, 'compras_0_credito' 	: 0,
 		'iva_pend_pagar' 	: 0, 'proveedores' 			: 0, 'compras_16_contado' : 0, 'compras_0_contado' 	: 0,
-		'iva_efec_pagado' 	: 0, 'iva_total'			: 0, 'bancos'			 : 0, 'error'				: 0, 'msg'				: msg,
+		'iva_efec_pagado' 	: 0, 'iva_total'			: 0, 'bancos'			  : 0, 'error'				: 0, 'msg'				: msg,
+		'proveedores_cuentas':[],
 	}
 
 	departamentos = []
@@ -127,8 +134,19 @@ def crear_polizas(documentos, depto_co, informacion_contable, msg, plantilla=Non
 
 		siguente_documento = documentos[(documento_no +1)%len(documentos)]
 		documento_numero = documento_no
+		
+		try:
+			cuenta_proveedor =  CuentaCo.objects.get(cuenta=documento.proveedor.cuenta_xpagar)
+		except ObjectDoesNotExist:
+			cuenta_proveedor = None
 
-		totales_documento = get_totales_documento_cp(documento, es_contado, totales_documento)
+		totales_documento = get_totales_documento_cp(documento, es_contado, totales_documento, cuenta_proveedor)
+		
+		proveedores_cuentas = totales_documento['proveedores_cuentas']
+
+		es_contado.objects.asd
+
+
 		departamentos = importes = fletes_departamentos =fletes_importes = []
 
 		if totales_documento['error'] == 0:
@@ -155,12 +173,6 @@ def crear_polizas(documentos, depto_co, informacion_contable, msg, plantilla=Non
 				if not tipo_poliza.prefijo:
 					prefijo = ''
 				
-				try:
-					cuenta_proveedor =  CuentaCo.objects.get(cuenta=documento.proveedor.cuenta_xpagar)
-
-				except ObjectDoesNotExist:
-					cuenta_proveedor = None
-
 				
 				#Si no tiene una descripcion el documento se pone lo que esta indicado en la descripcion general
 				descripcion_doc = documento.descripcion
