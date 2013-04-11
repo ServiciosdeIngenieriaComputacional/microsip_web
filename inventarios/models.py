@@ -688,12 +688,11 @@ class ImpuestosArticulo(models.Model):
 
 class LibresCargosCP(models.Model):
     id                      = models.AutoField(primary_key=True, db_column='DOCTO_CP_ID')
-    departamentos           = models.CharField(max_length=99, db_column='DEPTO')
-    importes                = models.CharField(max_length=99, db_column='IMPORTE')
-    fletes_departamentos    = models.CharField(max_length=99, db_column='DEPTOFLET')
-    fletes_importes         = models.CharField(max_length=99, db_column='IMPORTEFLET')
-    material                = models.CharField(max_length=99, db_column='MATERIAL')
-
+    segmento_1    = models.CharField(max_length=99, db_column='SEGMENTO_1')
+    segmento_2    = models.CharField(max_length=99, db_column='SEGMENTO_2')
+    segmento_3    = models.CharField(max_length=99, db_column='SEGMENTO_3')
+    segmento_4    = models.CharField(max_length=99, db_column='SEGMENTO_4')
+    segmento_5    = models.CharField(max_length=99, db_column='SEGMENTO_5')
     def __unicode__(self):
         return u'%s' % self.id
     class Meta:
@@ -766,13 +765,20 @@ class DetallePlantillaPolizas_CP(models.Model):
         ('Devoluciones','Devoluciones'),
         ('Anticipos','Anticipos'),
         ('IVA', 'IVA'),
+        ('Segmento_1', 'Segmento 1'),
+        ('Segmento_2', 'Segmento 2'),
+        ('Segmento_3', 'Segmento 3'),
+        ('Segmento_4', 'Segmento 4'),
+        ('Segmento_5', 'Segmento 5'),
     )
     VALOR_IVA_TIPOS             = (('A', 'Ambos'),('I', 'Solo IVA'),('0', 'Solo 0%'),)
     VALOR_CONTADO_CREDITO_TIPOS = (('Ambos', 'Ambos'),('Contado', 'Contado'),('Credito', 'Credito'),)
 
-    plantilla_poliza_CP      = models.ForeignKey(PlantillaPolizas_CP)
+    posicion                = models.CharField(max_length=2)
+    plantilla_poliza_CP     = models.ForeignKey(PlantillaPolizas_CP)
     cuenta_co               = models.ForeignKey(CuentaCo)
     tipo                    = models.CharField(max_length=2, choices=TIPOS, default='C')
+    asiento_ingora          = models.CharField(max_length=2, blank=True, null=True)
     valor_tipo              = models.CharField(max_length=20, choices=VALOR_TIPOS)
     valor_iva               = models.CharField(max_length=2, choices=VALOR_IVA_TIPOS, default='A')
     valor_contado_credito   = models.CharField(max_length=10, choices=VALOR_CONTADO_CREDITO_TIPOS, default='Ambos')

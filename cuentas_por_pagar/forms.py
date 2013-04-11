@@ -38,7 +38,10 @@ class PlantillaPolizaManageForm(forms.ModelForm):
 		model = PlantillaPolizas_CP
 
 class ConceptoPlantillaPolizaManageForm(forms.ModelForm):
-	cuenta_co = forms.ModelChoiceField(queryset=CuentaCo.objects.all().order_by('cuenta'), required=True)
+	posicion  		=  forms.RegexField(regex=r'^(?:\+|-)?\d+$', widget=forms.TextInput(attrs={'class':'span1'}), required= False)
+	cuenta_co 		= forms.ModelChoiceField(queryset=CuentaCo.objects.all().order_by('cuenta'), required=True)
+	asiento_ingora 	= forms.RegexField(regex=r'^(?:\+|-)?\d+$', widget=forms.TextInput(attrs={'class':'span1'}), required= False)
+	
 	class Meta:
 		model = DetallePlantillaPolizas_CP
 
