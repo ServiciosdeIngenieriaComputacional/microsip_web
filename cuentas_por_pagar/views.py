@@ -126,27 +126,13 @@ def get_totales_documento_cuentas(cuenta_contado = None, documento=None, concept
 
 		
 
-		if concepto.valor_tipo == 'Segmento_1' or concepto.valor_tipo == 'Segmento_2' or concepto.valor_tipo == 'Segmento_3' or concepto.valor_tipo == 'Segmento_4' or concepto.valor_tipo == 'Segmento_5': 
-			
+		if concepto.valor_tipo == 'Segmento_1': 
 			importe = 0
 			cuenta 	= []
 			segmento = []
-
-			if concepto.valor_tipo == 'Segmento_1' and not campos_particulares.segmento_1 == None and seg1==0 :
+			if concepto.valor_tipo == 'Segmento_1' and not campos_particulares.segmento_1 == None:
 				segmento = campos_particulares.segmento_1.split(',')
-				seg1=1
-			if concepto.valor_tipo == 'Segmento_2' and not campos_particulares.segmento_2 == None and seg2==0:
-				segmento = campos_particulares.segmento_1.split(',')
-				seg2=1
-			if concepto.valor_tipo == 'Segmento_3' and not campos_particulares.segmento_3 == None  and seg3==0:
-				segmento = campos_particulares.segmento_1.split(',')
-				seg3=1
-			if concepto.valor_tipo == 'Segmento_4' and not campos_particulares.segmento_4 == None and seg4==0:
-				segmento = campos_particulares.segmento_1.split(',')
-				seg4=1
-			if concepto.valor_tipo == 'Segmento_5' and not campos_particulares.segmento_5 == None  and seg5==0:
-				segmeno = campos_particulares.segmento_1.split(',')
-				seg5=1
+			
 			if not segmento == []:
 				for importe_segmento in segmento:
 
@@ -176,7 +162,151 @@ def get_totales_documento_cuentas(cuenta_contado = None, documento=None, concept
 			importe = 0
 			cuenta 	= []
 			segmento = []
+		if concepto.valor_tipo == 'Segmento_2': 
+			importe = 0
+			cuenta 	= []
+			segmento = []
+			if concepto.valor_tipo == 'Segmento_2' and not campos_particulares.segmento_2 == None:
+				segmento = campos_particulares.segmento_2.split(',')
+			
+			if not segmento == []:
+				for importe_segmento in segmento:
 
+					cuenta_cantidad 	= importe_segmento.split('=')
+					cuenta_depto= cuenta_cantidad[0].split("/")
+
+					cuenta 		=  CuentaCo.objects.get(cuenta=cuenta_depto[0]).cuenta
+					if len(cuenta_depto) == 2:
+						depto = DeptoCo.objects.get(clave=cuenta_depto[1]).clave
+					else:
+						depto = depto_co
+
+
+					importe = float(cuenta_cantidad[1])
+					clave_cuenta_tipoAsiento = "%s/%s:%s"% (cuenta, depto, concepto.tipo)
+					importe = importe
+
+
+					if not clave_cuenta_tipoAsiento == [] and importe > 0:
+
+						if clave_cuenta_tipoAsiento in totales_cuentas:
+							totales_cuentas[clave_cuenta_tipoAsiento] = totales_cuentas[clave_cuenta_tipoAsiento] + Decimal(importe)
+
+						else:
+							totales_cuentas[clave_cuenta_tipoAsiento]  = Decimal(importe)
+					
+			importe = 0
+			cuenta 	= []
+			segmento = []
+		if concepto.valor_tipo == 'Segmento_3': 
+			importe = 0
+			cuenta 	= []
+			segmento = []
+			if concepto.valor_tipo == 'Segmento_3' and not campos_particulares.segmento_3 == None:
+				segmento = campos_particulares.segmento_3.split(',')
+			
+			if not segmento == []:
+				for importe_segmento in segmento:
+
+					cuenta_cantidad 	= importe_segmento.split('=')
+					cuenta_depto= cuenta_cantidad[0].split("/")
+
+					cuenta 		=  CuentaCo.objects.get(cuenta=cuenta_depto[0]).cuenta
+					if len(cuenta_depto) == 2:
+						depto = DeptoCo.objects.get(clave=cuenta_depto[1]).clave
+					else:
+						depto = depto_co
+
+
+					importe = float(cuenta_cantidad[1])
+					clave_cuenta_tipoAsiento = "%s/%s:%s"% (cuenta, depto, concepto.tipo)
+					importe = importe
+
+
+					if not clave_cuenta_tipoAsiento == [] and importe > 0:
+
+						if clave_cuenta_tipoAsiento in totales_cuentas:
+							totales_cuentas[clave_cuenta_tipoAsiento] = totales_cuentas[clave_cuenta_tipoAsiento] + Decimal(importe)
+
+						else:
+							totales_cuentas[clave_cuenta_tipoAsiento]  = Decimal(importe)
+					
+			importe = 0
+			cuenta 	= []
+			segmento = []	
+		if concepto.valor_tipo == 'Segmento_4': 
+			importe = 0
+			cuenta 	= []
+			segmento = []
+			if concepto.valor_tipo == 'Segmento_4' and not campos_particulares.segmento_4 == None:
+				segmento = campos_particulares.segmento_4.split(',')
+			
+			if not segmento == []:
+				for importe_segmento in segmento:
+
+					cuenta_cantidad 	= importe_segmento.split('=')
+					cuenta_depto= cuenta_cantidad[0].split("/")
+
+					cuenta 		=  CuentaCo.objects.get(cuenta=cuenta_depto[0]).cuenta
+					if len(cuenta_depto) == 2:
+						depto = DeptoCo.objects.get(clave=cuenta_depto[1]).clave
+					else:
+						depto = depto_co
+
+
+					importe = float(cuenta_cantidad[1])
+					clave_cuenta_tipoAsiento = "%s/%s:%s"% (cuenta, depto, concepto.tipo)
+					importe = importe
+
+
+					if not clave_cuenta_tipoAsiento == [] and importe > 0:
+
+						if clave_cuenta_tipoAsiento in totales_cuentas:
+							totales_cuentas[clave_cuenta_tipoAsiento] = totales_cuentas[clave_cuenta_tipoAsiento] + Decimal(importe)
+
+						else:
+							totales_cuentas[clave_cuenta_tipoAsiento]  = Decimal(importe)
+					
+			importe = 0
+			cuenta 	= []
+			segmento = []
+		if concepto.valor_tipo == 'Segmento_5': 
+			importe = 0
+			cuenta 	= []
+			segmento = []
+			if concepto.valor_tipo == 'Segmento_5' and not campos_particulares.segmento_5 == None:
+				segmento = campos_particulares.segmento_5.split(',')
+			
+			if not segmento == []:
+				for importe_segmento in segmento:
+
+					cuenta_cantidad 	= importe_segmento.split('=')
+					cuenta_depto= cuenta_cantidad[0].split("/")
+
+					cuenta 		=  CuentaCo.objects.get(cuenta=cuenta_depto[0]).cuenta
+					if len(cuenta_depto) == 2:
+						depto = DeptoCo.objects.get(clave=cuenta_depto[1]).clave
+					else:
+						depto = depto_co
+
+
+					importe = float(cuenta_cantidad[1])
+					clave_cuenta_tipoAsiento = "%s/%s:%s"% (cuenta, depto, concepto.tipo)
+					importe = importe
+
+
+					if not clave_cuenta_tipoAsiento == [] and importe > 0:
+
+						if clave_cuenta_tipoAsiento in totales_cuentas:
+							totales_cuentas[clave_cuenta_tipoAsiento] = totales_cuentas[clave_cuenta_tipoAsiento] + Decimal(importe)
+
+						else:
+							totales_cuentas[clave_cuenta_tipoAsiento]  = Decimal(importe)
+					
+			importe = 0
+			cuenta 	= []
+			segmento = []
+			
 		elif concepto.valor_tipo == 'Compras' and not concepto.posicion in asientos_a_ingorar:
 			if concepto.valor_contado_credito == 'Credito':
 				if concepto.valor_iva == '0':
