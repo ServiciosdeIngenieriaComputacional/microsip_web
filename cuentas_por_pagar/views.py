@@ -112,10 +112,19 @@ def get_totales_documento_cuentas(cuenta_contado = None, documento=None, concept
 		if concepto.valor_tipo == 'Segmento_5' and not campos_particulares.segmento_5 == None:
 			asientos_a_ingorar.append(concepto.asiento_ingora)
 
+
+	seg1 =0
+	seg2=0
+	seg3=0
+	seg4=0
+	seg5=0
+
 	for concepto in conceptos_poliza:
 		importe = 0
 		cuenta 	= []
 		clave_cuenta_tipoAsiento = []
+
+		
 
 		if concepto.valor_tipo == 'Segmento_1' or concepto.valor_tipo == 'Segmento_2' or concepto.valor_tipo == 'Segmento_3' or concepto.valor_tipo == 'Segmento_4' or concepto.valor_tipo == 'Segmento_5': 
 			
@@ -123,17 +132,21 @@ def get_totales_documento_cuentas(cuenta_contado = None, documento=None, concept
 			cuenta 	= []
 			segmento = []
 
-			if concepto.valor_tipo == 'Segmento_1' and not campos_particulares.segmento_1 == None:
+			if concepto.valor_tipo == 'Segmento_1' and not campos_particulares.segmento_1 == None and seg1==0 :
 				segmento = campos_particulares.segmento_1.split(',')
-			if concepto.valor_tipo == 'Segmento_2' and not campos_particulares.segmento_2 == None:
+				seg1=1
+			if concepto.valor_tipo == 'Segmento_2' and not campos_particulares.segmento_2 == None and seg2==0:
 				segmento = campos_particulares.segmento_1.split(',')
-			if concepto.valor_tipo == 'Segmento_3' and not campos_particulares.segmento_3 == None:
+				seg2=1
+			if concepto.valor_tipo == 'Segmento_3' and not campos_particulares.segmento_3 == None  and seg3==0:
 				segmento = campos_particulares.segmento_1.split(',')
-			if concepto.valor_tipo == 'Segmento_4' and not campos_particulares.segmento_4 == None:
+				seg3=1
+			if concepto.valor_tipo == 'Segmento_4' and not campos_particulares.segmento_4 == None and seg4==0:
 				segmento = campos_particulares.segmento_1.split(',')
-			if concepto.valor_tipo == 'Segmento_5' and not campos_particulares.segmento_5 == None:
-				segmento = campos_particulares.segmento_1.split(',')
-
+				seg4=1
+			if concepto.valor_tipo == 'Segmento_5' and not campos_particulares.segmento_5 == None  and seg5==0:
+				segmeno = campos_particulares.segmento_1.split(',')
+				seg5=1
 			if not segmento == []:
 				for importe_segmento in segmento:
 
@@ -150,12 +163,16 @@ def get_totales_documento_cuentas(cuenta_contado = None, documento=None, concept
 					importe = float(cuenta_cantidad[1])
 					clave_cuenta_tipoAsiento = "%s/%s:%s"% (cuenta, depto, concepto.tipo)
 					importe = importe
+
+
 					if not clave_cuenta_tipoAsiento == [] and importe > 0:
+
 						if clave_cuenta_tipoAsiento in totales_cuentas:
 							totales_cuentas[clave_cuenta_tipoAsiento] = totales_cuentas[clave_cuenta_tipoAsiento] + Decimal(importe)
+
 						else:
 							totales_cuentas[clave_cuenta_tipoAsiento]  = Decimal(importe)
-
+					
 			importe = 0
 			cuenta 	= []
 			segmento = []
