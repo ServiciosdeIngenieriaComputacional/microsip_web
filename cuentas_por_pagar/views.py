@@ -42,14 +42,62 @@ def preferenciasEmpresa_View(request, template_name='herramientas/preferencias_e
 	plantillas = PlantillaPolizas_CP.objects.all()
 	c= {'form':form,'msg':msg,'plantillas':plantillas,}
 	return render_to_response(template_name, c, context_instance=RequestContext(request))
-def get_totales_documento_cuentas(cuenta_contado = None, documento=None, conceptos_poliza=None, totales_cuentas=None):
+
+def get_totales_cuentas_by_segmento(segmento='',totales_cuentas=[], depto_co=None, concepto_tipo=None, error=0, msg='', documento_folio=''):
+	importe = 0
+	cuenta 	= []
+	clave_cuenta_tipoAsiento = []
+
+	segmento = segmento.split(',')
 	
-	error = 0
+	if not segmento == []:
+		for importe_segmento in segmento:
+
+			cuenta_cantidad 	= importe_segmento.split('=')
+			cuenta_depto= cuenta_cantidad[0].split("/")
+
+			try:
+				cuenta 		=  CuentaCo.objects.get(cuenta=cuenta_depto[0]).cuenta
+			except ObjectDoesNotExist:
+				error = 2
+				msg = 'NO EXISTE almenos una [CUENTA CONTABLE] indicada en un segmento en el documento con folio[%s], Corrigelo para continuar'% documento_folio
+			
+			if len(cuenta_depto) == 2:
+				try:
+					depto = DeptoCo.objects.get(clave=cuenta_depto[1]).clave
+				except ObjectDoesNotExist:
+					error = 2
+					msg = 'NO EXISTE almenos un [DEPARTEMENTO CONTABLE] indicado en un segmento en el documento con folio [%s], Corrigelo para continuar'% documento_folio
+			else:
+				depto = depto_co
+
+			try:
+				importe = float(cuenta_cantidad[1])
+			except:
+				error = 3
+				msg = 'Cantidad incorrecta en un segmento en el documento [%s], Corrigelo para continuar'% documento_folio
+
+			if error == 0:
+				clave_cuenta_tipoAsiento = "%s/%s:%s"% (cuenta, depto, concepto_tipo)
+				importe = importe
+
+				if not clave_cuenta_tipoAsiento == [] and importe > 0:
+
+					if clave_cuenta_tipoAsiento in totales_cuentas:
+						totales_cuentas[clave_cuenta_tipoAsiento] = totales_cuentas[clave_cuenta_tipoAsiento] + Decimal(importe)
+
+					else:
+						totales_cuentas[clave_cuenta_tipoAsiento]  = Decimal(importe)
+	return totales_cuentas, error, msg
+
+def get_totales_documento_cuentas(cuenta_contado = None, documento=None, conceptos_poliza=None, totales_cuentas=None, msg='', error=''):
 	campos_particulares = LibresCargosCP.objects.filter(pk=documento.id)[0]
 	try:
 		cuenta_proveedor =  CuentaCo.objects.get(cuenta=documento.proveedor.cuenta_xpagar).cuenta
 	except ObjectDoesNotExist:
 		cuenta_proveedor = None
+		error = 1
+		msg ='no se encontro el proveedor'
 
 	depto_co = get_object_or_404(DeptoCo, pk=76).clave
 	#Para saber si es contado o es credito
@@ -112,201 +160,21 @@ def get_totales_documento_cuentas(cuenta_contado = None, documento=None, concept
 		if concepto.valor_tipo == 'Segmento_5' and not campos_particulares.segmento_5 == None:
 			asientos_a_ingorar.append(concepto.asiento_ingora)
 
-
-	seg1 =0
-	seg2=0
-	seg3=0
-	seg4=0
-	seg5=0
-
 	for concepto in conceptos_poliza:
 		importe = 0
 		cuenta 	= []
 		clave_cuenta_tipoAsiento = []
-
 		
-
-		if concepto.valor_tipo == 'Segmento_1': 
-			importe = 0
-			cuenta 	= []
-			segmento = []
-			if concepto.valor_tipo == 'Segmento_1' and not campos_particulares.segmento_1 == None:
-				segmento = campos_particulares.segmento_1.split(',')
-			
-			if not segmento == []:
-				for importe_segmento in segmento:
-
-					cuenta_cantidad 	= importe_segmento.split('=')
-					cuenta_depto= cuenta_cantidad[0].split("/")
-
-					cuenta 		=  CuentaCo.objects.get(cuenta=cuenta_depto[0]).cuenta
-					if len(cuenta_depto) == 2:
-						depto = DeptoCo.objects.get(clave=cuenta_depto[1]).clave
-					else:
-						depto = depto_co
-
-
-					importe = float(cuenta_cantidad[1])
-					clave_cuenta_tipoAsiento = "%s/%s:%s"% (cuenta, depto, concepto.tipo)
-					importe = importe
-
-
-					if not clave_cuenta_tipoAsiento == [] and importe > 0:
-
-						if clave_cuenta_tipoAsiento in totales_cuentas:
-							totales_cuentas[clave_cuenta_tipoAsiento] = totales_cuentas[clave_cuenta_tipoAsiento] + Decimal(importe)
-
-						else:
-							totales_cuentas[clave_cuenta_tipoAsiento]  = Decimal(importe)
-					
-			importe = 0
-			cuenta 	= []
-			segmento = []
-		if concepto.valor_tipo == 'Segmento_2': 
-			importe = 0
-			cuenta 	= []
-			segmento = []
-			if concepto.valor_tipo == 'Segmento_2' and not campos_particulares.segmento_2 == None:
-				segmento = campos_particulares.segmento_2.split(',')
-			
-			if not segmento == []:
-				for importe_segmento in segmento:
-
-					cuenta_cantidad 	= importe_segmento.split('=')
-					cuenta_depto= cuenta_cantidad[0].split("/")
-
-					cuenta 		=  CuentaCo.objects.get(cuenta=cuenta_depto[0]).cuenta
-					if len(cuenta_depto) == 2:
-						depto = DeptoCo.objects.get(clave=cuenta_depto[1]).clave
-					else:
-						depto = depto_co
-
-
-					importe = float(cuenta_cantidad[1])
-					clave_cuenta_tipoAsiento = "%s/%s:%s"% (cuenta, depto, concepto.tipo)
-					importe = importe
-
-
-					if not clave_cuenta_tipoAsiento == [] and importe > 0:
-
-						if clave_cuenta_tipoAsiento in totales_cuentas:
-							totales_cuentas[clave_cuenta_tipoAsiento] = totales_cuentas[clave_cuenta_tipoAsiento] + Decimal(importe)
-
-						else:
-							totales_cuentas[clave_cuenta_tipoAsiento]  = Decimal(importe)
-					
-			importe = 0
-			cuenta 	= []
-			segmento = []
-		if concepto.valor_tipo == 'Segmento_3': 
-			importe = 0
-			cuenta 	= []
-			segmento = []
-			if concepto.valor_tipo == 'Segmento_3' and not campos_particulares.segmento_3 == None:
-				segmento = campos_particulares.segmento_3.split(',')
-			
-			if not segmento == []:
-				for importe_segmento in segmento:
-
-					cuenta_cantidad 	= importe_segmento.split('=')
-					cuenta_depto= cuenta_cantidad[0].split("/")
-
-					cuenta 		=  CuentaCo.objects.get(cuenta=cuenta_depto[0]).cuenta
-					if len(cuenta_depto) == 2:
-						depto = DeptoCo.objects.get(clave=cuenta_depto[1]).clave
-					else:
-						depto = depto_co
-
-
-					importe = float(cuenta_cantidad[1])
-					clave_cuenta_tipoAsiento = "%s/%s:%s"% (cuenta, depto, concepto.tipo)
-					importe = importe
-
-
-					if not clave_cuenta_tipoAsiento == [] and importe > 0:
-
-						if clave_cuenta_tipoAsiento in totales_cuentas:
-							totales_cuentas[clave_cuenta_tipoAsiento] = totales_cuentas[clave_cuenta_tipoAsiento] + Decimal(importe)
-
-						else:
-							totales_cuentas[clave_cuenta_tipoAsiento]  = Decimal(importe)
-					
-			importe = 0
-			cuenta 	= []
-			segmento = []	
-		if concepto.valor_tipo == 'Segmento_4': 
-			importe = 0
-			cuenta 	= []
-			segmento = []
-			if concepto.valor_tipo == 'Segmento_4' and not campos_particulares.segmento_4 == None:
-				segmento = campos_particulares.segmento_4.split(',')
-			
-			if not segmento == []:
-				for importe_segmento in segmento:
-
-					cuenta_cantidad 	= importe_segmento.split('=')
-					cuenta_depto= cuenta_cantidad[0].split("/")
-
-					cuenta 		=  CuentaCo.objects.get(cuenta=cuenta_depto[0]).cuenta
-					if len(cuenta_depto) == 2:
-						depto = DeptoCo.objects.get(clave=cuenta_depto[1]).clave
-					else:
-						depto = depto_co
-
-
-					importe = float(cuenta_cantidad[1])
-					clave_cuenta_tipoAsiento = "%s/%s:%s"% (cuenta, depto, concepto.tipo)
-					importe = importe
-
-
-					if not clave_cuenta_tipoAsiento == [] and importe > 0:
-
-						if clave_cuenta_tipoAsiento in totales_cuentas:
-							totales_cuentas[clave_cuenta_tipoAsiento] = totales_cuentas[clave_cuenta_tipoAsiento] + Decimal(importe)
-
-						else:
-							totales_cuentas[clave_cuenta_tipoAsiento]  = Decimal(importe)
-					
-			importe = 0
-			cuenta 	= []
-			segmento = []
-		if concepto.valor_tipo == 'Segmento_5': 
-			importe = 0
-			cuenta 	= []
-			segmento = []
-			if concepto.valor_tipo == 'Segmento_5' and not campos_particulares.segmento_5 == None:
-				segmento = campos_particulares.segmento_5.split(',')
-			
-			if not segmento == []:
-				for importe_segmento in segmento:
-
-					cuenta_cantidad 	= importe_segmento.split('=')
-					cuenta_depto= cuenta_cantidad[0].split("/")
-
-					cuenta 		=  CuentaCo.objects.get(cuenta=cuenta_depto[0]).cuenta
-					if len(cuenta_depto) == 2:
-						depto = DeptoCo.objects.get(clave=cuenta_depto[1]).clave
-					else:
-						depto = depto_co
-
-
-					importe = float(cuenta_cantidad[1])
-					clave_cuenta_tipoAsiento = "%s/%s:%s"% (cuenta, depto, concepto.tipo)
-					importe = importe
-
-
-					if not clave_cuenta_tipoAsiento == [] and importe > 0:
-
-						if clave_cuenta_tipoAsiento in totales_cuentas:
-							totales_cuentas[clave_cuenta_tipoAsiento] = totales_cuentas[clave_cuenta_tipoAsiento] + Decimal(importe)
-
-						else:
-							totales_cuentas[clave_cuenta_tipoAsiento]  = Decimal(importe)
-					
-			importe = 0
-			cuenta 	= []
-			segmento = []
-			
+		if concepto.valor_tipo == 'Segmento_1' and not campos_particulares.segmento_1 == None:
+			totales_cuentas, error, msg = get_totales_cuentas_by_segmento(campos_particulares.segmento_1, totales_cuentas, depto_co, concepto.tipo, error, msg, documento.folio)
+		elif concepto.valor_tipo == 'Segmento_2' and not campos_particulares.segmento_2 == None: 
+			totales_cuentas, error, msg = get_totales_cuentas_by_segmento(campos_particulares.segmento_2, totales_cuentas, depto_co, concepto.tipo, error, msg, documento.folio)
+		elif concepto.valor_tipo == 'Segmento_3' and not campos_particulares.segmento_3 == None: 
+			totales_cuentas, error, msg = get_totales_cuentas_by_segmento(campos_particulares.segmento_3, totales_cuentas, depto_co, concepto.tipo, error, msg, documento.folio)
+		elif concepto.valor_tipo == 'Segmento_4' and not campos_particulares.segmento_4 == None:
+			totales_cuentas, error, msg = get_totales_cuentas_by_segmento(campos_particulares.segmento_4, totales_cuentas, depto_co, concepto.tipo, error, msg, documento.folio)
+		elif concepto.valor_tipo == 'Segmento_5' and not campos_particulares.segmento_5 == None: 
+			totales_cuentas, error, msg = get_totales_cuentas_by_segmento(campos_particulares.segmento_5, totales_cuentas, depto_co, concepto.tipo, error, msg, documento.folio)
 		elif concepto.valor_tipo == 'Compras' and not concepto.posicion in asientos_a_ingorar:
 			if concepto.valor_contado_credito == 'Credito':
 				if concepto.valor_iva == '0':
@@ -363,35 +231,33 @@ def get_totales_documento_cuentas(cuenta_contado = None, documento=None, concept
 		clave_cuenta_tipoAsiento = "%s/%s:%s"% (cuenta, depto_co, concepto.tipo)
 		importe = importe
 
+		#Se es tipo segmento pone variables en cero para que no se calculen otra ves valores por ya estan calculados
+		if concepto.valor_tipo == 'Segmento_1' or concepto.valor_tipo == 'Segmento_2' or concepto.valor_tipo == 'Segmento_3' or concepto.valor_tipo == 'Segmento_4' or concepto.valor_tipo == 'Segmento_5':
+			importe = 0
+
 		if not clave_cuenta_tipoAsiento == [] and importe > 0:
 			if clave_cuenta_tipoAsiento in totales_cuentas:
 				totales_cuentas[clave_cuenta_tipoAsiento] = totales_cuentas[clave_cuenta_tipoAsiento] + Decimal(importe)
 			else:
 				totales_cuentas[clave_cuenta_tipoAsiento]  = Decimal(importe)
 
-	return totales_cuentas, error
+	return totales_cuentas, error, msg
 
 def crear_polizas(documentos, depto_co, informacion_contable, msg, plantilla=None, descripcion = '', crear_polizas_por='',crear_polizas_de=None,):
-	
+	error = 0
 	DocumentosData 		= []
 	cuenta 				= ''
 	importe = 0
 	conceptos_poliza	= DetallePlantillaPolizas_CP.objects.filter(plantilla_poliza_CP=plantilla).order_by('posicion')
-	
-	totales_documento = {
-		'descuento_total'	: 0, 'total'				: 0, 'compras_16_credito' : 0, 'compras_0_credito' 	: 0,
-		'iva_pend_pagar' 	: 0, 'proveedores' 			: 0, 'compras_16_contado' : 0, 'compras_0_contado' 	: 0,
-		'iva_efec_pagado' 	: 0, 'iva_total'			: 0, 'bancos'			  : 0, 'error'				: 0, 'msg'				: msg,
-	}
-
 	moneda_local 		= get_object_or_404(Moneda,es_moneda_local='S')
 	documento_numero 	= 0
 	polizas 			= []
 	detalles_polizas 	= []
 	totales_cuentas 	= {}
-
+	
 	for documento_no, documento in enumerate(documentos):
 		
+
 		if documento.naturaleza_concepto == 'C':
 			es_contado = documento.condicion_pago == informacion_contable.condicion_pago_contado
 		else:
@@ -400,14 +266,9 @@ def crear_polizas(documentos, depto_co, informacion_contable, msg, plantilla=Non
 		siguente_documento = documentos[(documento_no +1)%len(documentos)]
 		documento_numero = documento_no
 		
+		totales_cuentas, error, msg = get_totales_documento_cuentas(informacion_contable.condicion_pago_contado, documento, conceptos_poliza, totales_cuentas, msg, error)
 		
-		if crear_polizas_por == 'Documento':
-			totales_cuentas = {}
-
-		totales_cuentas, error= get_totales_documento_cuentas(informacion_contable.condicion_pago_contado, documento, conceptos_poliza, totales_cuentas)
-
-		if totales_documento['error'] == 0:
-		
+		if error == 0:
 			#Cuando la fecha de la documento siguiente sea diferente y sea por DIA, o sea la ultima
 			if (not documento.fecha == siguente_documento.fecha and crear_polizas_por == 'Dia') or documento_no +1 == len(documentos) or crear_polizas_por == 'Documento':
 
@@ -420,10 +281,12 @@ def crear_polizas(documentos, depto_co, informacion_contable, msg, plantilla=Non
 
 				#Si no tiene una descripcion el documento se pone lo que esta indicado en la descripcion general
 				descripcion_doc = documento.descripcion
-				if documento.descripcion == None or crear_polizas_por=='Dia':
+				
+				if documento.descripcion == None or crear_polizas_por=='Dia' or crear_polizas_por == 'Periodo':
 					descripcion_doc = descripcion
 
 				referencia = documento.folio
+				
 				if crear_polizas_por == 'Dia':
 					referencia = ''
 
@@ -446,7 +309,6 @@ def crear_polizas(documentos, depto_co, informacion_contable, msg, plantilla=Non
 						usuario_cancelacion 	= None, fechahora_cancelacion 	=  None, usuario_aut_cancelacion 				= None,
 					)
 				
-
 				polizas.append(poliza)
 				#GUARDA LA PILIZA
 				#poliza_o = poliza.save()
@@ -463,7 +325,6 @@ def crear_polizas(documentos, depto_co, informacion_contable, msg, plantilla=Non
 					cuenta_co = CuentaCo.objects.get(cuenta=cuenta_deptotipoAsiento[0])
 					depto_tipoAsiento = cuenta_deptotipoAsiento[1].split(':')
 					depto_co = DeptoCo.objects.get(clave=depto_tipoAsiento[0])
-
 					tipo_asiento = depto_tipoAsiento[1]
 
 					detalle_poliza = DoctosCoDet(
@@ -486,18 +347,25 @@ def crear_polizas(documentos, depto_co, informacion_contable, msg, plantilla=Non
 					posicion +=1
 					detalles_polizas.append(detalle_poliza)
 
+				#DE NUEVO COMBIERTO LA VARIABLE A DICCIONARIO
+				totales_cuentas = {}
+
 				DocumentosData.append ({
 					'folio'		:poliza.poliza,
 					})
 
  			DoctosCp.objects.filter(id=documento.id).update(contabilizado = 'S')
+ 	
+ 		
 
-	DoctoCo.objects.bulk_create(polizas)
-	DoctosCoDet.objects.bulk_create(detalles_polizas)
+ 	if error == 0:
+		DoctoCo.objects.bulk_create(polizas)
+		DoctosCoDet.objects.bulk_create(detalles_polizas)
+	else:
+		DocumentosData = []
 
 	polizas = []
 	detalles_polizas = []
-	msg= ''
 	return msg, DocumentosData
 
 def generar_polizas(fecha_ini=None, fecha_fin=None, ignorar_documentos_cont=True, crear_polizas_por='Documento', crear_polizas_de='', plantilla='', descripcion= ''):
@@ -519,11 +387,10 @@ def generar_polizas(fecha_ini=None, fecha_fin=None, ignorar_documentos_cont=True
 			documentosCP  = DoctosCp.objects.filter(contabilizado ='N', concepto= crear_polizas_de , fecha__gte=fecha_ini, fecha__lte=fecha_fin).order_by('fecha')[:99]
 		else:
 			documentosCP  = DoctosCp.objects.filter(concepto= crear_polizas_de , fecha__gte=fecha_ini, fecha__lte=fecha_fin).order_by('fecha')[:99]
-		
 
 		msg, documentosCPData = crear_polizas(documentosCP, get_object_or_404(DeptoCo, pk=76), informacion_contable, msg , plantilla, descripcion, crear_polizas_por, crear_polizas_de)
 	
-	elif error == 1:
+	elif error == 1 and msg=='':
 		msg = 'No se han derfinido las preferencias de la empresa para generar polizas [Por favor definelas primero en Configuracion > Preferencias de la empresa]'
 
 	return documentosCPData, msg
@@ -593,3 +460,10 @@ def plantilla_poliza_manageView(request, id = None, template_name='herramientas/
 	c = {'plantilla_form': plantilla_form, 'formset': plantilla_items_formset , 'message':message,}
 
 	return render_to_response(template_name, c, context_instance=RequestContext(request))
+
+@login_required(login_url='/login/')
+def plantilla_poliza_delete(request, id = None):
+	plantilla = get_object_or_404(PlantillaPolizas_CP, pk=id)
+	plantilla.delete()
+
+	return HttpResponseRedirect('/cuentas_por_pagar/PreferenciasEmpresa/')

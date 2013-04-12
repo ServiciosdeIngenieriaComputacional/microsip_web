@@ -8,5 +8,5 @@ urlpatterns = patterns('',
 	#Plantilla Poliza
 	(r'^plantilla_poliza/$', views.plantilla_poliza_manageView),
     (r'^plantilla_poliza/(?P<id>\d+)/', views.plantilla_poliza_manageView),
-    #(r'^plantilla_poliza/eliminar/(?P<id>\d+)/', views.plantilla_poliza_delete),
+    (r'^plantilla_poliza/eliminar/(?P<id>\d+)/', views.plantilla_poliza_delete),
 )

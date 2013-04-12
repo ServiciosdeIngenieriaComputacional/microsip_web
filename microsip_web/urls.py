@@ -15,7 +15,7 @@ admin.autodiscover()
 
 urlpatterns = patterns('',
     url(dajaxice_config.dajaxice_url, include('dajaxice.urls')),
-	(r'^$', 'inventarios.views.index'),
+	(r'^$', 'main.views.index'),
     #Descomentar esta linea para habilitar inventarios
     #url(r'^inventarios/', include('inventarios.urls', namespace='Inventarios')),
     #url(r'^inventarios/', 'inventarios.views.index'),

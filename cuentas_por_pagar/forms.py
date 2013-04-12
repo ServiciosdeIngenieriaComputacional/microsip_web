@@ -20,7 +20,7 @@ class GenerarPolizasManageForm(forms.Form):
 	ignorar_documentos_cont 	= forms.BooleanField(required=False, initial=True)
 	CREAR_POR = (
 	    ('Documento', 'Documento'),
-	    #('Dia', 'Dia'),
+	    ('Dia', 'Dia'),
 	    ('Periodo', 'Periodo'),
 	)
 	crear_polizas_por 		= forms.ChoiceField(choices=CREAR_POR)

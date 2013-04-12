@@ -40,7 +40,7 @@ def ingresar(request):
 			if acceso is not None:
 				if acceso.is_active:
 					login(request, acceso)
-					return HttpResponseRedirect('/inventarios/')
+					return HttpResponseRedirect('/')
 				else:
 					return render_to_response('noactivo.html', context_instance=RequestContext(request))
 			else:
@@ -52,13 +52,6 @@ def ingresar(request):
 def logoutUser(request):
     logout(request)
     return HttpResponseRedirect('/')
-
-@login_required(login_url='/login/')
-def index(request):
-	#= ClavesArticulos.objects.all()
-	articulos = ClavesArticulos.objects.filter(articulo__id=219)
-	c = {'articulos':articulos}
-  	return render_to_response('index.html', c, context_instance=RequestContext(request))
 
 def c_get_next_key(seq_name):
     """ return next value of sequence """
