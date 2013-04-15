@@ -31,13 +31,49 @@ INSTALACION DE APLICACION
  9) Sincronizar base de datos con python manage.py syncdb
 10) CONFIGURAR INICIADOR DE SERVIDOR CON IP Y RUTAS
 
-11) Agregar campos particulares en tabla libres_cargos_cp
-	- DEPTO 			(char 99)
-	- IMPORTE 			(char 99)
-	- DEPTOFLET 		(char 99)
-	- IMPORTEFLET		(char 99)
-	- MATERIAL 			(char 99)
+11) 
+////////////////////DEFINIR CAMPOS PARTICULARES PARA TABLAS//////////////////////////////
 
+///////////////////PARA CUENTAS POR PAGAR/////////////////////////////////////////
+class LibresCargosCP(models.Model):
+    id                      = models.AutoField(primary_key=True, db_column='DOCTO_CP_ID')
+    segmento_1    = models.CharField(max_length=99, db_column='SEGMENTO_1')
+    segmento_2    = models.CharField(max_length=99, db_column='SEGMENTO_2')
+    segmento_3    = models.CharField(max_length=99, db_column='SEGMENTO_3')
+    segmento_4    = models.CharField(max_length=99, db_column='SEGMENTO_4')
+    segmento_5    = models.CharField(max_length=99, db_column='SEGMENTO_5')
+ 	
+ 	def __unicode__(self):
+        return u'%s' % self.id
+    class Meta:
+        db_table = u'libres_cargos_cp'
+
+/////////////////PARA VENTAS//////////////////////
+class LibresFacturasV(models.Model):
+    id            = models.AutoField(primary_key=True, db_column='DOCTO_VE_ID')
+    segmento_1    = models.CharField(max_length=99, db_column='SEGMENTO_1')
+    segmento_2    = models.CharField(max_length=99, db_column='SEGMENTO_2')
+    segmento_3    = models.CharField(max_length=99, db_column='SEGMENTO_3')
+    segmento_4    = models.CharField(max_length=99, db_column='SEGMENTO_4')
+    segmento_5    = models.CharField(max_length=99, db_column='SEGMENTO_5')
+	
+	def __unicode__(self):
+        return u'%s' % self.id
+    class Meta:
+        db_table = u'libres_fac_ve'
+
+class LibresDevFacV(models.Model):
+    id            = models.AutoField(primary_key=True, db_column='DOCTO_VE_ID')
+    segmento_1    = models.CharField(max_length=99, db_column='SEGMENTO_1')
+    segmento_2    = models.CharField(max_length=99, db_column='SEGMENTO_2')
+    segmento_3    = models.CharField(max_length=99, db_column='SEGMENTO_3')
+    segmento_4    = models.CharField(max_length=99, db_column='SEGMENTO_4')
+    segmento_5    = models.CharField(max_length=99, db_column='SEGMENTO_5')
+    
+    def __unicode__(self):
+        return u'%s' % self.id
+    class Meta:
+        db_table = u'libres_devfac_ve'
 
 11) LISTO
 

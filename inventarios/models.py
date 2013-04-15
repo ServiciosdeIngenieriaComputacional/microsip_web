@@ -331,7 +331,7 @@ class DeptoCo(models.Model):
     clave       = models.CharField(max_length=1, db_column='CLAVE')
 
     def __unicode__(self):
-        return u'%s' % self.id
+        return u'%s' % self.clave
 
     class Meta:
         db_table = u'deptos_co'
@@ -637,47 +637,6 @@ class Impuestos(models.Model):
     class Meta:
         db_table = u'impuestos'
 
-class DoctoVe(models.Model):
-    id              = models.AutoField(primary_key=True, db_column='DOCTO_VE_ID')
-    folio           = models.CharField(max_length=9, db_column='FOLIO')
-    fecha           = models.DateField(db_column='FECHA')
-    contabilizado   = models.CharField(default='N', max_length=1, db_column='CONTABILIZADO')
-    cliente         = models.ForeignKey(Cliente, db_column='CLIENTE_ID')
-    tipo            = models.CharField(max_length=1, db_column='TIPO_DOCTO')
-    importe_neto    = models.DecimalField(max_digits=15, decimal_places=2, db_column='IMPORTE_NETO')
-    total_impuestos = models.DecimalField(max_digits=15, decimal_places=2, db_column='TOTAL_IMPUESTOS')
-    moneda          = models.ForeignKey(Moneda, db_column='MONEDA_ID')
-    tipo_cambio     = models.DecimalField(max_digits=18, decimal_places=6, db_column='TIPO_CAMBIO')
-    estado          = models.CharField(max_length=1, db_column='ESTATUS')
-    condicion_pago  = models.ForeignKey(CondicionPago, db_column='COND_PAGO_ID')
-    
-    #almacen = models.ForeignKey(Almacenes, db_column='ALMACEN_ID')
-    #condicion_pago = models.ForeignKey(CondicionesPago, on_delete= models.SET_NULL, blank=True, null=True, db_column='COND_PAGO_ID')
-    def __unicode__(self):
-        return u'%s' % self.id
-    class Meta:
-        db_table = u'doctos_ve'
-
-class DoctoVeDet(models.Model):
-    id = models.AutoField(primary_key=True, db_column='DOCTO_VE_DET_ID')
-    docto_ve            = models.ForeignKey(DoctoVe, on_delete= models.SET_NULL, blank=True, null=True, db_column='DOCTO_VE_ID')
-    articulo            = models.ForeignKey(Articulos, on_delete= models.SET_NULL, blank=True, null=True, db_column='ARTICULO_ID')
-    unidades            = models.DecimalField(max_digits=18, decimal_places=5, db_column='UNIDADES')
-    precio_unitario     = models.DecimalField(max_digits=18, decimal_places=6, db_column='PRECIO_UNITARIO')
-    porcentaje_decuento = models.DecimalField(max_digits=9, decimal_places=6, db_column='PCTJE_DSCTO')
-    precio_total_neto   = models.DecimalField(max_digits=15, decimal_places=2, db_column='PRECIO_TOTAL_NETO')
-
-    class Meta:
-        db_table = u'doctos_ve_det'
-
-class DoctoVeLigas(models.Model):
-    id          = models.AutoField(primary_key=True, db_column='DOCTO_VE_LIGA_ID')
-    factura     = models.ForeignKey(DoctoVe, db_column='DOCTO_VE_FTE_ID', related_name='factura')
-    devolucion  = models.ForeignKey(DoctoVe, db_column='DOCTO_VE_DEST_ID', related_name='devolucion')
-
-    class Meta:
-        db_table = u'doctos_ve_ligas'
-
 class ImpuestosArticulo(models.Model):
     id          = models.AutoField(primary_key=True, db_column='IMPUESTO_ART_ID')
     articulo    = models.ForeignKey(Articulos, on_delete= models.SET_NULL, blank=True, null=True, db_column='ARTICULO_ID')
@@ -701,46 +660,6 @@ class LibresCargosCP(models.Model):
 #############################################################################################################################################################
 ##################################################MODELOS DE APLICACION DJANGO###############################################################################
 #############################################################################################################################################################
-
-class PlantillaPolizas_V(models.Model):
-    nombre  = models.CharField(max_length=200)
-    TIPOS   = (('F', 'Facturas'),('D', 'Devoluciones'),)
-    tipo    = models.CharField(max_length=2, choices=TIPOS, default='F')
-
-    def __unicode__(self):
-        return u'%s'%self.nombre
-
-class DetallePlantillaPolizas_V(models.Model):
-    TIPOS = (('C', 'Cargo'),('A', 'Abono'),)
-    VALOR_TIPOS =(
-        ('Ventas', 'Ventas'),
-        ('Clientes', 'Clientes'),
-        ('Bancos', 'Bancos'),
-        ('Descuentos', 'Descuentos'),
-        ('Devoluciones','Devoluciones'),
-        ('IVA', 'IVA'),
-    )
-    VALOR_IVA_TIPOS             = (('A', 'Ambos'),('I', 'Solo IVA'),('0', 'Solo 0%'),)
-    VALOR_CONTADO_CREDITO_TIPOS = (('Ambos', 'Ambos'),('Contado', 'Contado'),('Credito', 'Credito'),)
-
-    plantilla_poliza_v      = models.ForeignKey(PlantillaPolizas_V)
-    cuenta_co               = models.ForeignKey(CuentaCo)
-    tipo                    = models.CharField(max_length=2, choices=TIPOS, default='C')
-    valor_tipo              = models.CharField(max_length=20, choices=VALOR_TIPOS)
-    valor_iva               = models.CharField(max_length=2, choices=VALOR_IVA_TIPOS, default='A')
-    valor_contado_credito   = models.CharField(max_length=10, choices=VALOR_CONTADO_CREDITO_TIPOS, default='Ambos')
-
-    def __unicode__(self):
-        return u'%s'%self.id
-
-class InformacionContable_V(models.Model):
-    tipo_poliza_ve          = models.ForeignKey(TipoPoliza, blank=True, null=True, related_name='tipo_poliza_ve')
-    tipo_poliza_dev         = models.ForeignKey(TipoPoliza, blank=True, null=True, related_name='tipo_poliza_dev')
-    condicion_pago_contado  = models.ForeignKey(CondicionPago, blank=True, null=True)
-
-    def __unicode__(self):
-        return u'%s'% self.id
-
 class InformacionContable_CP(models.Model):
     condicion_pago_contado  = models.ForeignKey(CondicionPagoCp, blank=True, null=True)
 

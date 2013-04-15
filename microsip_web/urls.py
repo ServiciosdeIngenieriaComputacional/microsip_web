@@ -20,7 +20,7 @@ urlpatterns = patterns('',
     #url(r'^inventarios/', include('inventarios.urls', namespace='Inventarios')),
     #url(r'^inventarios/', 'inventarios.views.index'),
     #Descomentar esta linea para habilitar ventas
-    #url(r'^ventas/', include('ventas.urls', namespace='ventas')),
+    url(r'^ventas/', include('ventas.urls', namespace='ventas')),
     #url(r'^ventas/', 'inventarios.views.index'),
     
     url(r'^cuentas_por_pagar/', include('cuentas_por_pagar.urls', namespace='cuentas_por_pagar')),
