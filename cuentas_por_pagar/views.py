@@ -43,7 +43,7 @@ def preferenciasEmpresa_View(request, template_name='herramientas/preferencias_e
 	c= {'form':form,'msg':msg,'plantillas':plantillas,}
 	return render_to_response(template_name, c, context_instance=RequestContext(request))
 
-def get_totales_cuentas_by_segmento(segmento='',totales_cuentas=[], depto_co=None, concepto_tipo=None, error=0, msg='', documento_folio=''):
+def get_totales_cuentas_by_segmento(segmento='',totales_cuentas=[], depto_co=None, concepto_tipo=None, error=0, msg='', documento_folio='', asiento_ingora=0):
 	importe = 0
 	cuenta 	= []
 	clave_cuenta_tipoAsiento = []
@@ -82,12 +82,10 @@ def get_totales_cuentas_by_segmento(segmento='',totales_cuentas=[], depto_co=Non
 				importe = importe
 
 				if not clave_cuenta_tipoAsiento == [] and importe > 0:
-
 					if clave_cuenta_tipoAsiento in totales_cuentas:
-						totales_cuentas[clave_cuenta_tipoAsiento] = totales_cuentas[clave_cuenta_tipoAsiento] + Decimal(importe)
-
+						totales_cuentas[clave_cuenta_tipoAsiento] = [totales_cuentas[clave_cuenta_tipoAsiento][0] + Decimal(importe),int(asiento_ingora)]
 					else:
-						totales_cuentas[clave_cuenta_tipoAsiento]  = Decimal(importe)
+						totales_cuentas[clave_cuenta_tipoAsiento]  = [Decimal(importe),int(asiento_ingora)]
 	return totales_cuentas, error, msg
 
 def get_totales_documento_cuentas(cuenta_contado = None, documento=None, conceptos_poliza=None, totales_cuentas=None, msg='', error=''):
@@ -166,15 +164,15 @@ def get_totales_documento_cuentas(cuenta_contado = None, documento=None, concept
 		clave_cuenta_tipoAsiento = []
 		
 		if concepto.valor_tipo == 'Segmento_1' and not campos_particulares.segmento_1 == None:
-			totales_cuentas, error, msg = get_totales_cuentas_by_segmento(campos_particulares.segmento_1, totales_cuentas, depto_co, concepto.tipo, error, msg, documento.folio)
+			totales_cuentas, error, msg = get_totales_cuentas_by_segmento(campos_particulares.segmento_1, totales_cuentas, depto_co, concepto.tipo, error, msg, documento.folio, concepto.asiento_ingora)
 		elif concepto.valor_tipo == 'Segmento_2' and not campos_particulares.segmento_2 == None: 
-			totales_cuentas, error, msg = get_totales_cuentas_by_segmento(campos_particulares.segmento_2, totales_cuentas, depto_co, concepto.tipo, error, msg, documento.folio)
+			totales_cuentas, error, msg = get_totales_cuentas_by_segmento(campos_particulares.segmento_2, totales_cuentas, depto_co, concepto.tipo, error, msg, documento.folio, concepto.asiento_ingora)
 		elif concepto.valor_tipo == 'Segmento_3' and not campos_particulares.segmento_3 == None: 
-			totales_cuentas, error, msg = get_totales_cuentas_by_segmento(campos_particulares.segmento_3, totales_cuentas, depto_co, concepto.tipo, error, msg, documento.folio)
+			totales_cuentas, error, msg = get_totales_cuentas_by_segmento(campos_particulares.segmento_3, totales_cuentas, depto_co, concepto.tipo, error, msg, documento.folio, concepto.asiento_ingora)
 		elif concepto.valor_tipo == 'Segmento_4' and not campos_particulares.segmento_4 == None:
-			totales_cuentas, error, msg = get_totales_cuentas_by_segmento(campos_particulares.segmento_4, totales_cuentas, depto_co, concepto.tipo, error, msg, documento.folio)
+			totales_cuentas, error, msg = get_totales_cuentas_by_segmento(campos_particulares.segmento_4, totales_cuentas, depto_co, concepto.tipo, error, msg, documento.folio, concepto.asiento_ingora)
 		elif concepto.valor_tipo == 'Segmento_5' and not campos_particulares.segmento_5 == None: 
-			totales_cuentas, error, msg = get_totales_cuentas_by_segmento(campos_particulares.segmento_5, totales_cuentas, depto_co, concepto.tipo, error, msg, documento.folio)
+			totales_cuentas, error, msg = get_totales_cuentas_by_segmento(campos_particulares.segmento_5, totales_cuentas, depto_co, concepto.tipo, error, msg, documento.folio, concepto.asiento_ingora)
 		elif concepto.valor_tipo == 'Compras' and not concepto.posicion in asientos_a_ingorar:
 			if concepto.valor_contado_credito == 'Credito':
 				if concepto.valor_iva == '0':
@@ -237,9 +235,9 @@ def get_totales_documento_cuentas(cuenta_contado = None, documento=None, concept
 
 		if not clave_cuenta_tipoAsiento == [] and importe > 0:
 			if clave_cuenta_tipoAsiento in totales_cuentas:
-				totales_cuentas[clave_cuenta_tipoAsiento] = totales_cuentas[clave_cuenta_tipoAsiento] + Decimal(importe)
+				totales_cuentas[clave_cuenta_tipoAsiento] = [totales_cuentas[clave_cuenta_tipoAsiento][0] + Decimal(importe),int(concepto.posicion)]
 			else:
-				totales_cuentas[clave_cuenta_tipoAsiento]  = Decimal(importe)
+				totales_cuentas[clave_cuenta_tipoAsiento]  = [Decimal(importe),int(concepto.posicion)]
 
 	return totales_cuentas, error, msg
 
@@ -320,6 +318,7 @@ def crear_polizas(documentos, depto_co, informacion_contable, msg, plantilla=Non
 				posicion = 1
 				totales_cuentas = totales_cuentas.items()
 
+
 				for cuenta_depto_tipoAsiento, importe in totales_cuentas:
 					cuenta_deptotipoAsiento = cuenta_depto_tipoAsiento.split('/')
 					cuenta_co = CuentaCo.objects.get(cuenta=cuenta_deptotipoAsiento[0])
@@ -333,7 +332,7 @@ def crear_polizas(documentos, depto_co, informacion_contable, msg, plantilla=Non
 						cuenta			= cuenta_co,
 						depto_co		= depto_co,
 						tipo_asiento	= tipo_asiento,
-						importe			= importe,
+						importe			= importe[0],
 						importe_mn		= 0,#PENDIENTE
 						ref				= referencia,
 						descripcion		= '',
