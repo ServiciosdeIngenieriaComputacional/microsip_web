@@ -350,6 +350,7 @@ def generar_polizas(fecha_ini=None, fecha_fin=None, ignorar_documentos_cont=True
 	error 	= 0
 	msg		= ''
 	documentosData = []
+	documentosGenerados = []
 	
 	try:
 		informacion_contable = InformacionContable_V.objects.all()[:1]
@@ -380,25 +381,26 @@ def generar_polizas(fecha_ini=None, fecha_fin=None, ignorar_documentos_cont=True
 
 		if crear_polizas_de 	== 'F' or crear_polizas_de 	== 'FD':
 			documentosData, msg = crear_polizas(facturas, informacion_contable.depto_general_cont, informacion_contable, msg, plantilla_facturas, descripcion, crear_polizas_por, crear_polizas_de, 'F')
+			documentosGenerados = documentosData
 		if crear_polizas_de 	== 'D' or crear_polizas_de 	== 'FD':
 			documentosData, msg = crear_polizas(devoluciones, informacion_contable.depto_general_cont, informacion_contable, msg, plantilla_devoluciones, descripcion, crear_polizas_por, crear_polizas_de, 'D')
-		
-		if documentosData == []:
-			msg_resultados = 'Lo siento, no se encontraron resultados para este filtro'
+			if not documentosData == []:
+				documentosGenerados.append(documentosData)	
 
 	elif error == 1 and msg=='':
 		msg = 'No se han derfinido las preferencias de la empresa para generar polizas [Por favor definelas primero en Configuracion > Preferencias de la empresa]'
-
-
-	return documentosData, msg
+	
+	return documentosGenerados, msg
 
 @login_required(login_url='/login/')
 def facturas_View(request, template_name='herramientas/generar_polizas.html'):
 	documentosData = []
 	msg 			= ''
+
 	if request.method == 'POST':
 		form = GenerarPolizasManageForm(request.POST)
 		if form.is_valid():
+
 			fecha_ini 				= form.cleaned_data['fecha_ini']
 			fecha_fin 				= form.cleaned_data['fecha_fin']
 			ignorar_documentos_cont = form.cleaned_data['ignorar_documentos_cont']
@@ -407,11 +409,17 @@ def facturas_View(request, template_name='herramientas/generar_polizas.html'):
 			plantilla_facturas 		= form.cleaned_data['plantilla']
 			plantilla_devoluciones 	= form.cleaned_data['plantilla_2']
 			descripcion 			= form.cleaned_data['descripcion']
-
-			msg = 'es valido'
-			documentosData, msg = generar_polizas(fecha_ini, fecha_fin, ignorar_documentos_cont, crear_polizas_por, crear_polizas_de, plantilla_facturas, plantilla_devoluciones, descripcion)
+			if (crear_polizas_de == 'F' and not plantilla_facturas== None) or (crear_polizas_de == 'D' and not plantilla_devoluciones== None) or (crear_polizas_de == 'FD' and not plantilla_facturas== None and not plantilla_devoluciones== None):
+				msg = 'es valido'
+				documentosData, msg = generar_polizas(fecha_ini, fecha_fin, ignorar_documentos_cont, crear_polizas_por, crear_polizas_de, plantilla_facturas, plantilla_devoluciones, descripcion)
+			else:
+				error =1
+				msg = 'Seleciona una plantilla'
 	else:
 		form = GenerarPolizasManageForm()
+	
+	if documentosData == []:
+		msg = 'Lo siento, no se encontraron resultados para este filtro'
 
 	c = {'documentos':documentosData,'msg':msg,'form':form,}
 	return render_to_response(template_name, c, context_instance=RequestContext(request))

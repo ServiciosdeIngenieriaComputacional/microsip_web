@@ -3,7 +3,7 @@ from dajaxice.decorators import dajaxice_register
 from inventarios.models import *
 from django.core import serializers
 from django.http import HttpResponse
-
+from models import *
 @dajaxice_register(method='GET')
 def args_example(request, text):
     return simplejson.dumps({'message':'Your message is %s!' % text})
