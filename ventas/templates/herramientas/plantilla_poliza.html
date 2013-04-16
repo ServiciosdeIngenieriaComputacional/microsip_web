@@ -50,10 +50,21 @@ $(document).ready(function() {
         $(this).parent().parent().find("select[name*='valor_iva']").show();
         $(this).parent().parent().find("select[name*='valor_contado_credito']").show();
       }
+
+       if($(this).val() == "Segmento_1" || $(this).val() == "Segmento_2" || $(this).val() == "Segmento_3" || $(this).val() == "Segmento_4" || $(this).val() == "Segmento_5")
+        $(this).parent().parent().find("input[name*='asiento_ingora']").show();
+      else
+       $(this).parent().parent().find("input[name*='asiento_ingora']").hide();
+
   });
 
   $("select[name*='valor_tipo']").change(function()
   {
+      if($(this).val() == "Segmento_1" || $(this).val() == "Segmento_2" || $(this).val() == "Segmento_3" || $(this).val() == "Segmento_4" || $(this).val() == "Segmento_5")
+        $(this).parent().parent().find("input[name*='asiento_ingora']").show();
+      else
+       $(this).parent().parent().find("input[name*='asiento_ingora']").hide();
+     
       if ($(this).val() == "IVA" || $(this).val() == "Descuentos" || $(this).val() == "Devoluciones")  
       {
         $(this).parent().parent().find("select[name*='valor_iva']").hide();
@@ -124,6 +135,7 @@ $(document).change(function()
       <table class="table tableCell table-hover" id="id_detalles_data" border="0" cellpadding="0" cellspacing="5">
         <thead>
           <tr>
+            <th>Numero</th>
             <th>Cuenta</th>
             <th>Tipo</th>
             <th>Valor</th>
@@ -136,11 +148,12 @@ $(document).change(function()
           {% for form in formset.forms %}
           <tr id="{{ form.prefix }}-row" class="form-container">
             {{ form.errors }}
+            <td>{{ form.posicion }}</td>
             <td>{{ form.cuenta_co }}</td>
             <td>{{ form.tipo }}
               {% for fld in form.hidden_fields %}{{ fld }}{% endfor %}
             </td>
-            <td>{{ form.valor_tipo }}</td>
+            <td>{{ form.valor_tipo }}{{ form.asiento_ingora }}</td>
             <td>{{ form.valor_iva }}</td>
             <td>{{ form.valor_contado_credito }}</td>
             <td>{% if form.instance.pk %}{{ form.DELETE }}{% endif %}</td>

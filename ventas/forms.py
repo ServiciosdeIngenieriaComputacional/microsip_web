@@ -18,7 +18,7 @@ class InformacionContableManageForm(forms.ModelForm):
 class GenerarPolizasManageForm(forms.Form):
 	fecha_ini 				= forms.DateField()
 	fecha_fin 				= forms.DateField()
-	ignorar_facturas_cont 	= forms.BooleanField(required=False, initial=True)
+	ignorar_documentos_cont 	= forms.BooleanField(required=False, initial=True)
 	CREAR_POR = (
 	    ('Documento', 'Documento'),
 	    ('Dia', 'Dia'),
@@ -26,7 +26,7 @@ class GenerarPolizasManageForm(forms.Form):
 	)
 	crear_polizas_por 		= forms.ChoiceField(choices=CREAR_POR)
 
-	plantilla 	= forms.ModelChoiceField(queryset= PlantillaPolizas_V.objects.filter(tipo='F'), required=True)
+	plantilla 	= forms.ModelChoiceField(queryset= PlantillaPolizas_V.objects.filter(tipo='F'), required=False)
 	plantilla_2 = forms.ModelChoiceField(queryset= PlantillaPolizas_V.objects.filter(tipo='D'), required=False)
 	descripcion = forms.CharField(max_length=100, required=False)
 
@@ -43,7 +43,11 @@ class PlantillaPolizaManageForm(forms.ModelForm):
 		model = PlantillaPolizas_V
 
 class ConceptoPlantillaPolizaManageForm(forms.ModelForm):
-	cuenta_co = forms.ModelChoiceField(queryset=CuentaCo.objects.all().order_by('cuenta'), required=True)
+	posicion  		=  forms.RegexField(regex=r'^(?:\+|-)?\d+$', widget=forms.TextInput(attrs={'class':'span1'}), required= False)
+	cuenta_co 		= forms.ModelChoiceField(queryset=CuentaCo.objects.all().order_by('cuenta'), required=True)
+	asiento_ingora 	= forms.RegexField(regex=r'^(?:\+|-)?\d+$', widget=forms.TextInput(attrs={'class':'span1'}), required= False)
+
+	
 	class Meta:
 		model = DetallePlantillaPolizas_V
 

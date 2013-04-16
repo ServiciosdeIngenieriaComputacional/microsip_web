@@ -9,6 +9,7 @@ class DoctoVe(models.Model):
     fecha           = models.DateField(db_column='FECHA')
     contabilizado   = models.CharField(default='N', max_length=1, db_column='CONTABILIZADO')
     cliente         = models.ForeignKey(Cliente, db_column='CLIENTE_ID')
+    descripcion         = models.CharField(blank=True, null=True, max_length=200, db_column='DESCRIPCION')
     tipo            = models.CharField(max_length=1, db_column='TIPO_DOCTO')
     importe_neto    = models.DecimalField(max_digits=15, decimal_places=2, db_column='IMPORTE_NETO')
     total_impuestos = models.DecimalField(max_digits=15, decimal_places=2, db_column='TOTAL_IMPUESTOS')
@@ -102,13 +103,20 @@ class DetallePlantillaPolizas_V(models.Model):
         ('Descuentos', 'Descuentos'),
         ('Devoluciones','Devoluciones'),
         ('IVA', 'IVA'),
+        ('Segmento_1', 'Segmento 1'),
+        ('Segmento_2', 'Segmento 2'),
+        ('Segmento_3', 'Segmento 3'),
+        ('Segmento_4', 'Segmento 4'),
+        ('Segmento_5', 'Segmento 5'),
     )
     VALOR_IVA_TIPOS             = (('A', 'Ambos'),('I', 'Solo IVA'),('0', 'Solo 0%'),)
     VALOR_CONTADO_CREDITO_TIPOS = (('Ambos', 'Ambos'),('Contado', 'Contado'),('Credito', 'Credito'),)
 
+    posicion                = models.CharField(max_length=2)
     plantilla_poliza_v      = models.ForeignKey(PlantillaPolizas_V)
     cuenta_co               = models.ForeignKey(CuentaCo)
     tipo                    = models.CharField(max_length=2, choices=TIPOS, default='C')
+    asiento_ingora          = models.CharField(max_length=2, blank=True, null=True)
     valor_tipo              = models.CharField(max_length=20, choices=VALOR_TIPOS)
     valor_iva               = models.CharField(max_length=2, choices=VALOR_IVA_TIPOS, default='A')
     valor_contado_credito   = models.CharField(max_length=10, choices=VALOR_CONTADO_CREDITO_TIPOS, default='Ambos')

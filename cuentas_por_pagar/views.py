@@ -4,7 +4,7 @@ from django.http import HttpResponse, HttpResponseRedirect
 from django.template import RequestContext
 from inventarios.models import *
 from cuentas_por_pagar.forms import *
-from ventas.views import get_folio_poliza
+from main.views import get_folio_poliza
 import json
 from decimal import *
 
@@ -105,6 +105,7 @@ def get_totales_documento_cuentas(cuenta_contado = None, documento=None, concept
 		es_contado = False
 
 	importesDocto 		= ImportesDoctosCP.objects.filter(docto_cp=documento)[0]
+	
 	impuestos 			= importesDocto.total_impuestos * documento.tipo_cambio
 	importe_neto 		= importesDocto.importe_neto * documento.tipo_cambio
 	total 				= impuestos + importe_neto
@@ -254,8 +255,6 @@ def crear_polizas(documentos, depto_co, informacion_contable, msg, plantilla=Non
 	totales_cuentas 	= {}
 	
 	for documento_no, documento in enumerate(documentos):
-		
-
 		if documento.naturaleza_concepto == 'C':
 			es_contado = documento.condicion_pago == informacion_contable.condicion_pago_contado
 		else:
@@ -355,8 +354,6 @@ def crear_polizas(documentos, depto_co, informacion_contable, msg, plantilla=Non
 
  			DoctosCp.objects.filter(id=documento.id).update(contabilizado = 'S')
  	
- 		
-
  	if error == 0:
 		DoctoCo.objects.bulk_create(polizas)
 		DoctosCoDet.objects.bulk_create(detalles_polizas)

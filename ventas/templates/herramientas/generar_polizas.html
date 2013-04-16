@@ -13,6 +13,25 @@
   });
 
   $(document).ready(function() {
+      if ($('#id_crear_polizas_de').val() == 'FD')
+      {
+        $('#id_plantilla_2').show();
+        $('#id_plantilla').show(); 
+        Dajaxice.ventas.obtener_plantillas(cargar_plantillas_1, {'tipo_plantilla': 'F'});
+        Dajaxice.ventas.obtener_plantillas(cargar_plantillas_2, {'tipo_plantilla': 'D'});
+      }
+      else if ($('#id_crear_polizas_de').val() == 'D')
+      {
+        $('#id_plantilla_2').show(); 
+        $('#id_plantilla').hide(); 
+      } 
+      else
+      {
+        $('#id_plantilla_2').hide(); 
+        $('#id_plantilla').show(); 
+        Dajaxice.ventas.obtener_plantillas(cargar_plantillas_1, {'tipo_plantilla': $('#id_crear_polizas_de').val()});
+      }
+        
       $('#id_crear_polizas_de').change(function(event){
         if ($('#id_crear_polizas_de').val() == 'FD')
         {
@@ -105,9 +124,9 @@
       </div>
     </div>
     <div class="span4">
-      <label>Ignorar Facturas Contabilizadas</label>
+      <label>Ignorar Documentos Contabilizadas</label>
       <div class="input-prepend input-append">
-        {{ form.ignorar_facturas_cont }}
+        {{ form.ignorar_documentos_cont }}
       </div>
     </div>
      <div class="span4" style='clear:both;'>
@@ -127,26 +146,17 @@
   <hr >
 </form>
 
-{% if facturas %}
+{% if documentos %}
 <table class="table tableCell table-hover">
     <tr>
       	<th>FOLIO</th>
-      	<th>TOTAL</th>
-      	<th>VENTAS_0</th>
-      	<th>VENTAS_16</th>
-      	<th>IVA TRANSALDADO</th>
     </tr>
-	{% for factura in facturas %}
+	{% for documento in documentos %}
 	<tr>
-	  	<td>{{ factura.folio }}</td>
-	  	<td>{{ factura.total }}</td>
-	  	<td>{{ factura.ventas_0 }}</td>
-	  	<td>{{ factura.ventas_16 }}</td>
-	  	<td>{{ factura.impuesos }}</td>
+	  	<td>{{ documento.folio }}</td>
 	</tr>
 	{% endfor %}
 </table>
 {% endif %}
-
 
 {% endblock %}

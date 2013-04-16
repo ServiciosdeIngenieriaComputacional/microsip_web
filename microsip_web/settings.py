@@ -27,22 +27,25 @@ DATABASES = {
     # },
     'default': {
        'ENGINE': 'django.db.backends.firebird', # Add 'postgresql_psycopg2', 'mysql', 'sqlite3' or 'oracle'.
-        'NAME': 'C:\Microsip datos\ESSEX.fdb', # Or path to database file if using sqlite3.
+        #RAFISA
+        'NAME': 'C:\Microsip datos\RAFISA.fdb', # Or path to database file if using sqlite3.
+        #ESSEX
+        #'NAME': 'C:\Microsip datos\ESSEX.fdb', # Or path to database file if using sqlite3.
         'USER': 'SYSDBA',                      # Not used with sqlite3.
         'PASSWORD': 'masterkey',                  # Not used with sqlite3.
         'HOST': 'localhost',                      # Set to empty string for localhost. Not used with sqlite3.
         'PORT': '3050',                      # Set to empty string for default. Not used with sqlite3.
         'OPTIONS' : {'charset':'ISO8859_1'},
     },
-    'db_chuy': {
-       'ENGINE': 'django.db.backends.firebird', # Add 'postgresql_psycopg2', 'mysql', 'sqlite3' or 'oracle'.
-        'NAME': 'C:\Microsip datos\ESSEX454.fdb', # Or path to database file if using sqlite3.
-        'USER': 'SYSDBA',                      # Not used with sqlite3.
-        'PASSWORD': 'masterkey',                  # Not used with sqlite3.
-        'HOST': 'cuenta.no-ip.org',                      # Set to empty string for localhost. Not used with sqlite3.
-        'PORT': '3050',                      # Set to empty string for default. Not used with sqlite3.
-        'OPTIONS' : {'charset':'ISO8859_1'},
-    },
+    # 'db_chuy': {
+    #    'ENGINE': 'django.db.backends.firebird', # Add 'postgresql_psycopg2', 'mysql', 'sqlite3' or 'oracle'.
+    #     'NAME': 'C:\Microsip datos\ESSEX454.fdb', # Or path to database file if using sqlite3.
+    #     'USER': 'SYSDBA',                      # Not used with sqlite3.
+    #     'PASSWORD': 'masterkey',                  # Not used with sqlite3.
+    #     'HOST': 'cuenta.no-ip.org',                      # Set to empty string for localhost. Not used with sqlite3.
+    #     'PORT': '3050',                      # Set to empty string for default. Not used with sqlite3.
+    #     'OPTIONS' : {'charset':'ISO8859_1'},
+    # },
 }
 
 # Local time zone for this installation. Choices can be found here:
