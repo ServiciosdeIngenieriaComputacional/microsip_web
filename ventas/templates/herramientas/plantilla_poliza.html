@@ -35,6 +35,11 @@ $(function() {
 
 
 $(document).ready(function() {
+  $( "input[name*='posicion']" ).each(function( index ) {
+   if($(this).val()=='')
+      $(this).val(index+1);
+  });
+
   $("select[name*='valor_tipo']").each(function()
   {
       if($(this).val() == "IVA" || $(this).val() == "Descuentos" || $(this).val() == "Devoluciones")  
@@ -58,6 +63,14 @@ $(document).ready(function() {
 
   });
 
+  
+  $("a[class*='btn-success']").click(function() {
+    $( "input[name*='posicion']" ).each(function( index ) {
+      if($(this).val()=='')
+        $(this).val(index+1);
+    });
+  });
+  
   $("select[name*='valor_tipo']").change(function()
   {
       if($(this).val() == "Segmento_1" || $(this).val() == "Segmento_2" || $(this).val() == "Segmento_3" || $(this).val() == "Segmento_4" || $(this).val() == "Segmento_5")

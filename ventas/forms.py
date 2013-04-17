@@ -43,7 +43,7 @@ class PlantillaPolizaManageForm(forms.ModelForm):
 		model = PlantillaPolizas_V
 
 class ConceptoPlantillaPolizaManageForm(forms.ModelForm):
-	posicion  		=  forms.RegexField(regex=r'^(?:\+|-)?\d+$', widget=forms.TextInput(attrs={'class':'span1'}), required= False)
+	posicion  		=  forms.RegexField(regex=r'^(?:\+|-)?\d+$', widget=forms.TextInput(attrs={'class':'span1',}), required= True)
 	cuenta_co 		= forms.ModelChoiceField(queryset=CuentaCo.objects.all().order_by('cuenta'), required=True)
 	asiento_ingora 	= forms.RegexField(regex=r'^(?:\+|-)?\d+$', widget=forms.TextInput(attrs={'class':'span1'}), required= False)
 
