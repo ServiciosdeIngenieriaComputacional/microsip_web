@@ -143,10 +143,11 @@
     </div>
   </div>
   <br style='clear:both;'>
-  <hr >
 </form>
 
 {% if documentos %}
+Se generaron las siguientes polizas
+<hr >
 <table class="table tableCell table-hover">
     <tr>
       	<th>FOLIO</th>
@@ -158,5 +159,20 @@
 	{% endfor %}
 </table>
 {% endif %}
+{% if polizas_de_devoluciones %}
+Se generaron las siguientes polizas
+<hr >
+<table class="table tableCell table-hover">
+    <tr>
+        <th>FOLIO</th>
+    </tr>
+  {% for documento in polizas_de_devoluciones %}
+  <tr>
+      <td>{{ documento.folio }}</td>
+  </tr>
+  {% endfor %}
+</table>
+{% endif %}
+
 
 {% endblock %}

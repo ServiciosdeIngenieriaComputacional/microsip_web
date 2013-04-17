@@ -351,6 +351,7 @@ def generar_polizas(fecha_ini=None, fecha_fin=None, ignorar_documentos_cont=True
 	msg		= ''
 	documentosData = []
 	documentosGenerados = []
+	documentosDataDevoluciones = []
 	
 	try:
 		informacion_contable = InformacionContable_V.objects.all()[:1]
@@ -373,7 +374,7 @@ def generar_polizas(fecha_ini=None, fecha_fin=None, ignorar_documentos_cont=True
 				facturas 			= DoctoVe.objects.filter(Q(estado='N')|Q(estado='D'), tipo ='F', fecha__gte=fecha_ini, fecha__lte=fecha_fin).order_by('fecha')[:99]
 			elif crear_polizas_de 	== 'D' or crear_polizas_de 	== 'FD':
 				devoluciones 		= DoctoVe.objects.filter(estado = 'N').filter(tipo 	= 'D', fecha__gte=fecha_ini, fecha__lte=fecha_fin).order_by('fecha')[:99]
-			
+		
 		#PREFIJO
 		prefijo = informacion_contable.tipo_poliza_ve.prefijo
 		if not informacion_contable.tipo_poliza_ve.prefijo:
@@ -383,18 +384,17 @@ def generar_polizas(fecha_ini=None, fecha_fin=None, ignorar_documentos_cont=True
 			documentosData, msg = crear_polizas(facturas, informacion_contable.depto_general_cont, informacion_contable, msg, plantilla_facturas, descripcion, crear_polizas_por, crear_polizas_de, 'F')
 			documentosGenerados = documentosData
 		if crear_polizas_de 	== 'D' or crear_polizas_de 	== 'FD':
-			documentosData, msg = crear_polizas(devoluciones, informacion_contable.depto_general_cont, informacion_contable, msg, plantilla_devoluciones, descripcion, crear_polizas_por, crear_polizas_de, 'D')
-			if not documentosData == []:
-				documentosGenerados.append(documentosData)	
+			documentosDataDevoluciones, msg = crear_polizas(devoluciones, informacion_contable.depto_general_cont, informacion_contable, msg, plantilla_devoluciones, descripcion, crear_polizas_por, crear_polizas_de, 'D')
 
 	elif error == 1 and msg=='':
 		msg = 'No se han derfinido las preferencias de la empresa para generar polizas [Por favor definelas primero en Configuracion > Preferencias de la empresa]'
 	
-	return documentosGenerados, msg
+	return documentosGenerados, documentosDataDevoluciones, msg
 
 @login_required(login_url='/login/')
 def facturas_View(request, template_name='herramientas/generar_polizas.html'):
 	documentosData = []
+	polizas_de_devoluciones = []
 	msg 			= ''
 
 	if request.method == 'POST':
@@ -411,17 +411,23 @@ def facturas_View(request, template_name='herramientas/generar_polizas.html'):
 			descripcion 			= form.cleaned_data['descripcion']
 			if (crear_polizas_de == 'F' and not plantilla_facturas== None) or (crear_polizas_de == 'D' and not plantilla_devoluciones== None) or (crear_polizas_de == 'FD' and not plantilla_facturas== None and not plantilla_devoluciones== None):
 				msg = 'es valido'
-				documentosData, msg = generar_polizas(fecha_ini, fecha_fin, ignorar_documentos_cont, crear_polizas_por, crear_polizas_de, plantilla_facturas, plantilla_devoluciones, descripcion)
+				documentosData, polizas_de_devoluciones, msg = generar_polizas(fecha_ini, fecha_fin, ignorar_documentos_cont, crear_polizas_por, crear_polizas_de, plantilla_facturas, plantilla_devoluciones, descripcion)
 			else:
 				error =1
 				msg = 'Seleciona una plantilla'
+
+			if (crear_polizas_de == 'F' or crear_polizas_de=='FD') and documentosData == []:
+				msg = 'Lo siento, no se encontraron facturas para este filtro'
+			elif (crear_polizas_de == 'D' or crear_polizas_de=='FD') and polizas_de_devoluciones == []:
+				msg = 'Lo siento, no se encontraron devoluciones para este filtro'
+			
+			if crear_polizas_de == 'FD' and documentosData == [] and polizas_de_devoluciones == []:
+				msg = 'Lo siento, no se encontraron facturas ni devoluciones para este filtro'
+			
 	else:
 		form = GenerarPolizasManageForm()
 	
-	if documentosData == []:
-		msg = 'Lo siento, no se encontraron resultados para este filtro'
-
-	c = {'documentos':documentosData,'msg':msg,'form':form,}
+	c = {'documentos':documentosData, 'polizas_de_devoluciones':polizas_de_devoluciones,'msg':msg,'form':form,}
 	return render_to_response(template_name, c, context_instance=RequestContext(request))
 
 @login_required(login_url='/login/')
